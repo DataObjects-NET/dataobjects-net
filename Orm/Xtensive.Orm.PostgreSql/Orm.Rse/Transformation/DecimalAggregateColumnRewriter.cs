@@ -6,11 +6,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Orm.Model;
+using Xtensive.Orm.Rse;
 using Xtensive.Orm.Rse.Providers;
-using Xtensive.Reflection;
+using Xtensive.Orm.Rse.Transformation;
+using AggregateColumnDescriptor = Xtensive.Orm.Rse.AggregateColumnDescriptor;
 
-
-namespace Xtensive.Orm.Rse.Transformation
+namespace Xtensive.Orm.PostgreSql.Rse.Transformation
 {
   internal sealed class DecimalAggregateColumnRewriter : CompilableProviderVisitor
   {
@@ -42,7 +43,7 @@ namespace Xtensive.Orm.Rse.Transformation
 
           var hints = TryGuessDecimalPrecisionAndSclale(aggregatedColumn, source);
           if (hints.HasValue) {
-            newDescriptors[i] = new AggregateColumnDescriptor(originDescriptor.Name, originDescriptor.SourceIndex, originDescriptor.AggregateType, hints.Value);
+            newDescriptors[i] = new PgSqlAggregateColumnDesrciptor(originDescriptor.Name, originDescriptor.SourceIndex, originDescriptor.AggregateType, hints.Value);
             shouldUseNewProvider = true;
             continue;
           }

@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
 using Xtensive.Orm.Rse.Compilation;
-using Xtensive.Orm.Rse.Transformation;
+using Xtensive.Orm.PostgreSql.Rse.Transformation;
 
 namespace Xtensive.Orm.Providers.PostgreSql
 {
@@ -18,11 +18,13 @@ namespace Xtensive.Orm.Providers.PostgreSql
   /// </summary>
   public class DomainHandler : Providers.DomainHandler
   {
+    private bool? hasNativeTrimOfInsignificantZerosInDecimals;
+
     /// <summary>
     /// <see langword="true"/> if storage can trim insignificant zeros in numeric values
     /// </summary>
     protected bool HasNativeTrimOfInsignificantZerosInDecimals =>
-      Handlers.ProviderInfo.StorageVersion.Major >= 13;
+      hasNativeTrimOfInsignificantZerosInDecimals ??= Handlers.ProviderInfo.StorageVersion.Major >= 13;
 
     /// <inheritdoc/>
     protected override ICompiler CreateCompiler(CompilerConfiguration configuration) =>

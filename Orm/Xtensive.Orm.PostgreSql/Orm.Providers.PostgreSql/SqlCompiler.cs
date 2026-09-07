@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
+using Xtensive.Orm.PostgreSql.Rse;
 using Xtensive.Orm.Rse;
 using Xtensive.Orm.Rse.Compilation;
 using Xtensive.Orm.Rse.Providers;
@@ -50,16 +51,6 @@ namespace Xtensive.Orm.Providers.PostgreSql
       return CreateProvider(select, binding, provider);
     }
 
-    //protected override SqlExpression ProcessAggregate(SqlProvider source, List<SqlExpression> sourceColumns, AggregateColumn aggregateColumn)
-    //{
-    //  var result = base.ProcessAggregate(source, sourceColumns, aggregateColumn);
-    //  if (aggregateColumn.AggregateType == AggregateType.Sum || aggregateColumn.AggregateType == AggregateType.Avg) {
-    //    result = SqlDml.Cast(result, Driver.MapValueType(aggregateColumn.Type));
-    //  }
-
-    //  return result;
-    //}
-
     protected override SqlExpression ProcessAggregate(SqlProvider source, List<SqlExpression> sourceColumns, AggregateColumn aggregateColumn)
     {
       var result = base.ProcessAggregate(source, sourceColumns, aggregateColumn);
@@ -84,10 +75,13 @@ namespace Xtensive.Orm.Providers.PostgreSql
         // Official answer of the Npgsql team is to either cast to DECIMAL with proper parameters or read all parameters as
         // strings and then convert :-)
         // Reading strings is not an option so we try to tell fortunes in a teacup :-(
-        var resultType = (!TryAdjustPrecisionScale(aggregateColumn.Descriptor.DecimalParametersHint, aggregateType, out var newPrecision, out var newScale))
-          ? Driver.MapValueType(aggregateColumn.Type)
-          : Driver.MapValueType(aggregateColumn.Type, null, newPrecision, newScale);
-        return SqlDml.Cast(result, resultType);
+        if (aggregateColumn.Descriptor is PgSqlAggregateColumnDesrciptor pgDesrciptor
+          && TryAdjustPrecisionScale(pgDesrciptor.DecimalParametersHint, aggregateType, out var newPrecision, out var newScale)) {
+          return SqlDml.Cast(result, Driver.MapValueType(aggregateColumn.Type, null, newPrecision, newScale));
+        }
+        else {
+          return SqlDml.Cast(result, Driver.MapValueType(aggregateColumn.Type));
+        }
       }
       else if (aggregateType != AggregateType.Count) {
         result = SqlDml.Cast(result, Driver.MapValueType(aggregateColumn.Type));

@@ -6,13 +6,13 @@ using Xtensive.Orm.Model;
 using Xtensive.Orm.Rse.Compilation;
 using Xtensive.Orm.Rse.Providers;
 
-namespace Xtensive.Orm.Rse.Transformation
+namespace Xtensive.Orm.PostgreSql.Rse.Transformation
 {
   /// <summary>
   /// Corrects <see cref="AggregateProvider"/>'s columns of <see cref="decimal"/> type
   /// by adding information about desirable precision and scale (if such info successfully gathered).
   /// </summary>
-  public sealed class AggregateOverDecimalColumnCorrector : IPreCompiler
+  internal sealed class AggregateOverDecimalColumnCorrector : IPreCompiler
   {
     private readonly DomainModel domainModel;
 
