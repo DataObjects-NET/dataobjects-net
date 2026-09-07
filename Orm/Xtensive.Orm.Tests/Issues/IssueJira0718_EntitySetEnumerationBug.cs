@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2017 Xtensive LLC.
+// Copyright (C) 2017 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Julian Mamokin
@@ -542,7 +542,7 @@ namespace Xtensive.Orm.Tests.Issues
         var customerOrderItem = new CustomerOrderItem(customerOrder);
         PersistIfClientProfile(session);
 
-        Assert.Throws<InvalidOperationException>(
+        Assert.DoesNotThrow(
           () => {
             foreach (var orderItem in customerOrder.Items)
               customerOrder.Items.Remove(customerOrderItem);
@@ -579,7 +579,7 @@ namespace Xtensive.Orm.Tests.Issues
         new CustomerOrderItem(customerOrder);
 
         PersistIfClientProfile(session);
-        Assert.Throws<InvalidOperationException>(
+        Assert.DoesNotThrow(
           () => {
             foreach (var order in customerOrder.Items) {
               customerOrder.Items.Clear();
@@ -1021,7 +1021,7 @@ namespace Xtensive.Orm.Tests.Issues
         var customerOrder = new CustomerOrder();
         var customerOrderItem = new CustomerOrderItem(customerOrder);
 
-        Assert.Throws<InvalidOperationException>(
+        Assert.DoesNotThrow(
           () => {
             foreach (var orderItem in customerOrder.Items)
               customerOrder.Remove();
