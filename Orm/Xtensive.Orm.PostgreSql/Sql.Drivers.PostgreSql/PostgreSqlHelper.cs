@@ -44,11 +44,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql
 
       var days = timeSpan.Days;
       var timeTicks = ticks - (days * TimeSpan.TicksPerDay);
-#if NET7_0_OR_GREATER
-      var microseconds = timeTicks / TimeSpan.TicksPerMicrosecond;
-#else
-      var microseconds = timeTicks / 10L; // same as TimeSpan.TicksPerMicrosecond available in .NET7+
-#endif
+      var microseconds = timeTicks / 10L;
       // no months!
       return new NpgsqlInterval(0, days, microseconds);
     }
@@ -67,7 +63,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql
 
       var ticksOfDays = days * TimeSpan.TicksPerDay;
 
-      var overallTicks = ticksOfDays + (npgsqlInterval.Time * 10); //same as TimeSpan.TicksPerMicrosecond available in .NET7+
+      var overallTicks = ticksOfDays + (npgsqlInterval.Time * 10);
       return TimeSpan.FromTicks(overallTicks);
     }
 
