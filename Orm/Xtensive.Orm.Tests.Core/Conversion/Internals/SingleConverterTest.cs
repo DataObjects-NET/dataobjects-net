@@ -1,17 +1,16 @@
-﻿// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2008-2026 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Roman Churakov
 // Created:    2008.01.25
 
 using System;
+using System.Collections.Generic;
 using NUnit.Framework;
-using Xtensive.Orm.Tests;
 
 namespace Xtensive.Orm.Tests.Core.Conversion
 {
-  [TestFixture]
-  public class SingleConverterTest : ConverterTestBase
+  public class SingleConverterTest : ConverterTestBase<float>
   {
     private readonly float[] constants = {
       0x7FFFFFFFFFFF1234, 0, 123, 0x7F, 0xFF, 0x7FFFFFFF, -9223372036854714932,
@@ -20,62 +19,51 @@ namespace Xtensive.Orm.Tests.Core.Conversion
       2.14748366E+09f, 2.14748366E+11f, 2.14748366E+12f, 2.14748366E+13f, 2.14748366E+14f,
       2.14748366E+15f, 2.14748366E+16f, 2.14748366E+38f, 2.14748366E+37f
     };
-    private const int iterationCount = 100;
+    private readonly HashSet<Type> allowedTargetTypes = new() {
+      // strict conversions
+      typeof(string),
+      // rough coversions
+      typeof(bool),
+      typeof(byte),
+      typeof(sbyte),
+      typeof(short),
+      typeof(ushort),
+      typeof(int),
+      typeof(uint),
+      typeof(long),
+      typeof(ulong),
+      typeof(double),
+      typeof(decimal),
+      typeof(DateTime),
+      typeof(TimeOnly),
+      typeof(DateOnly),
+      typeof(TimeSpan),
+      typeof(char),
+    };
+
+    /// <inheritdoc/>
+    protected override float[] Constants => constants;
+
+    /// <inheritdoc/>
+    protected override HashSet<Type> AllowedTargetTypes => allowedTargetTypes;
 
     [Test]
-    public void StringTest()
+    public void AdditionalStringTest()
     {
       IInstanceGenerator<float> generator = InstanceGeneratorProvider.Default.GetInstanceGenerator<float>();
       Random random = RandomManager.CreateRandom(1, SeedVariatorType.CallingMethod);
-      for (int i = 0; i < iterationCount * 10000; i++)
+      for (int i = 0; i < IterationCount * 100; i++)
         OneValueTest<float, string>(generator.GetInstance(random), 1);
     }
 
     // Proves that float-to-double is a rough conversion.
     [Test]
-    public void DoubleTest()
+    public void AdditionalDoubleTest()
     {
       IInstanceGenerator<double > generator = InstanceGeneratorProvider.Default.GetInstanceGenerator<double>();
       Random random = RandomManager.CreateRandom(1, SeedVariatorType.CallingMethod);
-      for (int i = 0; i < iterationCount * 10000; i++)
+      for (int i = 0; i < IterationCount * 100; i++)
         OneValueTest<double, string>(generator.GetInstance(random), 1);
-    }
-
-    [Test]
-    public void CombinedTest()
-    {
-      foreach (float constant in constants)
-        OneValueTest<float, bool>(constant, iterationCount);
-      foreach (float constant in constants)
-        OneValueTest<float, byte>(constant, iterationCount);
-      foreach (float constant in constants)
-        OneValueTest<float, sbyte>(constant, iterationCount);
-      foreach (float constant in constants)
-        OneValueTest<float, short>(constant, iterationCount);
-      foreach (float constant in constants)
-        OneValueTest<float, ushort>(constant, iterationCount);
-      foreach (float constant in constants)
-        OneValueTest<float, int>(constant, iterationCount);
-      foreach (float constant in constants)
-        OneValueTest<float, uint>(constant, iterationCount);
-      foreach (float constant in constants)
-        OneValueTest<float, long>(constant, iterationCount);
-      foreach (float constant in constants)
-        OneValueTest<float, ulong>(constant, iterationCount);
-      foreach (float constant in constants)
-        OneValueTest<float, float>(constant, iterationCount);
-      foreach (float constant in constants)
-        OneValueTest<float, double>(constant, iterationCount);
-      foreach (float constant in constants)
-        OneValueTest<float, decimal>(constant, iterationCount);
-      foreach (float constant in constants)
-        OneValueTest<float, DateTime>(constant, iterationCount);
-      foreach (float constant in constants)
-        OneValueTest<float, Guid>(constant, iterationCount);
-      foreach (float constant in constants)
-        OneValueTest<float, string>(constant, iterationCount);
-      foreach (float constant in constants)
-        OneValueTest<float, char>(constant, iterationCount);
     }
   }
 }

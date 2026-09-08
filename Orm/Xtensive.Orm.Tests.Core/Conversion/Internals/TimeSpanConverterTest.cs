@@ -1,63 +1,50 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2008-2026 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Elena Vakhtina
 // Created:    2008.11.12
 
 using System;
-using System.Globalization;
+using System.Collections.Generic;
 using NUnit.Framework;
-using Xtensive.Orm.Tests;
 
 namespace Xtensive.Orm.Tests.Core.Conversion
 {
-  [TestFixture]
-  public class TimeSpanConverterTest : ConverterTestBase
+  public class TimeSpanConverterTest : ConverterTestBase<TimeSpan>
   {
-    private readonly TimeSpan[] constants = { new TimeSpan( 1 ),
-                               new TimeSpan( 10, 20, 30, 40, 50 ),
-                               new TimeSpan( 1111, 2222, 3333, 4444, 5555 ),
-                               TimeSpan.FromDays( 20.84745602 ),
-                               new TimeSpan(0x7FFFFFFF), new TimeSpan(223372036854714932),
-                               new TimeSpan(0xFFFF), new TimeSpan(3155378975999999999),
-                               TimeSpan.MinValue, TimeSpan.MaxValue};
-    private const int iterationCount = 100;
+    private readonly TimeSpan[] constants = new TimeSpan[] { new TimeSpan(1),
+      new TimeSpan(10, 20, 30, 40, 50),
+      new TimeSpan(1111, 2222, 3333, 4444, 5555),
+      TimeSpan.FromDays(20.84745602),
+      new TimeSpan(0x7FFFFFFF), new TimeSpan(223372036854714932),
+      new TimeSpan(0xFFFF), new TimeSpan(3155378975999999999),
+      TimeSpan.MinValue, TimeSpan.MaxValue
+    };
+    private readonly HashSet<Type> allowedTargetTypes = new HashSet<Type> {
+      // strict conversions
+      typeof(byte),
+      typeof(sbyte),
+      typeof(short),
+      typeof(ushort),
+      typeof(int),
+      typeof(uint),
+      typeof(long),
+      typeof(ulong),
+      typeof(decimal),
+      typeof(TimeOnly),
+      typeof(TimeSpan),
+      typeof(string),
+      // rough coversions
+      typeof(float),
+      typeof(double),
+      typeof(DateOnly),
+    };
 
-    [Test]
-    public void CombinedTest()
-    {
-      foreach (TimeSpan constant in constants)
-        OneValueTest<TimeSpan, bool>(constant, iterationCount);
-      foreach (TimeSpan constant in constants)
-        OneValueTest<TimeSpan, byte>(constant, iterationCount);
-      foreach (TimeSpan constant in constants)
-        OneValueTest<TimeSpan, sbyte>(constant, iterationCount);
-      foreach (TimeSpan constant in constants)
-        OneValueTest<TimeSpan, short>(constant, iterationCount);
-      foreach (TimeSpan constant in constants)
-        OneValueTest<TimeSpan, ushort>(constant, iterationCount);
-      foreach (TimeSpan constant in constants)
-        OneValueTest<TimeSpan, int>(constant, iterationCount);
-      foreach (TimeSpan constant in constants)
-        OneValueTest<TimeSpan, uint>(constant, iterationCount);
-      foreach (TimeSpan constant in constants)
-        OneValueTest<TimeSpan, long>(constant, iterationCount);
-      foreach (TimeSpan constant in constants)
-        OneValueTest<TimeSpan, ulong>(constant, iterationCount);
-      foreach (TimeSpan constant in constants)
-        OneValueTest<TimeSpan, float>(constant, iterationCount);
-      foreach (TimeSpan constant in constants)
-        OneValueTest<TimeSpan, double>(constant, iterationCount);
-      foreach (TimeSpan constant in constants)
-        OneValueTest<TimeSpan, decimal>(constant, iterationCount);
-      foreach (TimeSpan constant in constants)
-        OneValueTest<TimeSpan, TimeSpan>(constant, iterationCount);
-      foreach (TimeSpan constant in constants)
-        OneValueTest<TimeSpan, Guid>(constant, iterationCount);
-      foreach (TimeSpan constant in constants)
-        OneValueTest<TimeSpan, string>(constant, iterationCount);
-      foreach (TimeSpan constant in constants)
-        OneValueTest<TimeSpan, char>(constant, iterationCount);
-    }
+    /// <inheritdoc/>
+    protected override TimeSpan[] Constants => constants;
+
+    /// <inheritdoc/>
+    protected override HashSet<Type> AllowedTargetTypes => allowedTargetTypes;
+
   }
 }

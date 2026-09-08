@@ -15,7 +15,7 @@ using PropertyInfo=System.Reflection.PropertyInfo;
 
 namespace Xtensive.Orm.Tests.Core.Conversion
 {
-  [TestFixture]
+  [TestFixture(Category = "AdvancedTypeConverters")]
   public class ConverterTest : ConverterTestBase
   {
     private readonly IAdvancedConverterProvider provider = AdvancedConverterProvider.Default;
@@ -180,7 +180,8 @@ namespace Xtensive.Orm.Tests.Core.Conversion
             converter = getConverterMethod.Invoke(provider, null);
           }
           catch {
-            TestLog.Info($"Conversion from {typeFrom.GetShortName()} to {typeTo.GetShortName()} is not supported");
+            if (UseLog)
+              TestLog.Warning($"Conversion from {typeFrom.GetShortName()} to {typeTo.GetShortName()} is not supported");
           }
           if (converter!=null) {
             Type maskInterface = typeof (IAdvancedConverter<,>).MakeGenericType(new Type[] {typeFrom, typeTo});
@@ -190,7 +191,8 @@ namespace Xtensive.Orm.Tests.Core.Conversion
             foreach (Type type in foundInterfaces) {
               PropertyInfo propertyInfo = type.GetProperty("IsRough");
               bool isRough = (bool) propertyInfo.GetValue(converter, null);
-              TestLog.Info($"Conversion from {typeFrom.GetShortName()} to {typeTo.GetShortName()} is {(isRough ? "Rough" : "Strict")}");
+              if (UseLog)
+                TestLog.Info($"Conversion from {typeFrom.GetShortName()} to {typeTo.GetShortName()} is {(isRough ? "Rough" : "Strict")}");
             }
           }
         }
@@ -225,7 +227,7 @@ namespace Xtensive.Orm.Tests.Core.Conversion
       // Random test
       Action<object, int> nullableConverterTest =
         DelegateHelper.CreateDelegate<Action<object, int>>(this, GetType(),
-          "NullableConverterTest", fromNonNullableType, fromType, toType);
+          nameof(NullableConverterTest), fromNonNullableType, fromType, toType);
       nullableConverterTest.Invoke(advancedConverter, count);
 
       // Null test
