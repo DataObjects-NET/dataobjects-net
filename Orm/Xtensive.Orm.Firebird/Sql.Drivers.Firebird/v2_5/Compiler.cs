@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2003-2010 Xtensive LLC.
+// Copyright (C) 2003-2010 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Csaba Beer
@@ -74,45 +74,49 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
     /// <inheritdoc/>
     public override void Visit(SqlExtract node)
     {
-      switch (node.IntervalPart) {
-        case SqlIntervalPart.Day:
-          Visit(CastToLong(node.Operand / NanosecondsPerDay));
-          return;
-        case SqlIntervalPart.Hour:
-          Visit(CastToLong(node.Operand / (60 * 60 * NanosecondsPerSecond)) % 24);
-          return;
-        case SqlIntervalPart.Minute:
-          Visit(CastToLong(node.Operand / (60 * NanosecondsPerSecond)) % 60);
-          return;
-        case SqlIntervalPart.Second:
-          Visit(CastToLong(node.Operand / NanosecondsPerSecond) % 60);
-          return;
-        case SqlIntervalPart.Millisecond:
-          Visit(CastToLong(node.Operand / NanosecondsPerMillisecond) % MillisecondsPerSecond);
-          return;
-        case SqlIntervalPart.Nanosecond:
-          Visit(CastToLong(node.Operand));
-          return;
+      if (node.IsIntervalPart) {
+        switch (node.IntervalPart) {
+          case SqlIntervalPart.Day:
+            Visit(CastToLong(node.Operand / NanosecondsPerDay));
+            return;
+          case SqlIntervalPart.Hour:
+            Visit(CastToLong(node.Operand / (60 * 60 * NanosecondsPerSecond)) % 24);
+            return;
+          case SqlIntervalPart.Minute:
+            Visit(CastToLong(node.Operand / (60 * NanosecondsPerSecond)) % 60);
+            return;
+          case SqlIntervalPart.Second:
+            Visit(CastToLong(node.Operand / NanosecondsPerSecond) % 60);
+            return;
+          case SqlIntervalPart.Millisecond:
+            Visit(CastToLong(node.Operand / NanosecondsPerMillisecond) % MillisecondsPerSecond);
+            return;
+          case SqlIntervalPart.Nanosecond:
+            Visit(CastToLong(node.Operand));
+            return;
+        }
       }
-      switch (node.DateTimePart) {
-        case SqlDateTimePart.DayOfYear:
-          if (!case_SqlDateTimePart_DayOfYear) {
-            case_SqlDateTimePart_DayOfYear = true;
-            Visit(SqlDml.Add(node, SqlDml.Literal(1)));
-            case_SqlDateTimePart_DayOfYear = false;
-          }
-          else
-            base.Visit(node);
-          return;
-        case SqlDateTimePart.Second:
-          if (!case_SqlDateTimePart_Second) {
-            case_SqlDateTimePart_Second = true;
-            Visit(SqlDml.Truncate(node));
-            case_SqlDateTimePart_Second = false;
-          }
-          else
-            base.Visit(node);
-          return;
+      if (node.IsDateTimePart) {
+        switch (node.DateTimePart) {
+          case SqlDateTimePart.DayOfYear:
+            if (!case_SqlDateTimePart_DayOfYear) {
+              case_SqlDateTimePart_DayOfYear = true;
+              Visit(SqlDml.Add(node, SqlDml.Literal(1)));
+              case_SqlDateTimePart_DayOfYear = false;
+            }
+            else
+              base.Visit(node);
+            return;
+          case SqlDateTimePart.Second:
+            if (!case_SqlDateTimePart_Second) {
+              case_SqlDateTimePart_Second = true;
+              Visit(SqlDml.Truncate(node));
+              case_SqlDateTimePart_Second = false;
+            }
+            else
+              base.Visit(node);
+            return;
+        }
       }
       base.Visit(node);
     }

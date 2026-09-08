@@ -52,31 +52,33 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
 
     public override void Visit(SqlExtract node)
     {
-      switch (node.DateTimeOffsetPart) {
-        case SqlDateTimeOffsetPart.DayOfWeek:
-          Visit((DatePartWeekDay(node.Operand) + DateFirst + 6) % 7);
-          return;
-        case SqlDateTimeOffsetPart.TimeZoneHour:
-          Visit(DateTimeOffsetTimeZoneInMinutes(node.Operand) / 60);
-          return;
-        case SqlDateTimeOffsetPart.TimeZoneMinute:
-          Visit(DateTimeOffsetTimeZoneInMinutes(node.Operand) % 60);
-          return;
-        case SqlDateTimeOffsetPart.Date:
-          DateTimeOffsetTruncate(node.Operand).AcceptVisitor(this);
-          return;
-        case SqlDateTimeOffsetPart.DateTime:
-          DateTimeOffsetTruncateOffset(node.Operand).AcceptVisitor(this);
-          return;
-        case SqlDateTimeOffsetPart.LocalDateTime:
-          DateTimeOffsetToLocalDateTime(node.Operand).AcceptVisitor(this);
-          return;
-        case SqlDateTimeOffsetPart.UtcDateTime:
-          SqlDml.Cast(Switchoffset(node.Operand, UtcTimeZone), SqlType.DateTime).AcceptVisitor(this);
-          return;
-        case SqlDateTimeOffsetPart.Offset:
-          DateTimeOffsetPartOffset(node.Operand).AcceptVisitor(this);
-          return;
+      if (node.IsDateTimeOffsetPart) {
+        switch (node.DateTimeOffsetPart) {
+          case SqlDateTimeOffsetPart.DayOfWeek:
+            Visit((DatePartWeekDay(node.Operand) + DateFirst + 6) % 7);
+            return;
+          case SqlDateTimeOffsetPart.TimeZoneHour:
+            Visit(DateTimeOffsetTimeZoneInMinutes(node.Operand) / 60);
+            return;
+          case SqlDateTimeOffsetPart.TimeZoneMinute:
+            Visit(DateTimeOffsetTimeZoneInMinutes(node.Operand) % 60);
+            return;
+          case SqlDateTimeOffsetPart.Date:
+            DateTimeOffsetTruncate(node.Operand).AcceptVisitor(this);
+            return;
+          case SqlDateTimeOffsetPart.DateTime:
+            DateTimeOffsetTruncateOffset(node.Operand).AcceptVisitor(this);
+            return;
+          case SqlDateTimeOffsetPart.LocalDateTime:
+            DateTimeOffsetToLocalDateTime(node.Operand).AcceptVisitor(this);
+            return;
+          case SqlDateTimeOffsetPart.UtcDateTime:
+            SqlDml.Cast(Switchoffset(node.Operand, UtcTimeZone), SqlType.DateTime).AcceptVisitor(this);
+            return;
+          case SqlDateTimeOffsetPart.Offset:
+            DateTimeOffsetPartOffset(node.Operand).AcceptVisitor(this);
+            return;
+        }
       }
       base.Visit(node);
     }

@@ -12,20 +12,42 @@ namespace Xtensive.Sql.Dml
 {
   public class SqlExtract : SqlExpression
   {
-    public SqlDateTimePart DateTimePart { get; private set; }
-    public SqlDateTimeOffsetPart DateTimeOffsetPart { get; private set; }
-    public SqlIntervalPart IntervalPart { get; private set; }
+    private const int DateTimeTypeId = 3;
+    private const int DateTimeOffsetTypeId = 4;
+    private const int IntervalTypeId = 5;
+
+    private SqlDateTimeOffsetPart internalValue;
+    private int typeMarker;
+
+    public SqlDateTimePart DateTimePart =>
+      typeMarker == DateTimeTypeId ? internalValue.ToDateTimePartFast() : SqlDateTimePart.Nothing;
+
+    public SqlDateTimeOffsetPart DateTimeOffsetPart =>
+      typeMarker == DateTimeOffsetTypeId ? internalValue : SqlDateTimeOffsetPart.Nothing;
+
+    public SqlIntervalPart IntervalPart =>
+      typeMarker == IntervalTypeId ? internalValue.ToIntervalPartFast() : SqlIntervalPart.Nothing;
 
     public SqlExpression Operand { get; private set; }
+
+    public bool IsSecondExtraction =>
+      internalValue == SqlDateTimeOffsetPart.Second;
+    public bool IsMillisecondExtraction =>
+      internalValue == SqlDateTimeOffsetPart.Millisecond;
+
+    public bool IsDateTimeOffsetPart => typeMarker == DateTimeOffsetTypeId;
+
+    public bool IsDateTimePart => typeMarker == DateTimeTypeId;
+
+    public bool IsIntervalPart => typeMarker == IntervalTypeId;
 
     public override void ReplaceWith(SqlExpression expression)
     {
       ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
       ArgumentValidator.EnsureArgumentIs<SqlExtract>(expression, "expression");
       var replacingExpression = (SqlExtract) expression;
-      DateTimePart = replacingExpression.DateTimePart;
-      DateTimeOffsetPart = replacingExpression.DateTimeOffsetPart;
-      IntervalPart = replacingExpression.IntervalPart;
+      internalValue = replacingExpression.internalValue;
+      typeMarker = replacingExpression.typeMarker;
       Operand = replacingExpression.Operand;
     }
 
@@ -33,11 +55,8 @@ namespace Xtensive.Sql.Dml
     {
       if (context.NodeMapping.ContainsKey(this))
         return context.NodeMapping[this];
-      var clone = DateTimePart!=SqlDateTimePart.Nothing
-        ? new SqlExtract(DateTimePart, (SqlExpression) Operand.Clone(context))
-        : IntervalPart!=SqlIntervalPart.Nothing
-          ? new SqlExtract(IntervalPart, (SqlExpression) Operand.Clone(context))
-          : new SqlExtract(DateTimeOffsetPart, (SqlExpression) Operand.Clone(context));
+
+      var clone = new SqlExtract(this.internalValue, this.typeMarker, (SqlExpression)this.Operand.Clone(context));
       context.NodeMapping[this] = clone;
       return clone;
     }
@@ -52,27 +71,32 @@ namespace Xtensive.Sql.Dml
     internal SqlExtract(SqlDateTimePart dateTimePart, SqlExpression operand)
       : base(SqlNodeType.Extract)
     {
-      DateTimePart = dateTimePart;
-      DateTimeOffsetPart = SqlDateTimeOffsetPart.Nothing;
-      IntervalPart = SqlIntervalPart.Nothing;
+      internalValue = dateTimePart.ToDtoPartFast();
+      typeMarker = DateTimeTypeId;
       Operand = operand;
     }
 
     internal SqlExtract(SqlIntervalPart intervalPart, SqlExpression operand)
       : base(SqlNodeType.Extract)
     {
-      DateTimePart = SqlDateTimePart.Nothing;
-      DateTimeOffsetPart = SqlDateTimeOffsetPart.Nothing;
-      IntervalPart = intervalPart;
+      internalValue = intervalPart.ToDtoPartFast();
+      typeMarker = IntervalTypeId;
       Operand = operand;
     }
 
     public SqlExtract(SqlDateTimeOffsetPart dateTimeOffsetPart, SqlExpression operand)
       : base(SqlNodeType.Extract)
     {
-      DateTimePart = SqlDateTimePart.Nothing;
-      IntervalPart = SqlIntervalPart.Nothing;
-      DateTimeOffsetPart = dateTimeOffsetPart;
+      internalValue = dateTimeOffsetPart;
+      typeMarker = DateTimeOffsetTypeId;
+      Operand = operand;
+    }
+
+    private SqlExtract(SqlDateTimeOffsetPart internalValue, int typeMarker, SqlExpression operand)
+      : base(SqlNodeType.Extract)
+    {
+      this.internalValue = internalValue;
+      this.typeMarker = typeMarker;
       Operand = operand;
     }
   }

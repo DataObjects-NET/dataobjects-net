@@ -94,7 +94,7 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
     
     public override string Translate(SqlCompilerContext context, SqlExtract node, ExtractSection section)
     {
-      if (node.DateTimePart==SqlDateTimePart.Second || node.IntervalPart==SqlIntervalPart.Second)
+      if (node.IsSecondExtraction && !node.IsDateTimeOffsetPart)
         switch (section) {
         case ExtractSection.Entry:
           return "TRUNC(EXTRACT(";
@@ -104,7 +104,7 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
           return base.Translate(context, node, section);
         }
 
-      if (node.DateTimePart==SqlDateTimePart.Millisecond || node.IntervalPart==SqlIntervalPart.Millisecond)
+      if (node.IsMillisecondExtraction && !node.IsDateTimeOffsetPart)
         switch (section) {
         case ExtractSection.Entry:
           return "MOD(EXTRACT(";

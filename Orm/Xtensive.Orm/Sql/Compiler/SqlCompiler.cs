@@ -1624,9 +1624,9 @@ namespace Xtensive.Sql.Compiler
     {
       using (context.EnterScope(node)) {
         context.Output.AppendText(translator.Translate(context, node, ExtractSection.Entry));
-        var part = node.DateTimePart!=SqlDateTimePart.Nothing
+        var part = node.IsDateTimePart
           ? translator.Translate(node.DateTimePart)
-          : node.IntervalPart!=SqlIntervalPart.Nothing
+          : node.IsIntervalPart
             ? translator.Translate(node.IntervalPart)
             : translator.Translate(node.DateTimeOffsetPart);
         context.Output.AppendText(part);

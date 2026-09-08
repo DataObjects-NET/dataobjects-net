@@ -206,29 +206,31 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
     
     public override void Visit(SqlExtract node)
     {
-      if (node.DateTimePart==SqlDateTimePart.DayOfWeek) {
+      if (node.IsDateTimePart && node.DateTimePart==SqlDateTimePart.DayOfWeek) {
         Visit((DatePartWeekDay(node.Operand) + DateFirst + 6) % 7);
         return;
       }
-      switch (node.IntervalPart) {
-      case SqlIntervalPart.Day:
-        Visit(CastToLong(node.Operand / NanosecondsPerDay));
-        return;
-      case SqlIntervalPart.Hour:
-        Visit(CastToLong(node.Operand / (60 * 60 * NanosecondsPerSecond)) % 24);
-        return;
-      case SqlIntervalPart.Minute:
-        Visit(CastToLong(node.Operand / (60 * NanosecondsPerSecond)) % 60);
-        return;
-      case SqlIntervalPart.Second:
-        Visit(CastToLong(node.Operand / NanosecondsPerSecond) % 60);
-        return;
-      case SqlIntervalPart.Millisecond:
-        Visit(CastToLong(node.Operand / NanosecondsPerMillisecond) % MillisecondsPerSecond);
-        return;
-      case SqlIntervalPart.Nanosecond:
-        Visit(CastToLong(node.Operand));
-        return;
+      if (node.IsIntervalPart) {
+        switch (node.IntervalPart) {
+          case SqlIntervalPart.Day:
+            Visit(CastToLong(node.Operand / NanosecondsPerDay));
+            return;
+          case SqlIntervalPart.Hour:
+            Visit(CastToLong(node.Operand / (60 * 60 * NanosecondsPerSecond)) % 24);
+            return;
+          case SqlIntervalPart.Minute:
+            Visit(CastToLong(node.Operand / (60 * NanosecondsPerSecond)) % 60);
+            return;
+          case SqlIntervalPart.Second:
+            Visit(CastToLong(node.Operand / NanosecondsPerSecond) % 60);
+            return;
+          case SqlIntervalPart.Millisecond:
+            Visit(CastToLong(node.Operand / NanosecondsPerMillisecond) % MillisecondsPerSecond);
+            return;
+          case SqlIntervalPart.Nanosecond:
+            Visit(CastToLong(node.Operand));
+            return;
+        }
       }
       base.Visit(node);
     }
