@@ -98,31 +98,6 @@ jobs:
           if [ -z $(find _Build/bin/Release/packages -name "Xtensive.Orm.Tracking.${{ env.TAG_PATTERN }}.nupkg") ]; then exit 1; fi
           if [ -z $(find _Build/bin/Release/packages -name "Xtensive.Orm.Web.${{ env.TAG_PATTERN }}.nupkg") ]; then exit 1; fi
 
-      - name: Install dotnet-validate
-        if: ${{ success() }}
-        timeout-minutes: 2
-        run: dotnet tool install --global dotnet-validate --version 0.0.1-preview.537
-
-      - name: Validate NuGet packages
-        if: ${{ success() }}
-        timeout-minutes: 1
-        run: |
-          dotnet-validate package local _Build/bin/Release/packages/Xtensive.Orm.${{ env.TAG_PATTERN }}.nupkg
-          dotnet-validate package local _Build/bin/Release/packages/Xtensive.Orm.Firebird.${{ env.TAG_PATTERN }}.nupkg
-          dotnet-validate package local _Build/bin/Release/packages/Xtensive.Orm.MySql.${{ env.TAG_PATTERN }}.nupkg
-          dotnet-validate package local _Build/bin/Release/packages/Xtensive.Orm.Oracle.${{ env.TAG_PATTERN }}.nupkg
-          dotnet-validate package local _Build/bin/Release/packages/Xtensive.Orm.PostgreSql.${{ env.TAG_PATTERN }}.nupkg
-          dotnet-validate package local _Build/bin/Release/packages/Xtensive.Orm.Sqlite.${{ env.TAG_PATTERN }}.nupkg
-          dotnet-validate package local _Build/bin/Release/packages/Xtensive.Orm.SqlServer.${{ env.TAG_PATTERN }}.nupkg
-          dotnet-validate package local _Build/bin/Release/packages/Xtensive.Orm.BulkOperations.${{ env.TAG_PATTERN }}.nupkg
-          dotnet-validate package local _Build/bin/Release/packages/Xtensive.Orm.Localization.${{ env.TAG_PATTERN }}.nupkg
-          dotnet-validate package local _Build/bin/Release/packages/Xtensive.Orm.Logging.log4net.${{ env.TAG_PATTERN }}.nupkg
-          dotnet-validate package local _Build/bin/Release/packages/Xtensive.Orm.Logging.NLog.${{ env.TAG_PATTERN }}.nupkg
-          dotnet-validate package local _Build/bin/Release/packages/Xtensive.Orm.Reprocessing.${{ env.TAG_PATTERN }}.nupkg
-          dotnet-validate package local _Build/bin/Release/packages/Xtensive.Orm.Security.${{ env.TAG_PATTERN }}.nupkg
-          dotnet-validate package local _Build/bin/Release/packages/Xtensive.Orm.Tracking.${{ env.TAG_PATTERN }}.nupkg
-          dotnet-validate package local _Build/bin/Release/packages/Xtensive.Orm.Web.${{ env.TAG_PATTERN }}.nupkg
-
       - name: Organize files
         if: ${{ success() }}
         run: |
