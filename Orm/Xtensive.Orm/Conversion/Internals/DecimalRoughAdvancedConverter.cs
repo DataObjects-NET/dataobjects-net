@@ -21,6 +21,7 @@ namespace Xtensive.Conversion
     IAdvancedConverter<decimal, ulong>,
     IAdvancedConverter<decimal, float>,
     IAdvancedConverter<decimal, double>,
+    IAdvancedConverter<decimal, DateTimeOffset>,
     IAdvancedConverter<decimal, DateTime>,
     IAdvancedConverter<decimal, DateOnly>,
     IAdvancedConverter<decimal, TimeOnly>,
@@ -62,6 +63,9 @@ namespace Xtensive.Conversion
     /// <inheritdoc/>
     double IAdvancedConverter<decimal, double>.Convert(decimal value) => Convert.ToDouble(value);
 
+    /// <inheritdoc/>
+    DateTimeOffset IAdvancedConverter<decimal, DateTimeOffset>.Convert(decimal value)
+      => new DateTimeOffset(Convert.ToInt64(value), TimeSpan.Zero);
     /// <inheritdoc/>
     DateTime IAdvancedConverter<decimal, DateTime>.Convert(decimal value)
       => new DateTime(Convert.ToInt64(value) + baseDateTimeTicks, DateTimeKind.Utc);

@@ -23,6 +23,7 @@ namespace Xtensive.Conversion
     IAdvancedConverter<string, float>,
     IAdvancedConverter<string, double>,
     IAdvancedConverter<string, decimal>,
+    IAdvancedConverter<string, DateTimeOffset>,
     IAdvancedConverter<string, DateTime>,
     IAdvancedConverter<string, DateOnly>,
     IAdvancedConverter<string, TimeOnly>,
@@ -141,6 +142,17 @@ namespace Xtensive.Conversion
     decimal IAdvancedConverter<string, decimal>.Convert(string value)
     {
       return decimal.Parse(value, NumberStyles.Any, CultureInfo.InvariantCulture);
+    }
+
+    DateTimeOffset IAdvancedConverter<string, DateTimeOffset>.Convert(string value)
+    {
+      string[] strings = { "yyyy/MM/dd hh:mm:ss.fffffff tt zzz", "yyyy/MM/dd hh:mm:ss.fffffff ttzzz" };
+      try {
+        return DateTimeOffset.ParseExact(value, strings, CultureInfo.InvariantCulture, DateTimeStyles.AllowWhiteSpaces);
+      }
+      catch (FormatException) {
+        return DateTimeOffset.Parse(value, CultureInfo.InvariantCulture, DateTimeStyles.AllowWhiteSpaces);
+      }
     }
 
     DateTime IAdvancedConverter<string, DateTime>.Convert(string value)

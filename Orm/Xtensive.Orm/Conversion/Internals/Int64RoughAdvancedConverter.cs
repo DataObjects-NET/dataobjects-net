@@ -12,7 +12,8 @@ namespace Xtensive.Conversion
     RoughAdvancedConverterBase,
     IAdvancedConverter<long, bool>,
     IAdvancedConverter<long, float>,
-    IAdvancedConverter<long, double>
+    IAdvancedConverter<long, double>,
+    IAdvancedConverter<long, DateTimeOffset>
   {
     bool IAdvancedConverter<long, bool>.Convert(long value) => Convert.ToBoolean(value);
 
@@ -20,6 +21,7 @@ namespace Xtensive.Conversion
 
     double IAdvancedConverter<long, double>.Convert(long value) => Convert.ToDouble(value);
 
+    DateTimeOffset IAdvancedConverter<long, DateTimeOffset>.Convert(long value) => new DateTimeOffset(value, TimeSpan.Zero);
 
     // Constructors
 

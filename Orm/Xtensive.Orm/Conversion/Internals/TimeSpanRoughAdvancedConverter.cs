@@ -12,13 +12,16 @@ namespace Xtensive.Conversion
     RoughAdvancedConverterBase,
     IAdvancedConverter<TimeSpan, float>,
     IAdvancedConverter<TimeSpan, double>,
-    IAdvancedConverter<TimeSpan, DateOnly>
+    IAdvancedConverter<TimeSpan, DateOnly>,
+    IAdvancedConverter<TimeSpan, DateTimeOffset>
   {
     float IAdvancedConverter<TimeSpan, float>.Convert(TimeSpan value) => Convert.ToSingle(value.Ticks);
 
     double IAdvancedConverter<TimeSpan, double>.Convert(TimeSpan value) => Convert.ToDouble(value.Ticks);
 
     DateOnly IAdvancedConverter<TimeSpan, DateOnly>.Convert(TimeSpan value) => DateOnly.FromDayNumber((int) Math.Round(value.TotalDays));
+
+    DateTimeOffset IAdvancedConverter<TimeSpan, DateTimeOffset>.Convert(TimeSpan value) => new DateTimeOffset(value.Ticks, TimeSpan.Zero);
 
     // Constructors
 
