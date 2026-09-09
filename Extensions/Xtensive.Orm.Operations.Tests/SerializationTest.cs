@@ -8,9 +8,8 @@ using System.Linq;
 using System.Text.Json;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
-using Xtensive.Tuples;
 using Xtensive.Orm.Tests;
-using Xtensive.Serialization.Json;
+using Xtensive.Orm.Operations.Serialization.Json;
 using Xtensive.Orm.Operations.Tests.SerializationTestModel;
 
 
@@ -547,7 +546,7 @@ namespace Xtensive.Orm.Operations.Tests
       var jsonSerializerOptions = new JsonSerializerOptions() {
         WriteIndented = true,
       };
-      _ = jsonSerializerOptions.RegisterModelConverters(Domain);
+      _ = jsonSerializerOptions.AddOperationsConverters(Domain);
       return jsonSerializerOptions;
     }
   }

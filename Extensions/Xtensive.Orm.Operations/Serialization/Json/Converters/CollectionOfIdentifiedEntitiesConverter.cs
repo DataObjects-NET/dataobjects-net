@@ -6,8 +6,12 @@ using System.Text.Json.Serialization;
 
 namespace Xtensive.Orm.Operations.Serialization.Json
 {
-  internal sealed class CollectionOfIdentifiedEntitiesConverter : JsonConverter<IReadOnlyDictionary<string, Key>>
+  /// <summary>
+  /// Converter for collection of identified entities.
+  /// </summary>
+  public sealed class CollectionOfIdentifiedEntitiesConverter : JsonConverter<IReadOnlyDictionary<string, Key>>
   {
+    /// <inheritdoc/>
     public override IReadOnlyDictionary<string, Key> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
       var dictionary = JsonSerializer.Deserialize<Dictionary<string, Key>>(ref reader, options);
@@ -20,6 +24,7 @@ namespace Xtensive.Orm.Operations.Serialization.Json
       return dictionary.AsReadOnly();
     }
 
+    /// <inheritdoc/>
     public override void Write(Utf8JsonWriter writer, IReadOnlyDictionary<string, Key> value, JsonSerializerOptions options)
     {
       if (value == null) {

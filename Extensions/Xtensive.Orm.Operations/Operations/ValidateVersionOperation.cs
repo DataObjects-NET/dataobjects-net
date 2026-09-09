@@ -8,6 +8,7 @@ using System;
 using System.Text.Json.Serialization;
 using Xtensive.Core;
 using Xtensive.Orm.Operations.Interfaces;
+using Xtensive.Orm.Operations.Serialization.Json;
 
 namespace Xtensive.Orm.Operations
 {
@@ -21,6 +22,7 @@ namespace Xtensive.Orm.Operations
     /// Gets the original version of <see cref="Entity"/>.
     /// </summary>
     [JsonInclude]
+    [JsonConverter(typeof(VersionInfoConverter))]
     public VersionInfo Version { get; private set; }
 
     /// <inheritdoc/>

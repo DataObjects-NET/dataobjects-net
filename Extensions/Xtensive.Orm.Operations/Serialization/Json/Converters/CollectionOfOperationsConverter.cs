@@ -7,8 +7,12 @@ using System.Text.Json.Serialization;
 
 namespace Xtensive.Orm.Operations.Serialization.Json
 {
-  internal sealed class CollectionOfOperationsConverter : JsonConverter<IReadOnlyList<IOperation>>
+  /// <summary>
+  /// Converter for collection of operations.
+  /// </summary>
+  public sealed class CollectionOfOperationsConverter : JsonConverter<IReadOnlyList<IOperation>>
   {
+    /// <inheritdoc/>
     public override IReadOnlyList<IOperation> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
       var array = JsonSerializer.Deserialize<Operation[]>(ref reader, options);
@@ -20,6 +24,7 @@ namespace Xtensive.Orm.Operations.Serialization.Json
       return array.Cast<IOperation>().ToArray().AsReadOnly();
     }
 
+    /// <inheritdoc/>
     public override void Write(Utf8JsonWriter writer, IReadOnlyList<IOperation> value, JsonSerializerOptions options)
     {
       if (value == null) {
