@@ -35,6 +35,7 @@ namespace Xtensive.Orm.Tests.Core.Conversion
       // rough conversions
       typeof(float),
       typeof(double),
+      typeof(DateTimeOffset)
     };
 
 

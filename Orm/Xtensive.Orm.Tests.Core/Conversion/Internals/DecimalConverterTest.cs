@@ -33,6 +33,7 @@ namespace Xtensive.Orm.Tests.Core.Conversion
       typeof(ulong),
       typeof(float),
       typeof(double),
+      typeof(DateTimeOffset),
       typeof(DateTime),
       typeof(DateOnly),
       typeof(TimeOnly),

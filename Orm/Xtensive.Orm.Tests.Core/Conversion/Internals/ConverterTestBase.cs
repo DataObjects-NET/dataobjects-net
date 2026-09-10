@@ -224,6 +224,16 @@ namespace Xtensive.Orm.Tests.Core.Conversion
     }
 
     [Test]
+    public void DateTimeOffsetTest()
+    {
+      RequireConversionTo<DateTimeOffset>();
+
+      foreach (TFrom constant in Constants) {
+        OneValueTest<TFrom, DateTimeOffset>(constant, IterationCount);
+      }
+    }
+
+    [Test]
     public void DateTimeTest()
     {
       RequireConversionTo<DateTime>();

@@ -37,6 +37,7 @@ namespace Xtensive.Orm.Tests.Core.Conversion
       typeof(float),
       typeof(double),
       typeof(bool),
+      typeof(DateTimeOffset)
     };
 
     /// <inheritdoc/>

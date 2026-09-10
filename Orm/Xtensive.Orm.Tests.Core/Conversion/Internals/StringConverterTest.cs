@@ -22,6 +22,13 @@ namespace Xtensive.Orm.Tests.Core.Conversion
     };
     private readonly string[] guidConstants = { "12345678-9012-3456-78990-123456789022" };
     private readonly string[] booleanConstants = {"false", "FALSE", "true", "tRue"};
+    private readonly string[] dateTimeOffsetConstants = {
+      "0001/01/01 12:00:00.0000000 AM -03:00",
+      "9999/12/31 11:59:59.9999999 PM +03:00",
+      "2026/09/04 12:00:00.0000000 AM +01:00 ",
+      "2026/09/08 07:06:05.0000000 AM +02:50",
+      "2026/09/08 07:06:05.4433221 AM -02:50"
+    };
     private readonly string[] dateTimeConstants = {
       "0001/01/01 12:00:00.0000000 AM  ",
       "9999/12/31 11:59:59.9999999 PM  ",
@@ -83,6 +90,13 @@ namespace Xtensive.Orm.Tests.Core.Conversion
         OneValueTest<string, double>(constant, iterationCount);
       foreach (string constant in fractionalConstants)
         OneValueTest<string, decimal>(constant, iterationCount);
+    }
+
+    [Test]
+    public void DateTimeOffsetTest()
+    {
+      foreach (string constant in dateTimeOffsetConstants)
+        OneValueTest<string, DateTimeOffset>(constant, iterationCount);
     }
 
     [Test]

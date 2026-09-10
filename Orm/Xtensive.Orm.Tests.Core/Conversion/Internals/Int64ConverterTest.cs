@@ -35,7 +35,8 @@ namespace Xtensive.Orm.Tests.Core.Conversion
       // rough coversions
       typeof(bool),
       typeof(float),
-      typeof(double)
+      typeof(double),
+      typeof(DateTimeOffset)
     };
 
     /// <inheritdoc/>
