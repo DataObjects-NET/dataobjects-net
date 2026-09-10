@@ -390,6 +390,29 @@ namespace Xtensive.Reflection
               foundForType = currentForType;
               return result;
             }
+
+            // Trying to find non-generic variation of array converters
+            // e.g for byte[] search for ByteArrayAdvancedConverter instead of ArrayAdvancedConverter`1 by generics
+            if (currentForType.IsArray && genericArguments.Length == 1) {
+              var itemType = genericArguments[0];
+              if (itemType.IsPrimitive || (itemType.IsValueType && !itemType.IsGenericType)) {
+                var nonGenericArrayName = $"{itemType.Name}Array";
+                associateTypeName = AddSuffix($"{location.Second}.{nonGenericArrayName}", associateTypeSuffix);
+                suffix = CorrectGenericSuffix(associateTypeName, 0);
+                if (Activate(location.First, suffix, null, constructorParams) is T result1) {
+                  foundForType = currentForType;
+                  return result1;
+                }
+                nonGenericArrayName = $"ArrayOf{itemType.Name}";
+                associateTypeName = AddSuffix($"{location.Second}.{nonGenericArrayName}", associateTypeSuffix);
+                suffix = CorrectGenericSuffix(associateTypeName, 0);
+                if (Activate(location.First, suffix, null, constructorParams) is T result2) {
+                  foundForType = currentForType;
+                  return result2;
+                }
+
+              }
+            }
           }
         }
 

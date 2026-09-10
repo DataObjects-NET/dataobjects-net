@@ -49,8 +49,23 @@ namespace Xtensive.Orm.Tests.Core.Conversion
                   if (innerLogFlag)
                     TestLog.Info($"Conversion from {typeof(TFrom).GetShortName()} to {typeof(TTo).GetShortName()} is rough.");
                 }
-                else
-                  Assert.That(reconvertedValue, Is.EqualTo(value), "reconvertedValue");
+                else {
+                  if (typeof(TFrom).IsArray) {
+                    if (value is null) {
+                      Assert.That(reconvertedValue, Is.Null, "reconvertedValue");
+                    }
+
+                    var arrayValue = value as Array;
+                    var arrayReconverted = reconvertedValue as Array;
+                    Assert.That(arrayReconverted.Length, Is.EqualTo(arrayValue.Length));
+                    for(var j = 0; j < arrayValue.Length; j++) {
+                      Assert.That(arrayReconverted.GetValue(j), Is.EqualTo(arrayValue.GetValue(j)));
+                    }
+                  }
+                  else {
+                    Assert.That(reconvertedValue, Is.EqualTo(value), "reconvertedValue");
+                  }
+                }
               }
               catch (OverflowException e) {
                 if (innerLogFlag)
