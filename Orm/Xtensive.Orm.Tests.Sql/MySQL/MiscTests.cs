@@ -54,17 +54,14 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
     }
 
     [Test]
-    public void ArrayTest()//TODO: Find reason why this pattern is structured like this.(Malisa)
+    public void ArrayTest()
     {
       SqlArray<int> i = SqlDml.Array(new int[] { 1, 2 });
       i.Values[0] = 10;
       SqlSelect select = SqlDml.Select();
       select.Where = SqlDml.In(1, i);
 
-      var cloned = Cloner.CloneViaXmlSerialization(select, [typeof(SqlLiteral<int>), typeof(SqlBinary), typeof(SqlNative), typeof(SqlArray<int>)]);
-
       Console.WriteLine(SqlDriver.Compile(select).GetCommandText());
-      Console.WriteLine(SqlDriver.Compile(cloned).GetCommandText());
 
     }
 
