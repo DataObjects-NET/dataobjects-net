@@ -1,12 +1,20 @@
 [main] Switch to .NET8/.NET10-only support, nuget packages actualized
+[main] SerializableExpressions API moved to Xtensive.Orm.SerializableExpressions extension
+[main] Operations API moved to Xtensive.Orm.Operations extension, which is functionally the same. Only base types left in main library
+[main] Session.Operations property type changed to interface, real implementor of which is in Xtensive.Orm.Operations extension
+[main] By default, no operations registered nor registration scopes created, during Entity lifetime, which made Entites work faster
+[main] Entity, Persistent, EntitySet{T} types no longer support binary serialization. If serialization needed use DTOs as modern approach recommends
+[main] Removed all signs of obsolete binary serialization, like ISerializable or IDeserializationCallback usage
+[main] No type marked [Serializable] exists in the entire assembly typeset, due to no need for the types to be truly serializable and binary serialization obsolete
 [main] Removed obsolete member Values of SqlInsert type
 [main] Removed obsolete methods GetSingleConstructor/GetSingleConstructorOrDefault of TypeHelper type
 [main] Removed obsolete constant WellKnown.MaxNumberOfConditions, use DefaultMaxNumberOfConditions instead
 [main] Collections.Deque<T> collection as well as Collections.Interfaces.IDeque interface marked obsolete because there is no internal use
-[main] Operations API moved to Xtensive.Orm.Operations extension, which is functionally the same. Only base types left
-[main] SerializableExpressions API moved to Xtensive.Orm.SerializableExpressions extension.
-[main] Session.Operations property ty changed to interface, real implementor of which is in Xtensive.Orm.Operations extension
-[main] By default, no operations registered nor heavy registration scopes create, during Entity lifetime, which made Entites work faster
+[main] TupleUpdater marked [Obsolete] because it is not in use so will be removed.
+[main] ReferenceInfo struct became readonly, properties replaced with readonly fields
+[main] ColumnInfoRef properties replaced wth readonly fields
+[main] Improve domain model validation speed
+[main] Fixed Tuple.Format() method, which correctly works with DateOnly, TimeOnly, DateTimeOffset and byte[] values now
 [firebird] Switch to .NET8/.NET10-only support, nuget packages actualized
 [firebird] Support for Firebird 2.5 ended due to end-of-life state
 [mysql] Switch to .NET8/.NET10-only support, nuget packages actualized
@@ -19,12 +27,19 @@
 [bulkoperations] Switch to .NET8/.NET10-only support
 [localization] Switch to .NET8/.NET10-only support, nuget packages actualized
 [localization] Removed obsolete member of ConfigurationSection type
+[localization] All [Serializable] attribute usages eliminated because no reason for them to exist
 [logging.log4net] Switch to .NET8/.NET10-only support, nuget packages actualize
 [logging.NLog] Switch to .NET8/.NET10-only support, nuget packages actualized
+[operations] Made operations be JsonSerializer compatible.
+[operations] Created json-converters which can be added by calling AddOperationsConverters() extension method
 [reprocessing] Switch to .NET8/.NET10-only support, nuget packages actualized
 [reprocessing] Removed obsolete member of ConfigurationSection type
+[reprocessing] All [Serializable] attribute usages eliminated because no reason for them to exist
 [security] Switch to .NET8/.NET10-only support, nuget packages actualized
 [security] Removed obsolete member of ConfigurationSection type
+[security] All [Serializable] attribute usages eliminated because no reason for them to exist
+[serializable expressions] Made expressions JsonSerializer- and DataContractSerializer-compatible.
 [tracking] Switch to .NET8/.NET10-only support, nuget packages actualized
+[tracking] All [Serializable] attribute usages eliminated because no reason for them to exist
 [web] Switch to .NET8/.NET10-only support, nuget packages actualized
 [web] Project references actual shared libraries of the framework instead of stand-alone outdated packages
