@@ -18,8 +18,6 @@ namespace Xtensive.Orm.Operations
   /// </summary>
   public abstract class KeySetOperation : Operation
   {
-    private readonly IReadOnlyList<Key> keys;
-
     /// <inheritdoc/>
     [JsonIgnore]
     public override string Description {
@@ -33,10 +31,7 @@ namespace Xtensive.Orm.Operations
     /// Gets the key set.
     /// </summary>
     [JsonInclude]
-    public IReadOnlyList<Key> Keys {
-      get;
-      private set;
-     }
+    public IReadOnlyList<Key> Keys { get; }
 
     /// <inheritdoc/>
     protected override void PrepareSelf(OperationExecutionContext context)

@@ -38,9 +38,11 @@ namespace Xtensive.Orm.Operations.Serialization.Json
 
     private readonly Domain domain = domain;
 
+    /// <inheritdoc/>
     public override bool CanConvert(Type typeToConvert) =>
       typeToConvert.IsAssignableTo(typeof(Key));
 
+    /// <inheritdoc/>
     public override JsonConverter CreateConverter(Type typeToConvert, JsonSerializerOptions options)
     {
       // there might be implementation of per-type converters
