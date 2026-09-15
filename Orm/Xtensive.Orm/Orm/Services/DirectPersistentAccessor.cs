@@ -33,7 +33,7 @@ namespace Xtensive.Orm.Services
     public Entity CreateEntity(Type entityType)
     {
       using (Session.OpenSystemLogicOnlyRegion()) {
-        ArgumentValidator.EnsureArgumentNotNull(entityType, "entityType");
+        ArgumentNullException.ThrowIfNull(entityType);
         if (!WellKnownOrmTypes.Entity.IsAssignableFrom(entityType))
           throw new InvalidOperationException(
             string.Format(Strings.TypeXIsNotAnYDescendant, entityType, WellKnownOrmTypes.Entity));
@@ -52,8 +52,8 @@ namespace Xtensive.Orm.Services
     public Entity CreateEntity(Type entityType, Tuple tuple)
     {
       using (Session.OpenSystemLogicOnlyRegion()) {
-        ArgumentValidator.EnsureArgumentNotNull(entityType, "entityType");
-        ArgumentValidator.EnsureArgumentNotNull(tuple, "tuple");
+        ArgumentNullException.ThrowIfNull(entityType);
+        ArgumentNullException.ThrowIfNull(tuple);
         if (!WellKnownOrmTypes.Entity.IsAssignableFrom(entityType))
           throw new InvalidOperationException(
             string.Format(Strings.TypeXIsNotAnYDescendant, entityType, WellKnownOrmTypes.Entity));
@@ -73,7 +73,7 @@ namespace Xtensive.Orm.Services
     {
       using (Session.OpenSystemLogicOnlyRegion())
       {
-        ArgumentValidator.EnsureArgumentNotNull(key, "key");
+        ArgumentNullException.ThrowIfNull(key);
         if (key.TypeReference.Accuracy != TypeReferenceAccuracy.ExactType)
           throw new InvalidOperationException(string.Format(Strings.ExKeyXShouldHaveExactType, key));
         var entityType = key.TypeReference.Type;
@@ -102,7 +102,7 @@ namespace Xtensive.Orm.Services
     public Structure CreateStructure(Type structureType, Tuple structureData)
     {
       using (Session.OpenSystemLogicOnlyRegion()) {
-        ArgumentValidator.EnsureArgumentNotNull(structureType, "structureType");
+        ArgumentNullException.ThrowIfNull(structureType);
         if (!WellKnownOrmTypes.Structure.IsAssignableFrom(structureType)) {
           throw new InvalidOperationException(
             string.Format(Strings.TypeXIsNotAnYDescendant, structureType, WellKnownOrmTypes.Structure));
@@ -233,7 +233,7 @@ namespace Xtensive.Orm.Services
     public void Remove(Entity target)
     {
       using (Session.OpenSystemLogicOnlyRegion()) {
-        ArgumentValidator.EnsureArgumentNotNull(target, "target");
+        ArgumentNullException.ThrowIfNull(target);
         target.RemoveInternal(EntityRemoveReason.User);
       }
     }
@@ -249,8 +249,8 @@ namespace Xtensive.Orm.Services
     /// <param name="field">The field of persistent type.</param>
     protected static void ValidateArguments(Persistent target, FieldInfo field)
     {
-      ArgumentValidator.EnsureArgumentNotNull(target, "target");
-      ArgumentValidator.EnsureArgumentNotNull(field, "field");
+      ArgumentNullException.ThrowIfNull(target);
+      ArgumentNullException.ThrowIfNull(field);
       if (!target.TypeInfo.Fields.Contains(field))
         throw new InvalidOperationException(string.Format(
           Strings.ExTypeXDoesNotContainYField, target.TypeInfo.Name, field.Name));

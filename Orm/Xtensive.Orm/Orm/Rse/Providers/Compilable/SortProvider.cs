@@ -25,7 +25,6 @@ namespace Xtensive.Orm.Rse.Providers
     public SortProvider(CompilableProvider source, DirectionCollection<int> order)
       : base(ProviderType.Sort, source, order)
     {
-      Initialize();
     }
   }
 }

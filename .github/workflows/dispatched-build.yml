@@ -67,7 +67,12 @@ jobs:
        # it leads to detached HEAD, but we don't commit anything anyway
       - name: Manual commit checkout if required
         if: ${{ inputs.specific_sha != '' && github.reg_type == 'branch' }}
-        run: git checkout ${{ inputs.specific_sha }}       
+        run: git checkout ${{ inputs.specific_sha }}
+
+      - name: Setup .NET
+        if: ${{ success() }}
+        timeout-minutes: 2
+        uses: actions/setup-dotnet@v4
 
       - name: Build Orm
         if: ${{ success() }}

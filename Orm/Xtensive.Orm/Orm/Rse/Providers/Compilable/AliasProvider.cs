@@ -5,6 +5,9 @@
 // Created:    2008.07.03
 
 using System;
+using Xtensive.Collections;
+using Xtensive.Core;
+using Xtensive.Orm.Rse.Providers;
 
 namespace Xtensive.Orm.Rse.Providers
 {
@@ -16,10 +19,7 @@ namespace Xtensive.Orm.Rse.Providers
     /// <summary>
     /// Alias of the result.
     /// </summary>
-    public string Alias { get; private set; }
-
-    /// <inheritdoc/>
-    protected override RecordSetHeader BuildHeader() => base.BuildHeader().Alias(Alias);
+    public string Alias { get; }
 
     /// <inheritdoc/>
     protected override string ParametersToString() => Alias;
@@ -33,10 +33,9 @@ namespace Xtensive.Orm.Rse.Providers
     /// <param name="source">The <see cref="UnaryProvider.Source"/> property value.</param>
     /// <param name="alias">The <see cref="Alias"/> property value.</param>
     public AliasProvider(CompilableProvider source, string alias)
-      : base(ProviderType.Alias, source)
+      : base(ProviderType.Alias, source.Header.Alias(alias), source)
     {
       Alias = alias;
-      Initialize();
     }
   }
 }

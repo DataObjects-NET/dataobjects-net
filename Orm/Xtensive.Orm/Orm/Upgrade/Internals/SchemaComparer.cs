@@ -103,7 +103,7 @@ namespace Xtensive.Orm.Upgrade
           createTableActions.Cast<NodeAction>()
             .Concat(createColumnActions.Cast<NodeAction>())
             .Concat(columnTypeChangeActions.Cast<NodeAction>())
-            .ToList();
+            .ToArray(createTableActions.Count + createColumnActions.Count + columnTypeChangeActions.Count);
 
       return new SchemaComparisonResult(
         comparisonStatus, columnTypeChangeActions.Count > 0, isCompatibleInLegacyMode,

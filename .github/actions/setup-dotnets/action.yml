@@ -11,6 +11,11 @@ runs:
   using: "composite"
 
   steps:
+    # Use for build, ususally newer that one that runs the code.
+    # sometimes it has more coding features
+    - name: Setup global.json version
+      uses: actions/setup-dotnet@v4
+
     - name: Setup .NET 9 (if needed)
       if: ${{ contains(inputs.target_framework, '9.0') }}
       uses: actions/setup-dotnet@v4

@@ -70,7 +70,7 @@ namespace Xtensive.Orm.Tests.Core.Collections
         {
             var node = new Node<int>(1);
             var edge = new Edge<int>(node, node, 1);
-            var graph = new Graph<Node<int>, Edge<int>>(EnumerableUtils.One(node));
+            var graph = new Graph<Node<int>, Edge<int>>(Enumerable.Repeat(node, 1));
 
             var result = TopologicalSorter.Sort(graph, e => e.Source==e.Target);
       Assert.That(result.SortedNodes.Count, Is.EqualTo(1));

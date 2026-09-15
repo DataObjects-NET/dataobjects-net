@@ -39,7 +39,7 @@ namespace Xtensive.Orm.Providers
     /// <inheritdoc/>
     void IDirectSqlService.RegisterInitializationSql(string sql)
     {
-      ArgumentValidator.EnsureArgumentNotNull(sql, "sql");
+      ArgumentNullException.ThrowIfNull(sql);
       initializationSqlScripts.Add(sql);
     }
 

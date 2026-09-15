@@ -27,8 +27,8 @@ namespace Xtensive.Orm.Rse
     public static RecordSetReader GetRecordSetReader(
       this CompilableProvider provider, Session session, ParameterContext parameterContext)
     {
-      ArgumentValidator.EnsureArgumentNotNull(provider, nameof(provider));
-      ArgumentValidator.EnsureArgumentNotNull(session, nameof(session));
+      ArgumentNullException.ThrowIfNull(provider);
+      ArgumentNullException.ThrowIfNull(session);
       var executableProvider = session.Compile(provider);
       return executableProvider.GetRecordSetReader(session, parameterContext);
     }
@@ -40,8 +40,8 @@ namespace Xtensive.Orm.Rse
     /// <param name="session">The session.</param>
     public static long Count(this CompilableProvider provider, Session session)
     {
-      ArgumentValidator.EnsureArgumentNotNull(provider, nameof(provider));
-      ArgumentValidator.EnsureArgumentNotNull(session, nameof(session));
+      ArgumentNullException.ThrowIfNull(provider);
+      ArgumentNullException.ThrowIfNull(session);
       using var recordSetReader = provider
         .Aggregate(null, new AggregateColumnDescriptor("$Count", 0, AggregateType.Count))
         .GetRecordSetReader(session, new ParameterContext());

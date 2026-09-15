@@ -16,8 +16,7 @@ namespace Xtensive.Comparison
   {
     private readonly ConcurrentDictionary<(Type, Type, TypeComparer), int> results = new();
 
-    protected override IAdvancedComparer<Type> CreateNew(ComparisonRules rules)
-      => new TypeComparer(Provider, ComparisonRules.Combine(rules));
+    protected override TypeComparer CreateNew(ComparisonRules rules) => new TypeComparer(Provider, ComparisonRules.Combine(rules));
 
     public override int Compare(Type x, Type y)
     {

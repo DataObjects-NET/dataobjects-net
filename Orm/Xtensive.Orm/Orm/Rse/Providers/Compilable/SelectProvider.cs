@@ -22,12 +22,6 @@ namespace Xtensive.Orm.Rse.Providers
     public IReadOnlyList<int> ColumnIndexes { get; }
 
     /// <inheritdoc/>
-    protected override RecordSetHeader BuildHeader()
-    {
-      return base.BuildHeader().Select(ColumnIndexes);
-    }
-
-    /// <inheritdoc/>
     protected override string ParametersToString()
     {
       return Header.Columns.Select(c => c.Name).ToCommaDelimitedString();
@@ -40,21 +34,9 @@ namespace Xtensive.Orm.Rse.Providers
     ///   Initializes a new instance of this class.
     /// </summary>
     public SelectProvider(CompilableProvider provider, IReadOnlyList<int> columnIndexes)
-      : base(ProviderType.Select, provider)
+      : base(ProviderType.Select, provider.Header.Select(columnIndexes), provider)
     {
-      switch (columnIndexes) {
-        case int[] indexArray:
-          ColumnIndexes = Array.AsReadOnly(indexArray);
-          break;
-        case List<int> indexList:
-          ColumnIndexes = indexList.AsReadOnly();
-          break;
-        default:
-          ColumnIndexes = columnIndexes;
-          break;
-      }
-
-      Initialize();
+      ColumnIndexes = columnIndexes;
     }
   }
 }

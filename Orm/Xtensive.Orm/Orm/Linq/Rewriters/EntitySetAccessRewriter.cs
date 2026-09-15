@@ -26,7 +26,7 @@ namespace Xtensive.Orm.Linq.Rewriters
         return base.VisitMethodCall(mc);
 
       var method = mc.Method;
-      if (method.Name=="Contains" && mc.Object!=null) {
+      if (method.Name == Reflection.WellKnown.Queryable.Contains && mc.Object!=null) {
         var elementType = GetEntitySetElementType(mc.Object.Type);
         var actualMethod = WellKnownMembers.Queryable.Contains.CachedMakeGenericMethod(elementType);
         return Expression.Call(actualMethod, Visit(mc.Object), Visit(mc.Arguments[0]));

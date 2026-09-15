@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2014 Xtensive LLC.
+// Copyright (C) 2014 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Xtensive.Collections;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Upgrade;
 using Xtensive.Sql;
@@ -74,7 +75,7 @@ namespace Xtensive.Orm.Providers
       extractionTasks = configuration.MappingRules
         .Select(r => r.Schema)
         .Where(s => !string.IsNullOrEmpty(s))
-        .Concat(Enumerable.Repeat(configuration.DefaultSchema, 1))
+        .Append(configuration.DefaultSchema)
         .Distinct()
         .Select(s => new SqlExtractionTask(defaultSchemaInfo.Database, schemaMapping.Apply(s)))
         .ToList();

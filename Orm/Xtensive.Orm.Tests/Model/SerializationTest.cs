@@ -11,7 +11,6 @@ using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Model.Stored;
 using Xtensive.Orm.Tests.ObjectModel.ChinookDO;
-using Xtensive.Serialization.Json;
 
 namespace Xtensive.Orm.Tests.Model
 {

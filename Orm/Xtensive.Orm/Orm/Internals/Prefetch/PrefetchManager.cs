@@ -110,8 +110,8 @@ namespace Xtensive.Orm.Internals.Prefetch
     private async ValueTask<StrongReferenceContainer> Prefetch(
       Key key, TypeInfo type, IReadOnlyList<PrefetchFieldDescriptor> descriptors, bool isAsync, CancellationToken token)
     {
-      ArgumentValidator.EnsureArgumentNotNull(key, nameof(key));
-      ArgumentValidator.EnsureArgumentNotNull(descriptors, nameof(descriptors));
+      ArgumentNullException.ThrowIfNull(key);
+      ArgumentNullException.ThrowIfNull(descriptors);
 
       if (descriptors.Count == 0) {
         return null;
@@ -134,7 +134,7 @@ namespace Xtensive.Orm.Internals.Prefetch
           EnsureAllFieldsBelongToSpecifiedType(descriptors, currentType);
         }
         else {
-          ArgumentValidator.EnsureArgumentNotNull(currentType, "type");
+          ArgumentNullException.ThrowIfNull(currentType, "type");
           EnsureAllFieldsBelongToSpecifiedType(descriptors, currentType);
           _ = SetUpContainers(currentKey, currentKey.TypeReference.Type,
             PrefetchHelper.GetCachedDescriptorsForFieldsLoadedByDefault(session.Domain, currentKey.TypeReference.Type),
@@ -348,9 +348,7 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     public PrefetchManager(Session session)
     {
-      ArgumentValidator.EnsureArgumentNotNull(session, "session");
-
-      this.session = session;
+      this.session = session ?? throw new ArgumentNullException(nameof(session));
       fetcher = new Fetcher(this);
 
       columnsCache = new LruCache<RootContainerCacheKey, RootContainerCacheEntry>(

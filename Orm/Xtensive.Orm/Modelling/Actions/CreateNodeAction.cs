@@ -30,7 +30,7 @@ namespace Xtensive.Modelling.Actions
     public Type Type {
       get { return type; }
       set {
-        ArgumentValidator.EnsureArgumentNotNull(value, "value");
+        ArgumentNullException.ThrowIfNull(value);
         EnsureNotLocked();
         type = value;
       }
@@ -42,7 +42,7 @@ namespace Xtensive.Modelling.Actions
     public string Name {
       get { return name; }
       set {
-        ArgumentValidator.EnsureArgumentNotNullOrEmpty(value, "value");
+        ArgumentValidator.EnsureArgumentNotNullOrEmpty(value, nameof(value));
         EnsureNotLocked();
         name = value;
       }
@@ -79,7 +79,7 @@ namespace Xtensive.Modelling.Actions
     /// <exception cref="InvalidOperationException">Required constructor isn't found.</exception>
     protected override void PerformExecute(IModel model, IPathNode item)
     {
-      ArgumentValidator.EnsureArgumentNotNull(item, "item");
+      ArgumentNullException.ThrowIfNull(item);
       var parent = (Node) item;
       var node = TryConstructor(model, parent, name); // Regular node
       if (node is null)

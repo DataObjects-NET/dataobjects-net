@@ -10,8 +10,7 @@ namespace Xtensive.Comparison
 {
   internal sealed class UInt16Comparer : ValueTypeComparer<ushort>
   {
-    protected override IAdvancedComparer<ushort> CreateNew(ComparisonRules rules)
-      => new UInt16Comparer(Provider, ComparisonRules.Combine(rules));
+    protected override UInt16Comparer CreateNew(ComparisonRules rules) => new(Provider, ComparisonRules.Combine(rules));
 
 
     // Constructors

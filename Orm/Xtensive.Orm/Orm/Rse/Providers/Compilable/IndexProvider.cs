@@ -15,18 +15,10 @@ namespace Xtensive.Orm.Rse.Providers
   /// </summary>
   public sealed class IndexProvider : CompilableProvider
   {
-    private readonly RecordSetHeader indexHeader;
-
     /// <summary>
     /// Reference to the <see cref="IndexInfo"/> instance within the domain.
     /// </summary>
-    public IndexInfoRef Index { get; private set; }
-
-    /// <inheritdoc/>
-    protected override RecordSetHeader BuildHeader()
-    {
-      return indexHeader;
-    }
+    public IndexInfoRef Index { get; }
 
     /// <inheritdoc/>
     protected override string ParametersToString()
@@ -38,11 +30,9 @@ namespace Xtensive.Orm.Rse.Providers
     // Constructors
 
     public IndexProvider(IndexInfo index)
-      : base(ProviderType.Index)
+      : base(ProviderType.Index, index.GetRecordSetHeader())
     {
-      indexHeader = index.GetRecordSetHeader();
       Index = new IndexInfoRef(index);
-      Initialize();
     }
   }
 }

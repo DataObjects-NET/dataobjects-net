@@ -65,6 +65,11 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
+      - name: Setup .NET
+        if: ${{ success() }}
+        timeout-minutes: 2
+        uses: actions/setup-dotnet@v4
+
       - name: Build Orm
         if: ${{ success() }}
         run: dotnet build Orm.sln --configuration $BUILD_CONFIG

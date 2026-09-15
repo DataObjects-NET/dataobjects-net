@@ -4,6 +4,7 @@
 // Created by: Denis Krjuchkov
 // Created:    2012.02.16
 
+using System;
 using Xtensive.Core;
 using Xtensive.Reflection;
 
@@ -22,7 +23,7 @@ namespace Xtensive.Orm.Upgrade
 
     public TypeMetadata(int id, string name)
     {
-      ArgumentValidator.EnsureArgumentNotNull(name, "name");
+      ArgumentNullException.ThrowIfNull(name);
 
       Id = id;
       Name = name;

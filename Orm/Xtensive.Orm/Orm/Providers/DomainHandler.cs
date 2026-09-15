@@ -1,4 +1,4 @@
-// Copyright (C) 2003-2021 Xtensive LLC.
+// Copyright (C) 2003-2026 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
@@ -6,6 +6,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.Loader;
 using Xtensive.Core;
 using Xtensive.Orm.Building.Builders;
 using Xtensive.Orm.Linq.MemberCompilation;
@@ -20,8 +22,6 @@ namespace Xtensive.Orm.Providers
   /// </summary>
   public abstract class DomainHandler : DomainBoundHandler
   {
-    private static readonly OrderingCorrector OrderingCorrector = new OrderingCorrector(ResolveOrderingDescriptor);
-
     private Dictionary<Type, IMemberCompilerProvider> memberCompilerProviders;
 
     /// <summary>
@@ -91,16 +91,20 @@ namespace Xtensive.Orm.Providers
     {
       var providerInfo = Handlers.ProviderInfo;
 
-      var applyCorrector = new ApplyProviderCorrector(
-        !providerInfo.Supports(ProviderFeatures.Apply));
-      var skipTakeCorrector = new SkipTakeCorrector(
-        providerInfo.Supports(ProviderFeatures.NativeTake),
-        providerInfo.Supports(ProviderFeatures.NativeSkip));
+      var applyCorrector = providerInfo.Supports(ProviderFeatures.Apply)
+        ? ApplyProviderCorrector.SilentCorrector
+        : ApplyProviderCorrector.ExceptionThrowingCorrector;
+
+      var skipTakeCorrector = (providerInfo.Supports(ProviderFeatures.NativeTake | ProviderFeatures.NativeSkip))
+        ? SkipTakeCorrector.FullPaginationSupportCorrector
+        : new SkipTakeCorrector(providerInfo.Supports(ProviderFeatures.NativeTake),
+            providerInfo.Supports(ProviderFeatures.NativeSkip));
+
       return new CompositePreCompiler(
         applyCorrector,
         skipTakeCorrector,
         RedundantColumnOptimizer.Instance,
-        OrderingCorrector);
+        OrderingCorrector.DefaultInstance);
     }
 
     /// <summary>
@@ -123,7 +127,7 @@ namespace Xtensive.Orm.Providers
     /// <returns>Compiler containers for current provider.</returns>
     protected virtual IEnumerable<Type> GetProviderCompilerContainers()
     {
-      return new[] {
+      IEnumerable<Type> basicCompilerContainers = new[] {
         typeof (NullableCompilers),
         typeof (StringCompilers),
         typeof (DateTimeCompilers),
@@ -135,10 +139,30 @@ namespace Xtensive.Orm.Providers
         typeof (NumericCompilers),
         typeof (DecimalCompilers),
         typeof (GuidCompilers),
-        //typeof (VbStringsCompilers),
-        //typeof (VbDateAndTimeCompilers),
         typeof (EnumCompilers),
+        
       };
+      var result = basicCompilerContainers;
+      var allLoadedAssemblies = AssemblyLoadContext.All.SelectMany(static c => c.Assemblies);
+      // dynamic registration to not cause assembly loading
+      if (allLoadedAssemblies.Any(static a => a.GetName().Name.Equals("FSharp.Core", StringComparison.OrdinalIgnoreCase))) {
+        result = result.Concat(new[] {
+          typeof (FSharpMathOperationsCompilers),
+          typeof (FSharpOperatorsCompilers),
+          typeof (FSharpStringCompilers),
+          typeof (FSharpConversionsCompilers),
+        });
+      }
+
+      if (allLoadedAssemblies.Any(static a => a.GetName().Name.StartsWith("Microsoft.VisualBasic", StringComparison.OrdinalIgnoreCase))) {
+        result = result.Concat(new[] {
+          typeof (VbConversionsCompilers),
+          typeof (VbStringsCompilers),
+          typeof (VbDateAndTimeCompilers),
+        });
+      }
+
+      return result;
     }
 
     protected virtual SearchConditionCompiler CreateSearchConditionVisitor()
@@ -167,29 +191,6 @@ namespace Xtensive.Orm.Providers
       var unordered = Domain.Services.GetAll<IQueryPreprocessor>();
       var ordered = unordered.SortTopologically((first, second) => second.IsDependentOn(first));
       QueryPreprocessors = ordered ?? throw new InvalidOperationException(Strings.ExCyclicDependencyInQueryPreprocessorGraphIsDetected);
-    }
-
-    private static ProviderOrderingDescriptor ResolveOrderingDescriptor(CompilableProvider provider)
-    {
-      var isOrderSensitive = provider.Type is ProviderType.Skip
-        or ProviderType.Take
-        or ProviderType.Seek
-        or ProviderType.Paging
-        or ProviderType.RowNumber;
-      var preservesOrder = provider.Type is ProviderType.Skip
-        or ProviderType.Take
-        or ProviderType.Seek
-        or ProviderType.Paging
-        or ProviderType.RowNumber
-        or ProviderType.Distinct
-        or ProviderType.Alias;
-      var isOrderBreaker = provider.Type is ProviderType.Except
-        or ProviderType.Intersect
-        or ProviderType.Union
-        or ProviderType.Concat
-        or ProviderType.Existence;
-      var isSorter = provider.Type is ProviderType.Sort or ProviderType.Index;
-      return new ProviderOrderingDescriptor(isOrderSensitive, preservesOrder, isOrderBreaker, isSorter);
     }
 
     #endregion

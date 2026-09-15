@@ -32,6 +32,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v11_0
       }
       else {
         throw ValueNotOfTypeError(nameof(NpgsqlPolygon));
+
       }
     }
 

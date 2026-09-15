@@ -1,24 +1,21 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2008-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alex Yakunin
 // Created:    2008.06.05
 
 using System;
 using NUnit.Framework;
 using Xtensive.Comparison;
-using Xtensive.Core;
-using Xtensive.Tuples;
-using Xtensive.Orm.Tests;
 using Xtensive.Tuples.Transform;
-using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Tests.Core.Tuples.Transform
 {
   [TestFixture]
   public class MergeTransformTest
   {
-    public const int IterationCount = 1000000;
+    private const int IterationCount = 1_000_000;
+    private const int MeasurementRuns = 5;
 
     [Test]
     public void BaseTest()
@@ -27,8 +24,8 @@ namespace Xtensive.Orm.Tests.Core.Tuples.Transform
       Xtensive.Tuples.Tuple t2 = Xtensive.Tuples.Tuple.Create(3, 4.0, "5");
       TestLog.Info($"Originals: {t1}, {t2}");
 
-      CombineTransform mt   = new CombineTransform(false, t1.Descriptor, t2.Descriptor);
-      CombineTransform mtro = new CombineTransform(true,  t1.Descriptor, t2.Descriptor);
+      ConcatTransform mt   = new ConcatTransform(false, t1.Descriptor, t2.Descriptor);
+      ConcatTransform mtro = new ConcatTransform(true,  t1.Descriptor, t2.Descriptor);
 
       Xtensive.Tuples.Tuple wt1 = mt.Apply(TupleTransformType.TransformedTuple, t1, t2);
       TestLog.Info($"Wrapper:   {wt1}");
@@ -57,34 +54,27 @@ namespace Xtensive.Orm.Tests.Core.Tuples.Transform
       AssertEx.Throws<NotSupportedException>(delegate {
         wtro.SetValue(2, 0);
       });
+    }
 
-      CombineTransform mt3 = new CombineTransform(false, t1.Descriptor, t1.Descriptor, t1.Descriptor);
-      Xtensive.Tuples.Tuple wt3 = mt3.Apply(TupleTransformType.TransformedTuple, t1, t1, t1);
-      TestLog.Info($"Wrapper:   {wt3}");
-      Xtensive.Tuples.Tuple ct3 = mt3.Apply(TupleTransformType.Tuple, t1, t1, t1);
-      TestLog.Info($"Copy:      {ct3}");
-      t1.SetValue(0,0);
-      Assert.That(t1.GetValue(0), Is.EqualTo(wt3.GetValue(4)));
-      t1.SetValue(0,1);
+    [Test]
+    public void ToStringTest()
+    {
+      Xtensive.Tuples.Tuple t1 = Xtensive.Tuples.Tuple.Create(1, "2");
+      Xtensive.Tuples.Tuple t2 = Xtensive.Tuples.Tuple.Create(3, 4.0, "5");
 
-      CombineTransform mt4 = new CombineTransform(false, t1.Descriptor, t1.Descriptor, t1.Descriptor, t1.Descriptor);
-      Xtensive.Tuples.Tuple wt4 = mt4.Apply(TupleTransformType.TransformedTuple, t1, t1, t1, t1);
-      TestLog.Info($"Wrapper:   {wt4}");
-      Xtensive.Tuples.Tuple ct4 = mt4.Apply(TupleTransformType.Tuple, t1, t1, t1, t1);
-      TestLog.Info($"Copy:      {ct4}");
-      t1.SetValue(0,0);
-      Assert.That(t1.GetValue(0), Is.EqualTo(wt4.GetValue(6)));
-      t1.SetValue(0,1);
+      var ct = new ConcatTransform(false, t1.Descriptor, t2.Descriptor);
+      Assert.That(ct.ToString(), Is.EqualTo("ConcatTransform(TupleDescriptor(Int32, String) + TupleDescriptor(Int32, Double, String), r/w)"));
+
     }
 
     [Test]
     [Explicit]
     [Category("Performance")]
-    public void PerformanceTest1()
+    public void ComparisonPerformanceTest()
     {
       AdvancedComparerStruct<Xtensive.Tuples.Tuple> comparer = AdvancedComparerStruct<Xtensive.Tuples.Tuple>.Default;
       Xtensive.Tuples.Tuple t   = Xtensive.Tuples.Tuple.Create(1);
-      CombineTransform mt = new CombineTransform(false, t.Descriptor, t.Descriptor);
+      ConcatTransform mt = new ConcatTransform(false, t.Descriptor, t.Descriptor);
       Xtensive.Tuples.Tuple wt1 = mt.Apply(TupleTransformType.TransformedTuple, t, t);
       Xtensive.Tuples.Tuple wt2 = mt.Apply(TupleTransformType.TransformedTuple, t, t);
       Xtensive.Tuples.Tuple ct1 = mt.Apply(TupleTransformType.Tuple, t, t);
@@ -96,55 +86,78 @@ namespace Xtensive.Orm.Tests.Core.Tuples.Transform
       comparer.Equals(wt1, wt2);
 
       TestHelper.CollectGarbage();
-      using (new Measurement("O&O", MeasurementOptions.Log, count))
-        for (int i = 0; i<count; i++)
+      using (var mx = new Measurement("O&O", MeasurementOptions.Log, count)) {
+        for (int i = 0; i < count; i++)
           comparer.Equals(ct1, ct2);
 
+        mx.Complete();
+        Console.WriteLine(mx.ToString());
+      }
+
       TestHelper.CollectGarbage();
-      using (new Measurement("O&W", MeasurementOptions.Log, count))
-        for (int i = 0; i<count; i++)
+      using (var mx =new Measurement("O&W", MeasurementOptions.Log, count)) {
+        for (int i = 0; i < count; i++)
           comparer.Equals(ct1, wt1);
+
+        mx.Complete();
+        Console.WriteLine(mx.ToString());
+      }
       
       TestHelper.CollectGarbage();
-      using (new Measurement("W&W", MeasurementOptions.Log, count))
+      using (var mx = new Measurement("W&W", MeasurementOptions.Log, count)) {
         for (int i = 0; i<count; i++)
           comparer.Equals(wt1, wt2);
+
+        mx.Complete();
+        Console.WriteLine(mx.ToString());
+      }
     }
 
 
     [Test]
     [Explicit]
     [Category("Performance")]
-    public void PerformanceTest2()
+    public void InstanceCreationPerformanceTest()
     {
-      AdvancedComparerStruct<Xtensive.Tuples.Tuple> comparer = AdvancedComparerStruct<Xtensive.Tuples.Tuple>.Default;
-      Xtensive.Tuples.Tuple t   = Xtensive.Tuples.Tuple.Create(1);
-      CombineTransform mt = new CombineTransform(false, t.Descriptor, t.Descriptor, t.Descriptor, t.Descriptor);
-      SegmentTransform st = new SegmentTransform(false, mt.Descriptor, new Segment<int>(1,2));
-      Xtensive.Tuples.Tuple wt1 = st.Apply(TupleTransformType.TransformedTuple, mt.Apply(TupleTransformType.TransformedTuple, t, t, t, t));
-      Xtensive.Tuples.Tuple wt2 = st.Apply(TupleTransformType.TransformedTuple, mt.Apply(TupleTransformType.TransformedTuple, t, t, t, t));
-      Xtensive.Tuples.Tuple ct1 = st.Apply(TupleTransformType.Tuple, mt.Apply(TupleTransformType.Tuple, t, t, t, t));
-      Xtensive.Tuples.Tuple ct2 = st.Apply(TupleTransformType.Tuple, mt.Apply(TupleTransformType.Tuple, t, t, t, t));
-      int count = IterationCount;
+      Xtensive.Tuples.Tuple t1 = Xtensive.Tuples.Tuple.Create(1);
+      Xtensive.Tuples.Tuple t2 = Xtensive.Tuples.Tuple.Create(1, "2");
+      Xtensive.Tuples.Tuple t3 = Xtensive.Tuples.Tuple.Create(1, 2L, "3");
+      Xtensive.Tuples.Tuple t4 = Xtensive.Tuples.Tuple.Create(1, 2L, "3", "4");
+      Xtensive.Tuples.Tuple t5 = Xtensive.Tuples.Tuple.Create(1, 2L, "3", "4", 5);
+      Xtensive.Tuples.Tuple t6 = Xtensive.Tuples.Tuple.Create(1, 2L, "3", "4", 5, 6L);
+     
+      int count = IterationCount * 10;
 
-      comparer.Equals(ct1, ct2);
-      comparer.Equals(ct1, wt1);
-      comparer.Equals(wt1, wt2);
+      _ = new ConcatTransform(false, t1.Descriptor, t1.Descriptor);
+      _ = new ConcatTransform(false, t2.Descriptor, t2.Descriptor);
+      _ = new ConcatTransform(false, t3.Descriptor, t3.Descriptor);
+      _ = new ConcatTransform(false, t4.Descriptor, t4.Descriptor);
+      _ = new ConcatTransform(false, t5.Descriptor, t5.Descriptor);
 
-      TestHelper.CollectGarbage();
-      using (new Measurement("O&O", MeasurementOptions.Log, count))
-        for (int i = 0; i<count; i++)
-          comparer.Equals(ct1, ct2);
+      for (var run = 0; run < MeasurementRuns; run++) {
+        TestHelper.CollectGarbage();
+        using (var mx = new Measurement("N1Concat", MeasurementOptions.Log, count)) {
+          for (int i = 0; i < count; i++) {
+            _ = new ConcatTransform(false, t1.Descriptor, t1.Descriptor);
+          }
 
-      TestHelper.CollectGarbage();
-      using (new Measurement("O&W", MeasurementOptions.Log, count))
-        for (int i = 0; i<count; i++)
-          comparer.Equals(ct1, wt1);
-      
-      TestHelper.CollectGarbage();
-      using (new Measurement("W&W", MeasurementOptions.Log, count))
-        for (int i = 0; i<count; i++)
-          comparer.Equals(wt1, wt2);
+          mx.Complete();
+          Console.WriteLine(mx.ToString());
+        }
+      }
+
+      Console.WriteLine();
+      for (var run = 0; run < MeasurementRuns; run++) {
+        TestHelper.CollectGarbage();
+        using (var mx = new Measurement("N5Concat", MeasurementOptions.Log, count)) {
+          for (int i = 0; i < count; i++) {
+            _ = new ConcatTransform(false, t5.Descriptor, t5.Descriptor);
+          }
+
+          mx.Complete();
+          Console.WriteLine(mx.ToString());
+        }
+      }
     }
   }
 }

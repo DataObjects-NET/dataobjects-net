@@ -2,6 +2,7 @@
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
+using System;
 using System.Data.Common;
 using Xtensive.Core;
 
@@ -24,8 +25,7 @@ namespace Xtensive.Orm
 
     public ConnectionEventData(DbConnection connection, bool reconnect = false)
     {
-      ArgumentValidator.EnsureArgumentNotNull(connection, nameof(connection));
-      Connection = connection;
+      Connection = connection ?? throw new ArgumentNullException(nameof(connection));
       Reconnect = reconnect;
     }
   }

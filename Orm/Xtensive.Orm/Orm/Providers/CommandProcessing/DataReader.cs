@@ -95,7 +95,16 @@ namespace Xtensive.Orm.Providers
         await command.DisposeAsync().ConfigureAwait(false);
       }
       else {
-        await ((IAsyncEnumerator<Tuple>) source).DisposeAsync().ConfigureAwait(false);
+        if (source is IAsyncEnumerator<Tuple> asyncSource) {
+          // true async enumerable source
+          await asyncSource.DisposeAsync().ConfigureAwait(false);
+        }
+        else {
+          // preloaded collection of elements,
+          // like in case of delayed query which has already been read from database
+          // or greedy enumeration
+          ((IEnumerator<Tuple>) source).Dispose();
+        }
       }
     }
 

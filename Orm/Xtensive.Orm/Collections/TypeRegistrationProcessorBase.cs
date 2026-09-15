@@ -30,14 +30,14 @@ namespace Xtensive.Collections
     /// <param name="registration">The action.</param>
     public virtual void Process(TypeRegistry registry, TypeRegistration registration)
     {
-      if (registration.Type is null) {
-        var types = FindTypes(registration.Assembly, BaseType, (type, typeFilter) => IsAcceptable(registration, type));
-        foreach (var type in types)
-          Process(registry, registration, type);
-        return;
-      }
-      if (IsAcceptable(registration, registration.Type))
-        Process(registry, registration, registration.Type);
+      var types =
+        registration.Type is null
+          ? FindTypes(registration.Assembly, BaseType, (type, typeFilter) => IsAcceptable(registration, type))
+          : IsAcceptable(registration, registration.Type)
+            ? Enumerable.Repeat(registration.Type, 1)
+            : Enumerable.Empty<Type>();
+      foreach (var type in types)
+        Process(registry, registration, type);
     }
 
     /// <summary>
@@ -66,8 +66,8 @@ namespace Xtensive.Collections
 
     private static IList<Type> FindTypes(Assembly assembly, Type baseType, TypeFilter filter)
     {
-      ArgumentValidator.EnsureArgumentNotNull(assembly, "assembly");
-      ArgumentValidator.EnsureArgumentNotNull(baseType, "baseType");
+      ArgumentNullException.ThrowIfNull(assembly);
+      ArgumentNullException.ThrowIfNull(baseType);
 
       Type[] allTypes;
       try {

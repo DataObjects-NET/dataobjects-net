@@ -56,7 +56,7 @@ namespace Xtensive.Sql
     {
       get => connectionInfo;
       set {
-        ArgumentValidator.EnsureArgumentNotNull(value, nameof(value));
+        ArgumentNullException.ThrowIfNull(value);
         EnsureIsNotDisposed();
 
         UnderlyingConnection.ConnectionString = Driver.GetConnectionString(value);
@@ -109,7 +109,7 @@ namespace Xtensive.Sql
     /// <returns>Created command.</returns>
     public DbCommand CreateCommand(ISqlCompileUnit statement)
     {
-      ArgumentValidator.EnsureArgumentNotNull(statement, nameof(statement));
+      ArgumentNullException.ThrowIfNull(statement);
       EnsureIsNotDisposed();
 
       var command = CreateCommand();

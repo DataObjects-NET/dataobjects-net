@@ -53,17 +53,13 @@ namespace Xtensive.Sql.Drivers.Sqlite
 
     private static string GetLibraryHash()
     {
-#pragma warning disable SYSLIB0021 // Type or member is obsolete
-      // direct creation is more efficient than SHA1.Create()
-      using (var hashProvider = new System.Security.Cryptography.SHA1Managed()) {
-        //hashProvider.Initialize();
-        ReadOnlySpan<byte> hashRaw;
-        using (var stream = GetLibraryStream()) {
-          hashRaw = hashProvider.ComputeHash(stream);
-        }
-        return new StringBuilder().AppendHexArray(hashRaw[..8]).ToString();
+      using (var hashProvider = SHA1.Create()) {
+        hashProvider.Initialize();
+        using (var stream = GetLibraryStream())
+          hashProvider.ComputeHash(stream);
+        var hash = hashProvider.Hash.Take(8).ToArray();
+        return new StringBuilder().AppendHexArray(hash).ToString();
       }
-#pragma warning restore SYSLIB0021 // Type or member is obsolete
     }
 
     private static string GetLibraryFileName(string nativeLibraryCacheFolder, string moduleHash)

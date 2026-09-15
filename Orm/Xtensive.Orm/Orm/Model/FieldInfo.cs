@@ -5,16 +5,13 @@
 // Created:    2007.09.10
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Diagnostics;
 using System.Reflection;
-using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Orm.Validation;
 using Xtensive.Reflection;
-using Xtensive.Sorting;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Tuples.Transform;
 
@@ -477,7 +474,7 @@ namespace Xtensive.Orm.Model
       [DebuggerStepThrough]
       set {
         EnsureNotLocked();
-        ArgumentValidator.EnsureArgumentNotNull(value, "Parent");
+        ArgumentNullException.ThrowIfNull(value, "Parent");
         parent = value;
         parent.Fields.Add(this);
         reflectedType = value.ReflectedType;
@@ -701,7 +698,7 @@ namespace Xtensive.Orm.Model
 
       if (IsEntity || IsStructure) {
         valueExtractor = new SegmentTransform(
-          false, reflectedType.TupleDescriptor, new Segment<int>(mappingInfo.Offset, mappingInfo.Length));
+          reflectedType.TupleDescriptor, new Segment<int>(mappingInfo.Offset, mappingInfo.Length));
       }
     }
 

@@ -52,13 +52,12 @@ namespace Xtensive.Core
     /// <exception cref="ArgumentException">Destination array is too small.</exception>
     public static void Copy<TItem>(this IList<TItem> source, TItem[] target, int targetIndex)
     {
-      ArgumentValidator.EnsureArgumentNotNull(source, "source");
-      ArgumentValidator.EnsureArgumentNotNull(source, "source");
-      ArgumentValidator.EnsureArgumentNotNull(target, "target");
+      ArgumentNullException.ThrowIfNull(source);
+      ArgumentNullException.ThrowIfNull(target);
       if (targetIndex < 0 || targetIndex > target.Length)
-        throw new ArgumentOutOfRangeException("targetIndex");
+        throw new ArgumentOutOfRangeException(nameof(targetIndex));
       if ((target.Length - targetIndex) < source.Count)
-        throw new ArgumentException(Strings.ExDestionationArrayIsTooSmall, "target");
+        throw new ArgumentException(Strings.ExDestionationArrayIsTooSmall, nameof(target));
 
       int count = source.Count;
       for (int i = 0; i < count; i++)
@@ -78,14 +77,14 @@ namespace Xtensive.Core
     /// <exception cref="ArgumentException">Destination array is too small or multidimensional.</exception>
     public static void Copy<TItem>(this IList<TItem> source, Array target, int targetIndex)
     {
-      ArgumentValidator.EnsureArgumentNotNull(source, "source");
-      ArgumentValidator.EnsureArgumentNotNull(target, "target");
+      ArgumentNullException.ThrowIfNull(source);
+      ArgumentNullException.ThrowIfNull(target);
       if (targetIndex < 0 || targetIndex > target.Length)
-        throw new ArgumentOutOfRangeException("targetIndex");
+        throw new ArgumentOutOfRangeException(nameof(targetIndex));
       if ((target.Length - targetIndex) < source.Count)
-        throw new ArgumentException(Strings.ExDestionationArrayIsTooSmall, "target");
+        throw new ArgumentException(Strings.ExDestionationArrayIsTooSmall, nameof(target));
       if (target.Rank != 1)
-        throw new ArgumentException(Strings.ExArrayIsMultidimensional, "target");
+        throw new ArgumentException(Strings.ExArrayIsMultidimensional, nameof(target));
 //      if (target.GetType().GetElementType().IsAssignableFrom(typeof(T)))
 //        throw new ArgumentException(Strings.ExIncompatibleArrayType, "target");
 

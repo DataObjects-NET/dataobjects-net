@@ -64,8 +64,8 @@ namespace Xtensive.Orm.Upgrade.Model
         ea.Execute(base.ValidateState);
 
         // Secondary key columns: empty set, duplicates
-        var keyColumns = KeyColumns.Select(static valueRef => valueRef.Value).ToList();
-        if (keyColumns.Count == 0) {
+        var keyColumns = KeyColumns.Select(valueRef => valueRef.Value).ToArray(KeyColumns.Count);
+        if (keyColumns.Length == 0) {
           ea.Add(new ValidationException(Strings.ExEmptyKeyColumnsCollection, Path), handle: true);
         }
         foreach (var group in keyColumns

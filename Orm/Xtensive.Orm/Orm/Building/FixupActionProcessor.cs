@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Xtensive.Core;
 using Xtensive.Orm.Building.Builders;
 using Xtensive.Orm.Building.Definitions;
 using Xtensive.Orm.Building.DependencyGraph;
@@ -92,9 +93,8 @@ namespace Xtensive.Orm.Building
       var typeSubstitutions = new Type[arguments.Length][];
       for (var i = 0; i < arguments.Length; i++) {
         var argument = arguments[i];
-        var constraints = argument.GetGenericParameterConstraints()
-          .ToList();
-        if (constraints.Count==0 || !constraints.Any(c => WellKnownOrmInterfaces.Entity.IsAssignableFrom(c)))
+        var constraints = argument.GetGenericParameterConstraints();
+        if (constraints.Length==0 || !constraints.Any(c => WellKnownOrmInterfaces.Entity.IsAssignableFrom(c)))
           return; // No IEntity / Entity constraints
         var queue = new Queue<Type>(
           from hierarchy in hierarchies

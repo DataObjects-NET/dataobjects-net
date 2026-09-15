@@ -1,164 +1,148 @@
-﻿Imports NUnit.Framework
-Imports Xtensive.Orm.Tests.ObjectModel.NorthwindDO
+Imports NUnit.Framework
+Imports Xtensive.Orm.Tests.ObjectModel.ChinookDO
 Imports Xtensive.Orm.Tests.ObjectModel
 
 Namespace Linq
 
-    Public Class DateTimeTest
-        Inherits NorthwindDOModelTest
+  Public Class DateTimeTest
+    Inherits ChinookDOModelTest
 
-        Public Shadows ReadOnly Property Orders As IOrderedQueryable(Of Order)
-            Get
-                Return Query.All(Of Order)().OrderBy(Function(c) c.Id)
-            End Get
-        End Property
+    Public Shadows ReadOnly Property Invoices As IOrderedQueryable(Of Invoice)
+      Get
+        Return Query.All(Of Invoice)().OrderBy(Function(c) c.InvoiceId)
+      End Get
+    End Property
 
-        <Test()>
-        <ExpectedException(GetType(QueryTranslationException))>
-        Public Sub DatePartNotSupported1Test()
-            Dim result = (From order In Orders _
-                    Where Microsoft.VisualBasic.DateAndTime.DatePart("Day", order.OrderDate) > 0 _
-                    Select order) _
-                    .ToList()
-            Dim expected = (From order In Orders.ToList _
-                    Where Microsoft.VisualBasic.DateAndTime.DatePart("Day", order.OrderDate) > 0 _
-                    Select order) _
-                    .ToList()
-            Assert.IsTrue(expected.SequenceEqual(result))
-        End Sub
+    <Test()>
+    Public Sub DatePartNotSupported1Test()
+      Assert.Throws(Of QueryTranslationException)(Function() (From invoice In Invoices
+                                                              Where Microsoft.VisualBasic.DateAndTime.DatePart("Day", invoice.InvoiceDate) > 0
+                                                              Select invoice) _
+                                                         .ToList())
+    End Sub
 
-        <Test()>
-        <ExpectedException(GetType(QueryTranslationException))>
-        Public Sub DatePartNotSupported2Test()
-            Dim result = (From order In Orders _
-                    Where Microsoft.VisualBasic.DateAndTime.DatePart(DateInterval.Day, order.OrderDate.Value) > 0 _
-                    Select order) _
-                    .ToList()
-            Dim expected = (From order In Orders.ToList _
-                    Where Microsoft.VisualBasic.DateAndTime.DatePart(DateInterval.Day, order.OrderDate.Value) > 0 _
-                    Select order) _
-                    .ToList()
-            Assert.IsTrue(expected.SequenceEqual(result))
-        End Sub
+    <Test()>
+    Public Sub DatePartNotSupported2Test()
+      Assert.Throws(Of QueryTranslationException)(Function() (From invoice In Invoices
+                                                              Where Microsoft.VisualBasic.DateAndTime.DatePart(DateInterval.Day, invoice.InvoiceDate) > 0
+                                                              Select invoice) _
+                                                         .ToList())
+    End Sub
 
-        <Test()>
-        Public Sub NowTest()
-            Dim result = (From order In Orders _
-                    Where Microsoft.VisualBasic.DateAndTime.Now > order.OrderDate.Value _
-                    Select order) _
+    <Test()>
+    Public Sub NowTest()
+      Dim result = (From invoice In Invoices
+                    Where Microsoft.VisualBasic.DateAndTime.Now > invoice.InvoiceDate
+                    Select invoice) _
                     .ToList()
-            Dim expected = (From order In Orders.ToList _
-                    Where Microsoft.VisualBasic.DateAndTime.Now > order.OrderDate.Value _
-                    Select order) _
+      Dim expected = (From invoice In Invoices.ToList
+                      Where Microsoft.VisualBasic.DateAndTime.Now > invoice.InvoiceDate
+                      Select invoice) _
                     .ToList()
-            Assert.IsTrue(expected.SequenceEqual(result))
-        End Sub
+      Assert.That(expected.Count, [Is].GreaterThan(0))
+      Assert.That(expected.SequenceEqual(result), [Is].True)
+    End Sub
 
-        <Test()>
-        Public Sub YearTest()
-            Dim result = (From order In Orders _
-                    Where Microsoft.VisualBasic.DateAndTime.Year(order.OrderDate.Value) > 0 _
-                    Select order) _
+    <Test()>
+    Public Sub YearTest()
+      Dim result = (From invoice In Invoices
+                    Where Microsoft.VisualBasic.DateAndTime.Year(invoice.InvoiceDate) > 0
+                    Select invoice) _
                     .ToList()
-            Dim expected = (From order In Orders.ToList _
-                    Where Microsoft.VisualBasic.DateAndTime.Year(order.OrderDate.Value) > 0 _
-                    Select order) _
+      Dim expected = (From invoice In Invoices.ToList
+                      Where Microsoft.VisualBasic.DateAndTime.Year(invoice.InvoiceDate) > 0
+                      Select invoice) _
                     .ToList()
-            Assert.IsTrue(expected.SequenceEqual(result))
-        End Sub
+      Assert.That(expected.Count, [Is].GreaterThan(0))
+      Assert.That(expected.SequenceEqual(result), [Is].True)
+    End Sub
 
-        <Test()>
-        Public Sub MonthTest()
-            Dim result = (From order In Orders _
-                    Where Microsoft.VisualBasic.DateAndTime.Month(order.OrderDate.Value) > 0 _
-                    Select order) _
+    <Test()>
+    Public Sub MonthTest()
+      Dim result = (From invoice In Invoices
+                    Where Microsoft.VisualBasic.DateAndTime.Month(invoice.InvoiceDate) > 0
+                    Select invoice) _
                     .ToList()
-            Dim expected = (From order In Orders.ToList _
-                    Where Microsoft.VisualBasic.DateAndTime.Month(order.OrderDate.Value) > 0 _
-                    Select order) _
+      Dim expected = (From invoice In Invoices.ToList
+                      Where Microsoft.VisualBasic.DateAndTime.Month(invoice.InvoiceDate) > 0
+                      Select invoice) _
                     .ToList()
-            Assert.IsTrue(expected.SequenceEqual(result))
-        End Sub
+      Assert.That(expected.Count, [Is].GreaterThan(0))
+      Assert.That(expected.SequenceEqual(result), [Is].True)
+    End Sub
 
-        <Test()>
-        Public Sub DayTest()
-            Dim result = (From order In Orders _
-                    Where Microsoft.VisualBasic.DateAndTime.Day(order.OrderDate.Value) > 0 _
-                    Select order) _
+    <Test()>
+    Public Sub DayTest()
+      Dim result = (From invoice In Invoices
+                    Where Microsoft.VisualBasic.DateAndTime.Day(invoice.InvoiceDate) > 0
+                    Select invoice) _
                     .ToList()
-            Dim expected = (From order In Orders.ToList _
-                    Where Microsoft.VisualBasic.DateAndTime.Day(order.OrderDate.Value) > 0 _
-                    Select order) _
+      Dim expected = (From invoice In Invoices.ToList
+                      Where Microsoft.VisualBasic.DateAndTime.Day(invoice.InvoiceDate) > 0
+                      Select invoice) _
                     .ToList()
-            Assert.IsTrue(expected.SequenceEqual(result))
-        End Sub
+      Assert.That(expected.Count, [Is].GreaterThan(0))
+      Assert.That(expected.SequenceEqual(result), [Is].True)
+    End Sub
 
-        <Test()>
-        Public Sub HourTest()
-            Dim result = (From order In Orders _
-                    Where Microsoft.VisualBasic.DateAndTime.Hour(order.OrderDate.Value) > 0 _
-                    Select order) _
+    <Test()>
+    Public Sub HourTest()
+      Dim result = (From invoice In Invoices
+                    Where invoice.PaymentDate.HasValue AndAlso Microsoft.VisualBasic.DateAndTime.Hour(invoice.PaymentDate.Value) > 0
+                    Select invoice) _
                     .ToList()
-            Dim expected = (From order In Orders.ToList _
-                    Where Microsoft.VisualBasic.DateAndTime.Hour(order.OrderDate.Value) > 0 _
-                    Select order) _
+      Dim expected = (From invoice In Invoices.ToList
+                      Where invoice.PaymentDate.HasValue AndAlso Microsoft.VisualBasic.DateAndTime.Hour(invoice.PaymentDate.Value) > 0
+                      Select invoice) _
                     .ToList()
-            Assert.IsTrue(expected.SequenceEqual(result))
-        End Sub
+      Assert.That(expected.Count, [Is].GreaterThan(0))
+      Assert.That(expected.SequenceEqual(result), [Is].True)
+    End Sub
 
-        <Test()>
-        Public Sub MinuteTest()
-            Dim result = (From order In Orders _
-                    Where Microsoft.VisualBasic.DateAndTime.Minute(order.OrderDate.Value) > 0 _
-                    Select order) _
+    <Test()>
+    Public Sub MinuteTest()
+      Dim result = (From invoice In Invoices
+                    Where invoice.PaymentDate.HasValue AndAlso Microsoft.VisualBasic.DateAndTime.Minute(invoice.PaymentDate.Value) > 0
+                    Select invoice) _
                     .ToList()
-            Dim expected = (From order In Orders.ToList _
-                    Where Microsoft.VisualBasic.DateAndTime.Minute(order.OrderDate.Value) > 0 _
-                    Select order) _
+      Dim expected = (From invoice In Invoices.ToList
+                      Where invoice.PaymentDate.HasValue AndAlso Microsoft.VisualBasic.DateAndTime.Minute(invoice.PaymentDate.Value) > 0
+                      Select invoice) _
                     .ToList()
-            Assert.IsTrue(expected.SequenceEqual(result))
-        End Sub
+      Assert.That(expected.Count, [Is].GreaterThan(0))
+      Assert.That(expected.SequenceEqual(result), [Is].True)
+    End Sub
 
-        <Test()>
-        Public Sub SecondTest()
-            Dim result = (From order In Orders _
-                    Where Microsoft.VisualBasic.DateAndTime.Second(order.OrderDate.Value) > 0 _
-                    Select order) _
+    <Test()>
+    <Ignore("Dataset has no dates with seconds")>
+    Public Sub SecondTest()
+      Dim result = (From invoice In Invoices
+                    Where invoice.PaymentDate.HasValue AndAlso Microsoft.VisualBasic.DateAndTime.Second(invoice.PaymentDate.Value) > 0
+                    Select invoice) _
                     .ToList()
-            Dim expected = (From order In Orders.ToList _
-                    Where Microsoft.VisualBasic.DateAndTime.Second(order.OrderDate.Value) > 0 _
-                    Select order) _
+      Dim expected = (From invoice In Invoices.ToList
+                      Where invoice.PaymentDate.HasValue AndAlso Microsoft.VisualBasic.DateAndTime.Second(invoice.PaymentDate.Value) > 0
+                      Select invoice) _
                     .ToList()
-            Assert.IsTrue(expected.SequenceEqual(result))
-        End Sub
+      Assert.That(expected.Count, [Is].GreaterThan(0))
+      Assert.That(expected.SequenceEqual(result), [Is].True)
+    End Sub
 
-        <Test()>
-        <ExpectedException(GetType(QueryTranslationException))>
-        Public Sub MonthNameNotSupported1Test()
-            Dim result = (From order In Orders _
-                    Where Microsoft.VisualBasic.DateAndTime.MonthName(order.OrderDate.Value.Month, True) <> "test" _
-                    Select order) _
-                    .ToList()
-            Dim expected = (From order In Orders.ToList _
-                    Where Microsoft.VisualBasic.DateAndTime.MonthName(order.OrderDate.Value.Month, True) <> "test" _
-                    Select order) _
-                    .ToList()
-            Assert.IsTrue(expected.SequenceEqual(result))
-        End Sub
+    <Test()>
+    Public Sub MonthNameNotSupported1Test()
+      Assert.Throws(Of QueryTranslationException)(Function() (From invoice In Invoices
+                                                              Where Microsoft.VisualBasic.DateAndTime.MonthName(invoice.InvoiceDate.Month, True) <> "test"
+                                                              Select invoice) _
+                                                         .ToList())
+    End Sub
 
-        <Test()>
-        <ExpectedException(GetType(QueryTranslationException))>
-        Public Sub MonthNameNotSupported2Test()
-            Dim result = (From order In Orders _
-                    Where Microsoft.VisualBasic.DateAndTime.MonthName(order.OrderDate.Value.Month, False) <> "test" _
-                    Select order) _
-                    .ToList()
-            Dim expected = (From order In Orders.ToList _
-                    Where Microsoft.VisualBasic.DateAndTime.MonthName(order.OrderDate.Value.Month, False) <> "test" _
-                    Select order) _
-                    .ToList()
-            Assert.IsTrue(expected.SequenceEqual(result))
-        End Sub
+    <Test()>
+    Public Sub MonthNameNotSupported2Test()
+      Assert.Throws(Of QueryTranslationException)(Function() (From invoice In Invoices
+                                                              Where Microsoft.VisualBasic.DateAndTime.MonthName(invoice.InvoiceDate.Month, False) <> "test"
+                                                              Select invoice) _
+                                                         .ToList())
+    End Sub
 
-    End Class
+  End Class
 End Namespace

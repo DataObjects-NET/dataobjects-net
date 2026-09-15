@@ -55,7 +55,7 @@ namespace Xtensive.Orm.Internals.Prefetch
     private static readonly Parameter<int> itemCountLimitParameter = new Parameter<int>("ItemCountLimit");
 
     private static readonly Func<ItemsQueryCacheKey, CompilableProvider> CreateRecordSetLoadingItems = cachingKey => {
-      var association = cachingKey.ReferencingField.Associations.Last();
+      var association = cachingKey.ReferencingField.Associations[^1];
       var primaryTargetIndex = association.TargetType.Indexes.PrimaryIndex;
       var resultColumns = new List<int>(primaryTargetIndex.Columns.Count);
       var result = association.AuxiliaryType == null
@@ -103,7 +103,7 @@ namespace Xtensive.Orm.Internals.Prefetch
       var reader = manager.Owner.Session.Domain.EntityDataReader;
       var records = reader.Read(itemsQueryTask.Result, QueryProvider.Header, manager.Owner.Session);
       var entityKeys = new List<Key>(itemsQueryTask.Result.Count);
-      var association = ReferencingField.Associations.Last();
+      var association = ReferencingField.Associations[^1];
       var auxEntities = (association.AuxiliaryType != null)
         ? new List<Pair<Key, Tuple>>(itemsQueryTask.Result.Count)
         : null;
@@ -190,7 +190,7 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     private static CompilableProvider CreateQueryForAssociationViaAuxType(in ItemsQueryCacheKey cachingKey, IndexInfo primaryTargetIndex, List<int> resultColumns)
     {
-      var association = cachingKey.ReferencingField.Associations.Last();
+      var association = cachingKey.ReferencingField.Associations[^1];
       var associationIndex = association.UnderlyingIndex;
       var joiningColumns = GetJoiningColumnIndexes(primaryTargetIndex, associationIndex,
         association.AuxiliaryType != null);
@@ -212,7 +212,7 @@ namespace Xtensive.Orm.Internals.Prefetch
     private static CompilableProvider CreateQueryForDirectAssociation(in ItemsQueryCacheKey cachingKey, IndexInfo primaryTargetIndex, List<int> resultColumns)
     {
       AddResultColumnIndexes(resultColumns, primaryTargetIndex, 0);
-      var association = cachingKey.ReferencingField.Associations.Last();
+      var association = cachingKey.ReferencingField.Associations[^1];
       var field = association.Reversed.OwnerField;
       var keyColumnTypes = field.Columns.SelectToArray(column => column.ValueType);
       return primaryTargetIndex
@@ -259,15 +259,11 @@ namespace Xtensive.Orm.Internals.Prefetch
     public EntitySetTask(Key ownerKey, PrefetchFieldDescriptor referencingFieldDescriptor, bool isOwnerCached,
       PrefetchManager manager)
     {
-      ArgumentValidator.EnsureArgumentNotNull(ownerKey, "ownerKey");
-      ArgumentValidator.EnsureArgumentNotNull(referencingFieldDescriptor, "referencingFieldDescriptor");
-      ArgumentValidator.EnsureArgumentNotNull(manager, "processor");
-
-      this.ownerKey = ownerKey;
-      this.referencingFieldDescriptor = referencingFieldDescriptor;
+      this.ownerKey = ownerKey ?? throw new ArgumentNullException(nameof(ownerKey));
+      this.referencingFieldDescriptor = referencingFieldDescriptor ?? throw new ArgumentNullException(nameof(referencingFieldDescriptor));
       this.isOwnerCached = isOwnerCached;
       ItemCountLimit = referencingFieldDescriptor.EntitySetItemCountLimit;
-      this.manager = manager;
+      this.manager = manager ?? throw new ArgumentNullException(nameof(manager));
       cacheKey = new ItemsQueryCacheKey(ReferencingField, ItemCountLimit);
     }
   }

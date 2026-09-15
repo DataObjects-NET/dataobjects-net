@@ -50,10 +50,8 @@ namespace Xtensive.Conversion
     /// <param name="converter">Item converter to use.</param>
     public ConvertingEnumerable(IEnumerable<TFrom> innerEnumerable, Converter<TFrom,TTo> converter)
     {
-      ArgumentValidator.EnsureArgumentNotNull(innerEnumerable, "innerEnumerable");
-      ArgumentValidator.EnsureArgumentNotNull(converter, "converter");
-      this.innerEnumerable = innerEnumerable;
-      this.converter = converter;
+      this.innerEnumerable = innerEnumerable ?? throw new ArgumentNullException(nameof(innerEnumerable));
+      this.converter = converter ?? throw new ArgumentNullException(nameof(converter));
     }
   }
 

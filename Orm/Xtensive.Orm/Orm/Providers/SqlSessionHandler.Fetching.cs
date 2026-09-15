@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2026 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -44,17 +44,23 @@ namespace Xtensive.Orm.Providers
       return prefetchManager.ExecuteTasksAsync(skipPersist, token);
     }
 
-    /// <summary>
-    /// Fetches an <see cref="EntityState"/>.
-    /// </summary>
-    /// <param name="key">The key.</param>
-    /// <returns>The key of fetched <see cref="EntityState"/>.</returns>
+    /// <inheritdoc/>
     public override EntityState FetchEntityState(Key key)
     {
       var type = key.TypeReference.Type;
-      prefetchManager.Prefetch(key, type,
+      _ = prefetchManager.Prefetch(key, type,
         PrefetchHelper.GetCachedDescriptorsForFieldsLoadedByDefault(Session.Domain, type));
-      prefetchManager.ExecuteTasks(true);
+      _ = prefetchManager.ExecuteTasks(true);
+      return LookupState(key, out var result) ? result : null;
+    }
+
+    /// <inheritdoc/>
+    public override async Task<EntityState> FetchEntityStateAsync(Key key, CancellationToken token = default)
+    {
+      var type = key.TypeReference.Type;
+      _ = await prefetchManager.PrefetchAsync(key, type,
+        PrefetchHelper.GetCachedDescriptorsForFieldsLoadedByDefault(Session.Domain, type), token).ConfigureAwait(false);
+      _ = await prefetchManager.ExecuteTasksAsync(true).ConfigureAwait(false);
       return LookupState(key, out var result) ? result : null;
     }
     

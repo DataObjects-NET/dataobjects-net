@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2003-2010 Xtensive LLC.
+// Copyright (C) 2003-2010 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -202,7 +202,7 @@ namespace Xtensive.Orm.Providers
     }
 
     [Compiler(typeof(decimal), Operator.Subtraction, TargetKind.Operator)]
-    public static SqlExpression DecimalOperatorSubtractionTimeSpan(
+    public static SqlExpression DecimalOperatorSubtraction(
       [Type(typeof(decimal))] SqlExpression left,
       [Type(typeof(decimal))] SqlExpression right)
     {

@@ -45,11 +45,18 @@ namespace Xtensive.Orm.Configuration
     }
 
     /// <inheritdoc/>
-    public object Clone()
+    object ICloneable.Clone() => Clone();
+
+    /// <summary>
+    /// Creates a new object that is a copy of the current instance.
+    /// </summary>
+    /// <returns>A new object that is a copy of this instance.</returns>
+    public VersioningConvention Clone()
     {
-      var result = new VersioningConvention();
-      result.EntityVersioningPolicy = entityVersioningPolicy;
-      result.DenyEntitySetOwnerVersionChange = denyEntitySetOwnerVersionChange;
+      var result = new VersioningConvention {
+        entityVersioningPolicy = entityVersioningPolicy,
+        denyEntitySetOwnerVersionChange = denyEntitySetOwnerVersionChange
+      };
       return result;
     }
 

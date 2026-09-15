@@ -811,7 +811,7 @@ namespace Xtensive.Orm.Upgrade
 
     private static IEnumerable<StoredTypeInfo> GetAffectedMappedTypes(StoredTypeInfo type, bool includeInheritors)
     {
-      var result = EnumerableUtils.One(type);
+      var result = Enumerable.Repeat(type, 1);
       if (includeInheritors) {
         result = result.Concat(type.AllDescendants);
       }
@@ -824,7 +824,7 @@ namespace Xtensive.Orm.Upgrade
     private static StoredTypeInfo[] GetAffectedMappedTypesAsArray(StoredTypeInfo type, bool includeInheritors)
     {
       var count = 1;
-      var result = EnumerableUtils.One(type);
+      var result = Enumerable.Repeat(type, 1);
       if (includeInheritors) {
         result = result.Concat(type.AllDescendants);
         count += type.AllDescendants.Length;
@@ -1002,12 +1002,12 @@ namespace Xtensive.Orm.Upgrade
       StoredDomainModel currentDomainModel,
       StoredDomainModel extractedDomainModel)
     {
-      ArgumentValidator.EnsureArgumentNotNull(hintsProcessingResult, nameof(hintsProcessingResult));
-      ArgumentValidator.EnsureArgumentNotNull(handlers, nameof(handlers));
-      ArgumentValidator.EnsureArgumentNotNull(resolver, nameof(resolver));
-      ArgumentValidator.EnsureArgumentNotNull(extractedStorageModel, nameof(extractedStorageModel));
-      ArgumentValidator.EnsureArgumentNotNull(currentDomainModel, nameof(currentDomainModel));
-      ArgumentValidator.EnsureArgumentNotNull(extractedDomainModel, nameof(extractedDomainModel));
+      ArgumentNullException.ThrowIfNull(hintsProcessingResult);
+      ArgumentNullException.ThrowIfNull(handlers);
+      ArgumentNullException.ThrowIfNull(resolver);
+      ArgumentNullException.ThrowIfNull(extractedStorageModel);
+      ArgumentNullException.ThrowIfNull(currentDomainModel);
+      ArgumentNullException.ThrowIfNull(extractedDomainModel);
 
       typeMapping = hintsProcessingResult.TypeMapping;
       reverseTypeMapping = hintsProcessingResult.ReverseTypeMapping;

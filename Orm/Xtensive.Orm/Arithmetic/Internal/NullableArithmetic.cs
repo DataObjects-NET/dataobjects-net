@@ -81,10 +81,7 @@ namespace Xtensive.Arithmetic
     }
 
     /// <inheritdoc/>
-    protected override IArithmetic<T?> CreateNew(ArithmeticRules rules)
-    {
-      return new NullableArithmetic<T>(Provider, rules);
-    }
+    protected override NullableArithmetic<T> CreateNew(ArithmeticRules rules) => new(Provider, rules);
 
 
     // Constructors

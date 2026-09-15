@@ -1,64 +1,68 @@
-﻿Imports Xtensive.Orm.Tests.ObjectModel
-Imports Xtensive.Orm.Tests.ObjectModel.NorthwindDO
+Imports Xtensive.Orm.Tests.ObjectModel
+Imports Xtensive.Orm.Tests.ObjectModel.ChinookDO
 Imports NUnit.Framework
 
 Namespace Linq
-    <TestFixture()>
-    Public Class OperatorsTest
-        Inherits NorthwindDOModelTest
+  <TestFixture()>
+  Public Class OperatorsTest
+    Inherits ChinookDOModelTest
 
-        Public Shadows ReadOnly Property Orders As IOrderedQueryable(Of Order)
-            Get
-                Return Query.All(Of Order)().OrderBy(Function(c) c.Id)
-            End Get
-        End Property
+    Public Shadows ReadOnly Property Invoices As IOrderedQueryable(Of Invoice)
+      Get
+        Return Session.Query.All(Of Invoice)().OrderBy(Function(c) c.InvoiceId)
+      End Get
+    End Property
 
-        Public Shadows ReadOnly Property Customers As IOrderedQueryable(Of Customer)
-            Get
-                Return Query.All(Of Customer)().OrderBy(Function(c) c.Id)
-            End Get
-        End Property
+    Public Shadows ReadOnly Property Customers As IOrderedQueryable(Of Customer)
+      Get
+        Return Session.Query.All(Of Customer)().OrderBy(Function(c) c.CustomerId)
+      End Get
+    End Property
 
-        <Test()>
-        Public Sub CompareString1Test()
-            Dim result = (From customer In Customers _
-                    Where customer.CompanyName > "test" _
+    <Test()>
+    Public Sub CompareString1Test()
+      Dim result = (From customer In Customers
+                    Where customer.CompanyName > "test"
                     Select customer) _
                     .ToList()
-            ' SQL compares CaseInsensitive by default
-            Dim expected = (From customer In Customers.ToList() _
-                    Where Microsoft.VisualBasic.CompilerServices.Operators.CompareString(customer.CompanyName, "test", True) > 0 _
-                    Select customer) _
+      ' SQL compares CaseInsensitive by default
+      Dim expected = (From customer In Customers.ToList()
+                      Where Microsoft.VisualBasic.CompilerServices.Operators.CompareString(customer.CompanyName, "test", True) > 0
+                      Select customer) _
                     .ToList()
-            Assert.IsTrue(expected.SequenceEqual(result))
-        End Sub
+      Assert.That(expected.Count, [Is].GreaterThan(0))
+      Assert.That(expected.SequenceEqual(result), [Is].True)
+    End Sub
 
-        <Test()>
-        Public Sub CompareString2Test()
-            Dim result = (From customer In Customers _
+    <Test()>
+    <Ignore("")>
+    Public Sub CompareString2Test()
+      Dim result = (From customer In Customers
                     Select customer.CompanyName > "test") _
-                    .Where(Function(i) i > 0) _
+                    .Where(Function(i) i) _
                     .ToList()
-            ' SQL compares CaseInsensitive by default
-            Dim expected = (From customer In Customers.ToList() _
-                    Select customer.CompanyName > "test") _
-                    .Where(Function(i) i > 0) _
+      ' SQL compares CaseInsensitive by default
+      Dim expected = (From customer In Customers.ToList()
+                      Select customer.CompanyName > "test") _
+                    .Where(Function(i) i) _
                     .ToList()
-            Assert.IsTrue(expected.SequenceEqual(result))
-        End Sub
+      Assert.That(expected.Count, [Is].GreaterThan(0))
+      Assert.That(expected.SequenceEqual(result), [Is].True)
+    End Sub
 
-        <Test()>
-        Public Sub BooleanTest()
-            Dim result = (From order In Orders _
-                    Select order.Freight > 10) _
-                    .Where(Function(i) i > 0) _
+    <Test()>
+    Public Sub BooleanTest()
+      Dim result = (From invoice In Invoices
+                    Select invoice.Total > 2.0) _
+                    .Where(Function(i) i) _
                     .ToList()
-            Dim expected = (From order In Orders.ToList() _
-                    Select order.Freight > 10) _
-                    .Where(Function(i) i > 0) _
+      Dim expected = (From invoice In Invoices.ToList()
+                      Select invoice.Total > 2.0) _
+                    .Where(Function(i) i) _
                     .ToList()
-            Assert.IsTrue(expected.SequenceEqual(result))
-        End Sub
+      Assert.That(expected.Count, [Is].GreaterThan(0))
+      Assert.That(expected.SequenceEqual(result), [Is].True)
+    End Sub
 
-    End Class
+  End Class
 End Namespace

@@ -126,12 +126,11 @@ namespace Xtensive.Orm.Internals.Prefetch
       bool fetchLazyFields,
       Action<Key, FieldInfo, Key> keyExtractionSubscriber)
     {
-      ArgumentValidator.EnsureArgumentNotNull(field, "field");
       if (entitySetItemCountLimit != null) {
         ArgumentValidator.EnsureArgumentIsGreaterThan(entitySetItemCountLimit.Value, 0,
           "entitySetItemCountLimit");
       }
-      Field = field;
+      Field = field ?? throw new ArgumentNullException(nameof(field));
       FetchFieldsOfReferencedEntity = fetchFieldsOfReferencedEntity;
       EntitySetItemCountLimit = entitySetItemCountLimit;
       FetchLazyFields = fetchLazyFields;
@@ -161,12 +160,11 @@ namespace Xtensive.Orm.Internals.Prefetch
       Action<Key, FieldInfo, Key> keyExtractionSubscriber,
       Guid? prefetchOperationId)
     {
-      ArgumentValidator.EnsureArgumentNotNull(field, "field");
       if (entitySetItemCountLimit != null) {
         ArgumentValidator.EnsureArgumentIsGreaterThan(entitySetItemCountLimit.Value, 0,
           "entitySetItemCountLimit");
       }
-      Field = field;
+      Field = field ?? throw new ArgumentNullException(nameof(field));
       FetchFieldsOfReferencedEntity = fetchFieldsOfReferencedEntity;
       EntitySetItemCountLimit = entitySetItemCountLimit;
       FetchLazyFields = fetchLazyFields;

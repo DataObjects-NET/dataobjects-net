@@ -227,7 +227,7 @@ namespace Xtensive.Orm.Upgrade
     /// <exception cref="ArgumentOutOfRangeException"><c>UpgradeContext.Stage</c> is out of range.</exception>
     public virtual bool IsTypeAvailable(Type type, UpgradeStage upgradeStage)
     {
-      ArgumentValidator.EnsureArgumentNotNull(type, "type");
+      ArgumentNullException.ThrowIfNull(type);
       if (type.Assembly!=Assembly)
         throw new ArgumentOutOfRangeException("type");
       switch (upgradeStage) {
@@ -243,7 +243,7 @@ namespace Xtensive.Orm.Upgrade
     /// <exception cref="ArgumentOutOfRangeException"><c>UpgradeContext.Stage</c> is out of range.</exception>
     public virtual bool IsFieldAvailable(PropertyInfo field, UpgradeStage upgradeStage)
     {
-      ArgumentValidator.EnsureArgumentNotNull(field, "field");
+      ArgumentNullException.ThrowIfNull(field);
       var type = field.DeclaringType;
       if (type.Assembly!=Assembly)
         throw new ArgumentOutOfRangeException("field");

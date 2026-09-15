@@ -17,8 +17,8 @@ namespace Xtensive.Orm.Rse.Providers
 
     internal TagScope(List<string> tags, string tag)
     {
-      ArgumentValidator.EnsureArgumentNotNull(tags, nameof(tags));
-      ArgumentValidator.EnsureArgumentNotNull(tag, nameof(tag));
+      ArgumentNullException.ThrowIfNull(tags);
+      ArgumentNullException.ThrowIfNull(tag);
       (this.tags = tags).Add(tag);
     }
   }

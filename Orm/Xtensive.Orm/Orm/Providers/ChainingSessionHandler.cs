@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2026 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexander Nikolaev
@@ -137,6 +137,9 @@ namespace Xtensive.Orm.Providers
     {
       return ChainedHandler.FetchEntityState(key);
     }
+
+    /// <inheritdoc/>
+    public override Task<EntityState> FetchEntityStateAsync(Key key, CancellationToken token = default) => ChainedHandler.FetchEntityStateAsync(key, token);
 
     /// <inheritdoc/>
     public override void FetchField(Key key, FieldInfo field)

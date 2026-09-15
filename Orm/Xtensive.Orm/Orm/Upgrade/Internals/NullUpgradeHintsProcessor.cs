@@ -35,9 +35,7 @@ namespace Xtensive.Orm.Upgrade.Internals
 
     public NullUpgradeHintsProcessor(StoredDomainModel currentDomainModel)
     {
-      ArgumentValidator.EnsureArgumentNotNull(currentDomainModel, nameof(currentDomainModel));
-
-      this.currentDomainModel = currentDomainModel;
+      this.currentDomainModel = currentDomainModel ?? throw new ArgumentNullException(nameof(currentDomainModel));
     }
   }
 }

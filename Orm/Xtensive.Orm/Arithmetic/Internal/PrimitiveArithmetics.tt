@@ -145,10 +145,7 @@ foreach (var type in types) {
     }
 
     /// <inheritdoc/>
-    protected override IArithmetic<<#= primitiveName #>> CreateNew(ArithmeticRules rules)
-    {
-      return new <#= className #>(Provider, rules);
-    }
+    protected override <#= className #> CreateNew(ArithmeticRules rules) => new(Provider, rules);
 
 
     // Constructors

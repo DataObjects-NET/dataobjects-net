@@ -44,23 +44,22 @@ namespace Xtensive.Orm.Upgrade.Model
         base.ValidateState();
 
         var tableColumns = Parent.Columns;
-        var keys = KeyColumns.Select(static keyRef => keyRef.Value).ToList();
+        var keys = KeyColumns.Select(keyRef => keyRef.Value).ToArray(KeyColumns.Count);
 
-        if (keys.Count == 0) {
+        if (keys.Length == 0) {
           ea.Add(new ValidationException(Strings.ExEmptyKeyColumnsCollection, Path), handle: true);
         }
         if (keys.Count(static ci => ci.Type is null || ci.Type.IsNullable) > 0) {
           ea.Add(new ValidationException(Strings.ExPrimaryKeyColumnCanNotBeNullable, Path), handle: true);
         }
 
-        var values = ValueColumns.Select(static valueRef => valueRef.Value).ToList();
-        var all = keys.Concat(values).ToList();
-
-        if (all.Count!=tableColumns.Count) {
+        var values = ValueColumns.Select(valueRef => valueRef.Value).ToArray(ValueColumns.Count);
+        var allCount = keys.Length + values.Length;
+        if (allCount!=tableColumns.Count) {
           ea.Add(new ValidationException(Strings.ExInvalidPrimaryKeyStructure, Path), handle: true);
         }
 
-        if (all.Zip(tableColumns, static (column, tableColumn) => new Pair<StorageColumnInfo>(column, tableColumn)).Any(static p => p.First!=p.Second)) {
+        if (keys.Concat(values).Zip(tableColumns, (column, tableColumn) => new Pair<StorageColumnInfo>(column, tableColumn)).Any(p => p.First!=p.Second)) {
           ea.Add(new ValidationException(Strings.ExInvalidPrimaryKeyStructure, Path), handle: true);
         }
 

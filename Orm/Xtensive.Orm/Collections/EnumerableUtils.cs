@@ -21,6 +21,7 @@ namespace Xtensive.Collections
     /// </summary>
     /// <typeparam name="TItem">The type of enumerated item.</typeparam>
     /// <returns>Sequence with value inside.</returns>
+    [Obsolete("Inefficient compared with Enumerable.Repeat(value, 1), or .Append(value)/.Prepend(value) extensions.")]
     public static IEnumerable<TItem> One<TItem>(TItem value)
     {
       yield return value;
@@ -39,7 +40,7 @@ namespace Xtensive.Collections
     /// starting from the <paramref name="first"/> one.</returns>
     public static IEnumerable<TItem> Unfold<TItem>(TItem first, Func<TItem, TItem> next)
     {
-      ArgumentValidator.EnsureArgumentNotNull(next, "next");
+      ArgumentNullException.ThrowIfNull(next);
       var current = first;
       while (current!=null) {
         yield return current;
@@ -62,7 +63,7 @@ namespace Xtensive.Collections
     /// </returns>
     public static IEnumerable<TItem> Unfold<TItem>(TItem first, Func<TItem, bool> include, Func<TItem, TItem> next)
     {
-      ArgumentValidator.EnsureArgumentNotNull(next, "next");
+      ArgumentNullException.ThrowIfNull(next);
       var current = first;
       while (include.Invoke(current)) {
         yield return current;

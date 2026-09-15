@@ -108,8 +108,7 @@ namespace Xtensive.Collections
     public TypeRegistration(Assembly assembly, string @namespace)
       : this(assembly)
     {
-      ArgumentValidator.EnsureArgumentNotNull(@namespace, "@namespace");
-      Namespace = @namespace;
+      Namespace = @namespace ?? throw new ArgumentNullException(nameof(@namespace));
     }
   }
 }

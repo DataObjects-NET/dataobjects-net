@@ -52,7 +52,7 @@ namespace Xtensive.Core
     /// </returns>
     public static bool IsNull(this Expression expression)
     {
-      ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
+      ArgumentNullException.ThrowIfNull(expression);
       if (expression.NodeType==ExpressionType.Constant) {
         var constantExpression = (ConstantExpression) expression;
         return constantExpression.Value==null;
@@ -143,12 +143,12 @@ namespace Xtensive.Core
     /// <exception cref="ArgumentException">The root node of expression isn't of <see cref="MemberExpression"/> type.</exception>
     public static MemberInfo GetMember(this Expression expression)
     {
-      ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
+      ArgumentNullException.ThrowIfNull(expression);
       expression = expression.StripLambda().StripCasts();
       var me = expression as MemberExpression;
       if (me==null)
         throw new ArgumentException(
-          string.Format(Strings.ExInvalidArgumentType, typeof (MemberExpression)), "expression");
+          string.Format(Strings.ExInvalidArgumentType, typeof (MemberExpression)), nameof(expression));
       return me.Member;
     }
 
@@ -192,12 +192,12 @@ namespace Xtensive.Core
     /// <exception cref="ArgumentException">Expression must reference event.</exception>
     public static MethodInfo GetMethod(this Expression expression)
     {
-      ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
+      ArgumentNullException.ThrowIfNull(expression);
       expression = expression.StripLambda().StripCasts();
       var mce = expression as MethodCallExpression;
       if (mce==null)
         throw new ArgumentException(
-          string.Format(Strings.ExInvalidArgumentType, typeof (MethodCallExpression)), "expression");
+          string.Format(Strings.ExInvalidArgumentType, typeof (MethodCallExpression)), nameof(expression));
       return mce.Method;
     }
 
@@ -209,12 +209,12 @@ namespace Xtensive.Core
     /// <exception cref="ArgumentException">Expression must reference event.</exception>
     public static PropertyInfo GetIndexer(this Expression expression)
     {
-      ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
+      ArgumentNullException.ThrowIfNull(expression);
       expression = expression.StripLambda().StripCasts();
       var ie = expression as IndexExpression;
       if (ie==null)
         throw new ArgumentException(
-          string.Format(Strings.ExInvalidArgumentType, typeof (IndexExpression)), "expression");
+          string.Format(Strings.ExInvalidArgumentType, typeof (IndexExpression)), nameof(expression));
       return ie.Indexer;
     }
 
@@ -226,12 +226,12 @@ namespace Xtensive.Core
     /// <exception cref="ArgumentException">Expression must reference event.</exception>
     public static ConstructorInfo GetConstructor(this Expression expression)
     {
-      ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
+      ArgumentNullException.ThrowIfNull(expression);
       expression = expression.StripLambda().StripCasts();
       var ne = expression as NewExpression;
       if (ne==null)
         throw new ArgumentException(
-          string.Format(Strings.ExInvalidArgumentType, typeof (NewExpression)), "expression");
+          string.Format(Strings.ExInvalidArgumentType, typeof (NewExpression)), nameof(expression));
       return ne.Constructor;
     }
 
@@ -289,6 +289,32 @@ namespace Xtensive.Core
     {
       while (expression.NodeType==ExpressionType.MemberAccess)
         expression = ((MemberExpression) expression).Expression;
+      return expression;
+    }
+
+    /// <summary>
+    /// Strips implicit cast operators calls.
+    /// </summary>
+    /// <param name="expression">Expression to process.</param>
+    /// <returns><paramref name="expression"/> with chan of implicit casts removed (if any).</returns>
+    public static Expression StripImplicitCast(this Expression expression)
+    {
+      while (expression.NodeType is ExpressionType.Call or ExpressionType.Convert or ExpressionType.ConvertChecked) {
+        if (expression.NodeType == ExpressionType.Call) {
+          var mc = expression as MethodCallExpression;
+          if (mc.Method.Name.Equals(WellKnown.Operator.Implicit, StringComparison.Ordinal))
+            expression = mc.Arguments[0];
+          else
+            break;
+        }
+        else {
+          var unary = expression as UnaryExpression;
+          if (unary.Method is not null && unary.Method.Name.Equals(WellKnown.Operator.Implicit, StringComparison.Ordinal))
+            expression = unary.Operand;
+          else
+            break;
+        }
+      }
       return expression;
     }
 

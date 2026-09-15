@@ -18,15 +18,14 @@ namespace Xtensive.Orm.Internals.Prefetch
       var result = source
         .GroupBy(ken => ken.Path, (path, @group) => 
           (Node) @group.First().ReplaceNestedNodes(
-            new ReadOnlyCollection<BaseFieldNode>(
-              @group.SelectMany(ken => ken.NestedNodes).ToList())))
+              @group.SelectMany(ken => ken.NestedNodes).ToList()))
         .Select(aggregator.Visit)
         .Cast<KeyExtractorNode<T>>()
         .ToList();
       return result;
     }
 
-    public override ReadOnlyCollection<BaseFieldNode> VisitNodeList(ReadOnlyCollection<BaseFieldNode> nodes)
+    public override IReadOnlyList<BaseFieldNode> VisitNodeList(IReadOnlyList<BaseFieldNode> nodes)
     {
       var result = new List<BaseFieldNode>();
       foreach (var group in nodes.Where(n => n!=null).GroupBy(n => n.Path)) {
@@ -36,11 +35,11 @@ namespace Xtensive.Orm.Internals.Prefetch
           result.Add(node);
         else {
           var nodeToVisit = (BaseFieldNode) container.ReplaceNestedNodes(
-            new ReadOnlyCollection<BaseFieldNode>(group.Cast<IHasNestedNodes>().SelectMany(c => c.NestedNodes).ToList()));
+            group.Cast<IHasNestedNodes>().SelectMany(c => c.NestedNodes).ToList());
           result.Add((BaseFieldNode) Visit(nodeToVisit));
         }
       }
-      return new ReadOnlyCollection<BaseFieldNode>(result);
+      return result;
     }
 
     // Constructor

@@ -32,7 +32,7 @@ namespace Xtensive.Sql.Drivers.SqlServer
     /// </summary>
     public static bool ShouldRetryOn(Exception ex)
     {
-      ArgumentValidator.EnsureArgumentNotNull(ex, "ex");
+      ArgumentNullException.ThrowIfNull(ex);
       if (ex is SqlException sqlException) {
         foreach (SqlError err in sqlException.Errors) {
           switch (err.Number) {

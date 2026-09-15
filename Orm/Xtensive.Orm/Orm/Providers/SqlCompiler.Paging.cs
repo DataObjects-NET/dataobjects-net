@@ -131,7 +131,7 @@ namespace Xtensive.Orm.Providers
       var source = compiledSource.Request.Statement;
       var queryRef = SqlDml.QueryRef(source);
       var query = SqlDml.Select(queryRef);
-      var rowNumberColumn = queryRef.Columns.Last();
+      var rowNumberColumn = queryRef.Columns[^1];
       query.Columns.AddRange(queryRef.Columns);
       query.Where = SqlDml.Between(rowNumberColumn,
         fromParameterBinding.ParameterReference,

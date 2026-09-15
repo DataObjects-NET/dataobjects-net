@@ -139,13 +139,13 @@ namespace Xtensive.Orm.Services
 
     private static void ValidateArguments(object target)
     {
-      ArgumentValidator.EnsureArgumentNotNull(target, "target");
+      ArgumentNullException.ThrowIfNull(target);
     }
 
     private static void ValidateArguments(Persistent target, FieldInfo field)
     {
       ValidateArguments(target);
-      ArgumentValidator.EnsureArgumentNotNull(field, "field");
+      ArgumentNullException.ThrowIfNull(field);
       if (!target.TypeInfo.Fields.Contains(field))
         throw new InvalidOperationException(string.Format(
           Strings.ExTypeXDoesNotContainYField, target.TypeInfo.Name, field.Name));
@@ -157,13 +157,13 @@ namespace Xtensive.Orm.Services
     private static void ValidateArguments(EntitySetBase target, Entity item)
     {
       ValidateArguments(target);
-      ArgumentValidator.EnsureArgumentNotNull(item, "item");
+      ArgumentNullException.ThrowIfNull(item);
     }
 
     private static void ValidateArguments(Persistent target, FieldInfo field, Entity item)
     {
       ValidateArguments(target, field);
-      ArgumentValidator.EnsureArgumentNotNull(item, "item");
+      ArgumentNullException.ThrowIfNull(item);
     }
 
     #endregion

@@ -139,7 +139,7 @@ namespace Xtensive.Orm.Localization.Configuration
     /// <returns>Loaded configuration or default configuration if loading failed for some reason.</returns>
     public static LocalizationConfiguration Load(IConfiguration configuration, string sectionName = null)
     {
-      ArgumentValidator.EnsureArgumentNotNull(configuration, nameof(configuration));
+      ArgumentNullException.ThrowIfNull(configuration);
 
       if (configuration is IConfigurationRoot configurationRoot) {
         return new LocalizationConfigurationReader().Read(configurationRoot, sectionName ?? DefaultSectionName);
@@ -160,7 +160,7 @@ namespace Xtensive.Orm.Localization.Configuration
     /// <returns>Loaded configuration or default configuration if loading failed for some reason.</returns>
     public static LocalizationConfiguration Load(IConfigurationSection configurationSection)
     {
-      ArgumentValidator.EnsureArgumentNotNull(configurationSection, nameof(configurationSection));
+      ArgumentNullException.ThrowIfNull(configurationSection);
 
       return new LocalizationConfigurationReader().Read(configurationSection);
     }
@@ -174,7 +174,7 @@ namespace Xtensive.Orm.Localization.Configuration
     /// <returns>Loaded configuration or default configuration if loading failed for some reason.</returns>
     public static LocalizationConfiguration Load(IConfigurationRoot configurationRoot, string sectionName = null)
     {
-      ArgumentValidator.EnsureArgumentNotNull(configurationRoot, nameof(configurationRoot));
+      ArgumentNullException.ThrowIfNull(configurationRoot);
 
       return new LocalizationConfigurationReader().Read(configurationRoot, sectionName ?? DefaultSectionName);
     }

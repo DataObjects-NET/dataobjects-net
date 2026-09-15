@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2022 Xtensive LLC.
+// Copyright (C) 2009-2026 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexey Gamzov
@@ -10,45 +10,95 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Linq;
 using Xtensive.Orm.Internals;
-using Xtensive.Reflection;
-using Xtensive.Tuples;
-using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Orm.Linq.Expressions;
 using Xtensive.Orm.Model;
-
-using FieldInfo=System.Reflection.FieldInfo;
+using Xtensive.Reflection;
+using Xtensive.Tuples;
+using FieldInfo = System.Reflection.FieldInfo;
+using Tuple = Xtensive.Tuples.Tuple;
 using TypeInfo = Xtensive.Orm.Model.TypeInfo;
 
 namespace Xtensive.Orm.Linq
 {
   internal sealed class ItemToTupleConverter<TItem> : ItemToTupleConverter
   {
-    private class TupleTypeCollection: IReadOnlyCollection<Type>
+    private struct TupleTypeCollection
     {
-      private IEnumerable<Type> types;
+      private const int InitialTypesCollectorCapacity = 8;
+
+      private List<Type> typesList;
+      private Type[] singleType;
       private int count;
-
-      public int Count => count;
-
-      public IEnumerator<Type> GetEnumerator() => (types ?? Enumerable.Empty<Type>()).GetEnumerator();
-
-      IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
       public void Add(Type type)
       {
-        count++;
-        types = types==null ? EnumerableUtils.One(type) : types.Concat(EnumerableUtils.One(type));
+        if (count == 0) {
+          singleType[0] = type;
+          count++;
+          return;
+        }
+        if (typesList is null) {
+          typesList = new List<Type>(InitialTypesCollectorCapacity) { singleType[0], type };
+          singleType = null;
+          count++;
+        }
+        else {
+          typesList.Add(type);
+          count++;
+        }
       }
 
       public void AddRange(IReadOnlyCollection<Type> newTypes)
       {
-        count += newTypes.Count;
-        types = types == null ? newTypes : types.Concat(newTypes);
+        var addedCount = newTypes.Count;
+        if (addedCount == 0) {
+          return;
+        }
+
+        if (addedCount == 1) {
+          Add(newTypes.First());
+          return;
+        }
+
+        if (typesList is null) {
+          typesList = (count > 0)
+            ? new List<Type>(InitialTypesCollectorCapacity) { singleType[0] }
+            : new List<Type>(InitialTypesCollectorCapacity);
+          typesList.AddRange(newTypes);
+          singleType = null;
+          count += newTypes.Count;
+        }
+        else {
+          typesList.AddRange(newTypes);
+          count += newTypes.Count;
+        }
       }
+
+      public Type[] ToArray()
+      {
+        return count == 0
+          ? Array.Empty<Type>()
+          : singleType ?? typesList.ToArray();
+      }
+
+      public TupleTypeCollection()
+      {
+        count = 0;
+        singleType = new Type[1];
+        typesList = null;
+      }
+    }
+
+    private enum PersistableKind
+    {
+      Entity,
+      Structure,
+      PersistentInteface,
+      RegularField,
+      Unknown
     }
 
     private static readonly Type RefOfTType = typeof(Ref<>);
@@ -57,11 +107,9 @@ namespace Xtensive.Orm.Linq
 
     private readonly Func<ParameterContext, IEnumerable<TItem>> enumerableFunc;
     private readonly DomainModel model;
-    private readonly Type entityTypestoredInKey;
+    private readonly Type entityTypeStoredInKey;
     private readonly bool isKeyConverter;
-
-    private Func<TItem, Tuple> converter;
-    
+    private readonly Func<TItem, Tuple> converter;
 
     public override Expression<Func<ParameterContext, IEnumerable<Tuple>>> GetEnumerable()
     {
@@ -70,25 +118,31 @@ namespace Xtensive.Orm.Linq
       return FastExpression.Lambda<Func<ParameterContext, IEnumerable<Tuple>>>(select, ParamContext);
     }
 
-
     /// <exception cref="InvalidOperationException"><c>InvalidOperationException</c>.</exception>
-    private bool IsPersistableType(Type type)
+    private PersistableKind GetPersistableKind(Type type)
     {
-      if (type==WellKnownOrmTypes.Entity
-        || type.IsSubclassOf(WellKnownOrmTypes.Entity)
-          || type==WellKnownOrmTypes.Structure
-            || type.IsSubclassOf(WellKnownOrmTypes.Structure)) {
+      if (type == WellKnownOrmTypes.Entity
+        || type.IsSubclassOf(WellKnownOrmTypes.Entity)) {
         if (!model.Types.Contains(type))
           throw new InvalidOperationException(string.Format(Strings.ExTypeNotFoundInModel, type.FullName));
-        return true;
+        return PersistableKind.Entity;
       }
-      if (type.IsOfGenericType(RefOfTType)) {
-        var entityType = type.GetGenericType(RefOfTType).GetGenericArguments()[0];
-        if (!model.Types.Contains(entityType))
+
+      if (type == WellKnownOrmTypes.Structure || type.IsSubclassOf(WellKnownOrmTypes.Structure)) {
+        if (!model.Types.Contains(type))
           throw new InvalidOperationException(string.Format(Strings.ExTypeNotFoundInModel, type.FullName));
-        return true;
+        return PersistableKind.Structure;
       }
-      return TypeIsStorageMappable(type);
+
+      if (type.IsInterface && type.IsAssignableTo(WellKnownOrmInterfaces.Entity)) {
+        if (!model.Types.Contains(type))
+          throw new InvalidOperationException(string.Format(Strings.ExTypeNotFoundInModel, type.FullName));
+        return PersistableKind.PersistentInteface;
+      }
+      if (TypeIsStorageMappable(type)) {
+        return PersistableKind.RegularField;
+      }
+      return PersistableKind.Unknown;
     }
 
     private static bool TypeIsStorageMappable(Type type)
@@ -97,34 +151,29 @@ namespace Xtensive.Orm.Linq
       type = type.StripNullable();
       return type.IsPrimitive ||
         type.IsEnum ||
-        type == WellKnownTypes.ByteArray ||
-        type == WellKnownTypes.Decimal ||
-        type == WellKnownTypes.String ||
+        type == WellKnownTypes.Guid ||
         type == WellKnownTypes.DateTime ||
+        type == WellKnownTypes.String ||
+        type == WellKnownTypes.TimeSpan ||
         type == WellKnownTypes.DateTimeOffset ||
         type == WellKnownTypes.DateOnly ||
         type == WellKnownTypes.TimeOnly ||
-        type == WellKnownTypes.Guid ||
-        type == WellKnownTypes.TimeSpan;
+        type == WellKnownTypes.Decimal ||
+        type == WellKnownTypes.ByteArray;
     }
-
 
     private static void FillLocalCollectionField(object item, Tuple tuple, Expression expression)
     {
-      if (item==null)
+      if (item is null)
         return;
-      // LocalCollectionExpression
+
       switch (expression) {
         case LocalCollectionExpression itemExpression:
           foreach (var field in itemExpression.Fields) {
-            object value;
-            if (field.Key is PropertyInfo propertyInfo) {
-              value = propertyInfo.GetValue(item, BindingFlags.InvokeMethod, null, null, null);
-            }
-            else {
-              value = ((FieldInfo) field.Key).GetValue(item);
-            }
-            if (value != null)
+            var value = field.Key is PropertyInfo propertyInfo
+              ? propertyInfo.GetValue(item, BindingFlags.InvokeMethod, null, null, null)
+              : ((FieldInfo) field.Key).GetValue(item);
+            if (value is not null)
               FillLocalCollectionField(value, tuple, (Expression) field.Value);
           }
           break;
@@ -143,70 +192,66 @@ namespace Xtensive.Orm.Linq
           var entity = (Entity) item;
           var keyTuple = entity.Key.Value;
           keyTuple.CopyTo(tuple, 0, entityExpression.Key.Mapping.Offset, keyTuple.Count);
+          break;
         }
-        break;
         case KeyExpression keyExpression: {
           var key = (Key) item;
           var keyTuple = key.Value;
           keyTuple.CopyTo(tuple, 0, keyExpression.Mapping.Offset, keyTuple.Count);
+          break;
         }
-        break;
         default:
           throw new NotSupportedException();
       }
     }
 
     private LocalCollectionExpression BuildLocalCollectionExpression(Type type,
-      HashSet<Type> processedTypes, ref int columnIndex, MemberInfo parentMember, TupleTypeCollection types, Expression sourceExpression)
+      HashSet<Type> processedTypes, ref int columnIndex, MemberInfo parentMember, ref TupleTypeCollection types, Expression sourceExpression)
     {
       if (type.IsAssignableFrom(WellKnownOrmTypes.Key))
         throw new InvalidOperationException(string.Format(Strings.ExUnableToStoreUntypedKeyToStorage, RefOfTType.GetShortName()));
       if (!processedTypes.Add(type))
         throw new InvalidOperationException(string.Format(Strings.ExUnableToPersistTypeXBecauseOfLoopReference, type.FullName));
 
-
       var members = type
         .GetProperties(BindingFlags.Instance | BindingFlags.Public)
-        .Where(propertyInfo => propertyInfo.CanRead)
+        .Where(static propertyInfo => propertyInfo.CanRead)
         .Cast<MemberInfo>()
         .Concat(type.GetFields(BindingFlags.Instance | BindingFlags.Public));
+
       var fields = new Dictionary<MemberInfo, IMappedExpression>();
       foreach (var memberInfo in members) {
-        var propertyInfo = memberInfo as PropertyInfo;
-        var memberType = propertyInfo==null
-          ? ((FieldInfo) memberInfo).FieldType
-          : propertyInfo.PropertyType;
-        if (IsPersistableType(memberType)) {
-          var expression = BuildField(memberType, ref columnIndex, types);
+        var memberType = memberInfo is PropertyInfo pInfo
+          ? pInfo.PropertyType
+          : ((FieldInfo) memberInfo).FieldType;
+
+        var typeKind = GetPersistableKind(memberType);
+        if (typeKind != PersistableKind.Unknown) {
+          var expression = BuildField(memberType, ref columnIndex, ref types, typeKind);
           fields.Add(memberInfo, expression);
         }
         else {
-          var collectionExpression = BuildLocalCollectionExpression(memberType, new HashSet<Type>(processedTypes), ref columnIndex, memberInfo, types, sourceExpression);
+          var collectionExpression = BuildLocalCollectionExpression(memberType, new HashSet<Type>(processedTypes), ref columnIndex, memberInfo, ref types, sourceExpression);
           fields.Add(memberInfo, collectionExpression);
         }
       }
-      if (fields.Count==0)
+      if (fields.Count == 0)
         throw new InvalidOperationException(string.Format(Strings.ExTypeXDoesNotHasAnyPublicReadablePropertiesOrFieldsSoItCanTBePersistedToStorage, type.FullName));
 
       return new LocalCollectionExpression(type, parentMember, sourceExpression) { Fields = fields };
     }
 
-
-    private IMappedExpression BuildField(Type type, ref int index, TupleTypeCollection types)
+    private IMappedExpression BuildField(Type type, ref int index, ref TupleTypeCollection types, PersistableKind typeKind)
     {
-//      if (type.IsOfGenericType(typeof (Ref<>))) {
-//        var entityType = type.GetGenericType(typeof (Ref<>)).GetGenericArguments()[0];
-//        TypeInfo typeInfo = model.Types[entityType];
-//        KeyInfo keyProviderInfo = typeInfo.KeyInfo;
-//        TupleDescriptor keyTupleDescriptor = keyProviderInfo.TupleDescriptor;
-//        KeyExpression entityExpression = KeyExpression.Create(typeInfo, index);
-//        index += keyTupleDescriptor.Count;
-//        types = types.Concat(keyTupleDescriptor);
-//        return Expression.Convert(entityExpression, type);
-//      }
+      if (typeKind is PersistableKind.RegularField) {
+        var columnExpression = ColumnExpression.Create(type, index);
+        types.Add(type);
+        index++;
+        return columnExpression;
+      }
 
-      if (type.IsSubclassOf(WellKnownOrmTypes.Entity)) {
-        var typeInfo = model.Types[type];
+      var typeInfo = model.Types[type];
+      if (typeKind is PersistableKind.Entity or PersistableKind.PersistentInteface) {
         var keyInfo = typeInfo.Key;
         var keyTupleDescriptor = keyInfo.TupleDescriptor;
         IMappedExpression expression;
@@ -222,8 +267,7 @@ namespace Xtensive.Orm.Linq
         return expression;
       }
 
-      if (type.IsSubclassOf(WellKnownOrmTypes.Structure)) {
-        var typeInfo = model.Types[type];
+      if (typeKind is PersistableKind.Structure) {
         var tupleDescriptor = typeInfo.TupleDescriptor;
         var tupleSegment = new Segment<int>(index, tupleDescriptor.Count);
         var structureExpression = StructureExpression.CreateLocalCollectionStructure(typeInfo, tupleSegment);
@@ -232,35 +276,22 @@ namespace Xtensive.Orm.Linq
         return structureExpression;
       }
 
-      if (TypeIsStorageMappable(type)) {
-        ColumnExpression columnExpression = ColumnExpression.Create(type, index);
-        types.Add(type);
-        index++;
-        return columnExpression;
-      }
-
       throw new NotSupportedException();
     }
 
-    private void BuildConverter(Expression sourceExpression)
+    private Func<TItem, Tuple> BuildConverter(Expression sourceExpression, Type itemType)
     {
-      var itemType = isKeyConverter ? entityTypestoredInKey : typeof (TItem);
       var index = 0;
-      var types = new TupleTypeCollection();
-      if (IsPersistableType(itemType)) {
-        Expression = (Expression) BuildField(itemType, ref index, types);
-        TupleDescriptor = TupleDescriptor.Create(types.ToArray(types.Count));
-      }
-      else {
-        var processedTypes = new HashSet<Type>();
-        var itemExpression = BuildLocalCollectionExpression(itemType, processedTypes, ref index, null, types, sourceExpression);
-        TupleDescriptor = TupleDescriptor.Create(types.ToArray(types.Count));
-        Expression = itemExpression;
-      }
+      var tupleTypes = new TupleTypeCollection();
+      var typeKind = GetPersistableKind(itemType);
+      Expression = typeKind != PersistableKind.Unknown
+        ? (Expression) BuildField(itemType, ref index, ref tupleTypes, typeKind)
+        : BuildLocalCollectionExpression(itemType, new HashSet<Type>(), ref index, null, ref tupleTypes, sourceExpression);
+      TupleDescriptor = TupleDescriptor.Create(tupleTypes.ToArray());
 
-      converter = delegate(TItem item) {
+      return delegate (TItem item) {
         var tuple = Tuple.Create(TupleDescriptor);
-        if (ReferenceEquals(item, null)) {
+        if (item is null) {
           return tuple;
         }
         FillLocalCollectionField(item, tuple, Expression);
@@ -268,13 +299,19 @@ namespace Xtensive.Orm.Linq
       };
     }
 
-    public ItemToTupleConverter(Func<ParameterContext, IEnumerable<TItem>> enumerableFunc, DomainModel model, Expression sourceExpression, Type storedEntityType)
+    public ItemToTupleConverter(
+      Func<ParameterContext, IEnumerable<TItem>> enumerableFunc,
+      DomainModel model,
+      Expression sourceExpression,
+      Type storedEntityType)
     {
       this.model = model;
       this.enumerableFunc = enumerableFunc;
-      entityTypestoredInKey = storedEntityType;
-      isKeyConverter = typeof(TItem).IsAssignableFrom(WellKnownOrmTypes.Key);
-      BuildConverter(sourceExpression);
+      entityTypeStoredInKey = storedEntityType;
+      var itemType = typeof(TItem);
+      isKeyConverter = itemType.IsAssignableFrom(WellKnownOrmTypes.Key);
+      converter = BuildConverter(sourceExpression,
+        isKeyConverter ? entityTypeStoredInKey : itemType);
     }
   }
 }

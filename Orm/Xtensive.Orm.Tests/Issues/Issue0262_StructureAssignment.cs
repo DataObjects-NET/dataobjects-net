@@ -65,7 +65,7 @@ namespace Xtensive.Orm.Tests.Issues
       using (var t = session.OpenTransaction()) {
 
         var container = new Container();
-        _ = Assert.Throws<InvalidOperationException>(() => container.Value = new Triple());
+        _ = Assert.Throws<InvalidOperationException>(() => { container.Value = new Triple(); });
 
         // Rollback
       }
@@ -78,10 +78,9 @@ namespace Xtensive.Orm.Tests.Issues
       using (var t = session.OpenTransaction()) {
 
         var container = new Container();
-        _ = Assert.Throws<InvalidOperationException>(() => container.Value = new Triple());
+        _ = Assert.Throws<InvalidOperationException>(() => { container.Value = (Pair) new Triple(); });
 
         // Rollback
-
       }
     }
 

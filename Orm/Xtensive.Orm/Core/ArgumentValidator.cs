@@ -24,6 +24,7 @@ namespace Xtensive.Core
     /// <param name="value">Value to compare with <see langword="null"/>.</param>
     /// <param name="parameterName">Name of the method parameter.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [Obsolete("Use ArgumentNullException.ThrowIfNull() instead")]
     public static void EnsureArgumentNotNull(object value, [InvokerParameterName] string parameterName)
     {
       if (value==null) {
@@ -99,7 +100,7 @@ namespace Xtensive.Core
       if (value is T result) {
         return result;
       }
-      EnsureArgumentNotNull(value, parameterName);
+      ArgumentNullException.ThrowIfNull(value, parameterName);
       throw new ArgumentException(string.Format(Strings.ExInvalidArgumentType, typeof(T)), parameterName);
     }
 
@@ -113,7 +114,7 @@ namespace Xtensive.Core
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void EnsureArgumentIs(object value, Type type, [InvokerParameterName] string parameterName)
     {
-      EnsureArgumentNotNull(value, parameterName);
+      ArgumentNullException.ThrowIfNull(value, parameterName);
       if (!type.IsInstanceOfType(value)) {
         throw new ArgumentException(string.Format(Strings.ExInvalidArgumentType, type), parameterName);
       }

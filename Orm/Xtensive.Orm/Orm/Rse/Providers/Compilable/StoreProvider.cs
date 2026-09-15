@@ -15,8 +15,6 @@ namespace Xtensive.Orm.Rse.Providers
   /// </summary>
   public sealed class StoreProvider : CompilableProvider
   {
-    private readonly RecordSetHeader header;
-
     /// <summary>
     /// Gets the name of saved data.
     /// </summary>
@@ -28,12 +26,6 @@ namespace Xtensive.Orm.Rse.Providers
     public CompilableProvider Source { get; }
 
     /// <inheritdoc/>
-    protected override RecordSetHeader BuildHeader()
-    {
-      return header;
-    }
-
-    /// <inheritdoc/>
     protected override string ParametersToString()
     {
       return Name;
@@ -43,40 +35,17 @@ namespace Xtensive.Orm.Rse.Providers
     // Constructors
 
     /// <summary>
-    /// Initializes a new instance of this class.
-    /// </summary>
-    /// <param name="header">The <see cref="Provider.Header"/> property value.</param>
-    /// <param name="name">The <see cref="Name"/> property value.</param>
-    public StoreProvider(RecordSetHeader header, string name)
-      : base (ProviderType.Store)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(header, "header");
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
-
-      Name = name;
-
-      this.header = header;
-
-      Initialize();
-    }
-
-    /// <summary>
     ///   Initializes a new instance of this class.
     /// </summary>
     /// <param name="source">The <see cref="Source"/> property value.</param>
     /// <param name="name">The <see cref="Name"/> property value.</param>
     public StoreProvider(CompilableProvider source, string name)
-      : base(ProviderType.Store, source)
+      : base(ProviderType.Store, source.Header, source)
     {
-      ArgumentValidator.EnsureArgumentNotNull(source, "source");
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
+      ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, nameof(name));
 
       Name = name;
-      Source = source;
-
-      header = source.Header;
-
-      Initialize();
+      Source = source ?? throw new ArgumentNullException(nameof(source));
     }
 
     /// <summary>
@@ -84,16 +53,8 @@ namespace Xtensive.Orm.Rse.Providers
     /// </summary>
     /// <param name="source">The <see cref="Source"/> property value.</param>
     public StoreProvider(CompilableProvider source)
-      : base(ProviderType.Store, source)
+      : this(source, Guid.NewGuid().ToString())
     {
-      ArgumentValidator.EnsureArgumentNotNull(source, "source");
-
-      Name = Guid.NewGuid().ToString();
-      Source = source;
-
-      header = source.Header;
-
-      Initialize();
     }
   }
 }

@@ -1,9 +1,11 @@
-// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2026 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexis Kochetov
 // Created:    2009.05.26
 
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using Xtensive.Core;
@@ -18,40 +20,55 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
       return remover.Visit(target);
     }
 
-    protected override Expression VisitGroupingExpression(GroupingExpression expression)
+    protected override GroupingExpression VisitGroupingExpression(GroupingExpression expression)
     {
       return expression;
     }
 
-    protected override Expression VisitSubQueryExpression(SubQueryExpression expression)
+    protected override SubQueryExpression VisitSubQueryExpression(SubQueryExpression expression)
     {
       return expression;
     }
 
-    protected override Expression VisitFieldExpression(FieldExpression expression)
+    protected override FieldExpression VisitFieldExpression(FieldExpression expression)
     {
       return expression.RemoveOwner();
     }
 
-    protected override Expression VisitStructureFieldExpression(StructureFieldExpression expression)
+    protected override FieldExpression VisitStructureFieldExpression(StructureFieldExpression expression)
     {
       return expression.RemoveOwner();
     }
 
-    protected override Expression VisitKeyExpression(KeyExpression expression)
+    protected override KeyExpression VisitKeyExpression(KeyExpression expression)
     {
       return expression;
     }
 
-    protected override Expression VisitConstructorExpression(ConstructorExpression expression)
+    protected override ConstructorExpression VisitConstructorExpression(ConstructorExpression expression)
     {
-      var oldConstructorArguments = expression.ConstructorArguments.ToList().AsReadOnly();
-      var newConstructorArguments = VisitExpressionList(oldConstructorArguments);
+      IReadOnlyList<Expression> oldConstructorArguments;
+      IReadOnlyList<Expression> newConstructorArguments;
 
-      var oldBindings = expression.Bindings.Select(b => b.Value).ToList().AsReadOnly();
+      if (ReferenceEquals(expression.ConstructorArguments, Array.Empty<Expression>())) {
+        oldConstructorArguments = newConstructorArguments = Array.Empty<Expression>();
+      }
+      else if (expression.ConstructorArguments is IReadOnlyList<Expression> argsAsList) {
+        oldConstructorArguments = argsAsList;
+        newConstructorArguments = VisitExpressionList(argsAsList); // creates a copy internally
+      }
+      else {
+        oldConstructorArguments = expression.ConstructorArguments.ToList();
+        if (oldConstructorArguments.Count == 0)
+          oldConstructorArguments = newConstructorArguments = Array.Empty<Expression>();
+        else
+          newConstructorArguments = VisitExpressionList(oldConstructorArguments);
+      }
+
+      var oldBindings = expression.Bindings.SelectToList(b => b.Value);
       var newBindings = VisitExpressionList(oldBindings);
 
-      var oldNativeBindings = expression.NativeBindings.Select(b => b.Value).ToList().AsReadOnly();
+      var oldNativeBindings = expression.NativeBindings.SelectToList(b => b.Value);
       var newNativeBindings = VisitExpressionList(oldNativeBindings);
       
       var notChanged =
@@ -71,22 +88,22 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
       return new ConstructorExpression(expression.Type, bindings, nativeBingings, expression.Constructor, newConstructorArguments);
     }
 
-    protected override Expression VisitEntityExpression(EntityExpression expression)
+    protected override EntityExpression VisitEntityExpression(EntityExpression expression)
     {
       return expression;
     }
 
-    protected override Expression VisitEntityFieldExpression(EntityFieldExpression expression)
+    protected override FieldExpression VisitEntityFieldExpression(EntityFieldExpression expression)
     {
       return expression.RemoveOwner();
     }
 
-    protected override Expression VisitEntitySetExpression(EntitySetExpression expression)
+    protected override EntitySetExpression VisitEntitySetExpression(EntitySetExpression expression)
     {
       return expression;
     }
 
-    protected override Expression VisitColumnExpression(ColumnExpression expression)
+    protected override ColumnExpression VisitColumnExpression(ColumnExpression expression)
     {
       return expression;
     }

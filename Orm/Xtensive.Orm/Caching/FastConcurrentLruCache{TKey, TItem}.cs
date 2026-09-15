@@ -40,7 +40,7 @@ namespace Xtensive.Caching
     /// <inheritdoc/>
     public override TItem Add(TItem item, bool replaceIfExists)
     {
-      ArgumentValidator.EnsureArgumentNotNull(item, "item");
+      ArgumentNullException.ThrowIfNull(item);
       var key = KeyExtractor(item);
       if (replaceIfExists) {
         realCache.AddOrUpdate(key, item);

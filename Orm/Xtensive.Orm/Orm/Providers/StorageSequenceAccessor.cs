@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.IoC;
 using Xtensive.Orm.Configuration;
@@ -112,7 +113,7 @@ namespace Xtensive.Orm.Providers
     [ServiceConstructor]
     public StorageSequenceAccessor(HandlerAccessor handlers)
     {
-      ArgumentValidator.EnsureArgumentNotNull(handlers, "handlers");
+      ArgumentNullException.ThrowIfNull(handlers);
 
       queryBuilder = handlers.SequenceQueryBuilder;
       domain = handlers.Domain;

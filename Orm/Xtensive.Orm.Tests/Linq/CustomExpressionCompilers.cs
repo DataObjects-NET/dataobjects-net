@@ -5,13 +5,13 @@
 // Created:    2009.11.13
 
 using System;
+using System.Linq;
 using System.Linq.Expressions;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Linq;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Linq.CustomExpressionCompilersModel;
-using System.Linq;
 
 namespace Xtensive.Orm.Tests.Linq.CustomExpressionCompilersModel
 {
@@ -79,24 +79,21 @@ namespace Xtensive.Orm.Tests.Linq.CustomExpressionCompilersModel
       return value * Id;
     }
   }
-}
 
-namespace Xtensive.Orm.Tests.Linq
-{
-  [CompilerContainer(typeof (Expression))]
+  [CompilerContainer(typeof(Expression))]
   internal static class CustomLinqCompilerContainer
   {
-    [Compiler(typeof (Person), "Fullname", TargetKind.PropertyGet)]
+    [Compiler(typeof(Person), "Fullname", TargetKind.PropertyGet)]
     public static Expression FullName(Expression personExpression)
     {
       Expression<Func<Person, string>> ex = person => person.FirstName + " " + person.LastName;
       return ex.BindParameters(personExpression);
     }
 
-    [Compiler(typeof (Person), "AddPrefix", TargetKind.Method)]
+    [Compiler(typeof(Person), "AddPrefix", TargetKind.Method)]
     public static Expression AddPrefix(Expression personExpression, Expression prefixExpression)
     {
-      Expression<Func<Person, string, string>> ex =  (person, prefix) => prefix + person.LastName;
+      Expression<Func<Person, string, string>> ex = (person, prefix) => prefix + person.LastName;
       return ex.BindParameters(personExpression, prefixExpression);
     }
 
@@ -107,7 +104,10 @@ namespace Xtensive.Orm.Tests.Linq
       return ex.BindParameters(assignmentExpression);
     }
   }
+}
 
+namespace Xtensive.Orm.Tests.Linq
+{
   [TestFixture, Category("Linq")]
   public class CustomExpressionCompilers : AutoBuildTest
   {
@@ -115,7 +115,6 @@ namespace Xtensive.Orm.Tests.Linq
     {
       var config = base.BuildConfiguration();
       config.Types.RegisterCaching(typeof (Person).Assembly, typeof (Person).Namespace);
-      config.Types.Register(typeof (CustomLinqCompilerContainer));
       RegisterLinqExtensions(config);
       return config;
     }
@@ -123,7 +122,7 @@ namespace Xtensive.Orm.Tests.Linq
     private static void RegisterLinqExtensions(DomainConfiguration config)
     {
       var extensions = config.LinqExtensions;
-      var type = typeof (RegistrarTestEntity);
+      var type = typeof(RegistrarTestEntity);
       Expression<Func<int>> staticProperty = () => 0;
       extensions.Register(type.GetProperty("StaticProperty"), staticProperty);
       Expression<Func<RegistrarTestEntity, int>> instanceProperty = e => e.Id % 10;
@@ -137,19 +136,18 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void MainTest()
     {
-      using (var session = Domain.OpenSession()) {
-        using (var t = session.OpenTransaction()) {
-          Fill();
-          var expected1 = session.Query.All<Person>().AsEnumerable().OrderBy(p => p.Id).Select(p => p.Fullname).ToList();
-          Assert.That(expected1.Count, Is.GreaterThan(0));
-          var fullNames1 = session.Query.All<Person>().OrderBy(p => p.Id).Select(p => p.Fullname).ToList();
-          Assert.That(expected1.SequenceEqual(fullNames1), Is.True);
+      using (var session = Domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        Fill();
+        var expected1 = session.Query.All<Person>().AsEnumerable().OrderBy(p => p.Id).Select(p => p.Fullname).ToList();
+        Assert.That(expected1.Count, Is.GreaterThan(0));
+        var fullNames1 = session.Query.All<Person>().OrderBy(p => p.Id).Select(p => p.Fullname).ToList();
+        Assert.That(expected1.SequenceEqual(fullNames1), Is.True);
 
-          var expected2 = session.Query.All<Person>().AsEnumerable().OrderBy(p => p.Id).Select(p => p.AddPrefix("Mr. ")).ToList();
-          var fullNames2 = session.Query.All<Person>().OrderBy(p => p.Id).Select(p => p.AddPrefix("Mr. ")).ToList();
-          Assert.That(expected2.SequenceEqual(fullNames2), Is.True);
-          // Rollback
-        }
+        var expected2 = session.Query.All<Person>().AsEnumerable().OrderBy(p => p.Id).Select(p => p.AddPrefix("Mr. ")).ToList();
+        var fullNames2 = session.Query.All<Person>().OrderBy(p => p.Id).Select(p => p.AddPrefix("Mr. ")).ToList();
+        Assert.That(expected2.SequenceEqual(fullNames2), Is.True);
+        // Rollback
       }
     }
 
@@ -204,9 +202,9 @@ namespace Xtensive.Orm.Tests.Linq
 
     private void Fill()
     {
-      new Person {FirstName = "Ivan", LastName = "Semenov"};
-      new Person {FirstName = "John", LastName = "Smith"};
-      new Person {FirstName = "Andrew", LastName = "Politkovsky"};
+      _ = new Person { FirstName = "Ivan", LastName = "Semenov" };
+      _ = new Person { FirstName = "John", LastName = "Smith" };
+      _ = new Person { FirstName = "Andrew", LastName = "Politkovsky" };
     }
   }
 }

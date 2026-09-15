@@ -97,7 +97,7 @@ namespace Xtensive.Orm
     /// <inheritdoc/>
     public Task<Session> OpenSessionAsync(SessionConfiguration configuration, CancellationToken cancellationToken = default)
     {
-      ArgumentValidator.EnsureArgumentNotNull(configuration, nameof(configuration));
+      ArgumentNullException.ThrowIfNull(configuration, nameof(configuration));
 
       SessionScope sessionScope = null;
       try {
@@ -116,10 +116,10 @@ namespace Xtensive.Orm
 
     internal StorageNode(Domain domain, NodeConfiguration configuration, ModelMapping mapping, TypeIdRegistry typeIdRegistry)
     {
-      ArgumentValidator.EnsureArgumentNotNull(domain, nameof(domain));
-      ArgumentValidator.EnsureArgumentNotNull(configuration, nameof(configuration));
-      ArgumentValidator.EnsureArgumentNotNull(mapping, nameof(mapping));
-      ArgumentValidator.EnsureArgumentNotNull(typeIdRegistry, nameof(typeIdRegistry));
+      ArgumentNullException.ThrowIfNull(domain);
+      ArgumentNullException.ThrowIfNull(configuration);
+      ArgumentNullException.ThrowIfNull(mapping);
+      ArgumentNullException.ThrowIfNull(typeIdRegistry);
 
       EntityLockProviderCache = new ConcurrentDictionary<(TypeInfo, LockMode, LockBehavior), ExecutableProvider>();
       EntityFetchQueryCache = new ConcurrentDictionary<RecordSetCacheKey, CompilableProvider>();

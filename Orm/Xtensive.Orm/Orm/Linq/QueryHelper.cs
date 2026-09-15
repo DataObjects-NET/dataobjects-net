@@ -115,7 +115,7 @@ namespace Xtensive.Orm.Linq
       }
 
       var elementType = field.ItemType;
-      var association = field.Associations.Last();
+      var association = field.Associations[^1];
       if (association.Multiplicity==Multiplicity.OneToMany) {
         var targetField = association.TargetType.Fields[association.Reversed.OwnerField.Name];
         var whereParameter = Expression.Parameter(elementType, "p");

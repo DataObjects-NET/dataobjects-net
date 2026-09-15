@@ -58,7 +58,7 @@ namespace Xtensive.Orm.Tests.Storage.VersionRootModel
       if (Order==null)
         return Enumerable.Empty<Entity>();
       else 
-        return EnumerableUtils.One((Entity) Order);
+        return Enumerable.Repeat((Entity) Order, 1);
     }
   }
 

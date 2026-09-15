@@ -21,17 +21,17 @@ namespace Xtensive.Orm.Rse.Providers
     /// <summary>
     /// Join operation type.
     /// </summary>
-    public JoinType JoinType { get; private set; }
+    public JoinType JoinType { get; }
 
     /// <summary>
     /// Pairs of equal column indexes.
     /// </summary>
-    public Pair<int>[] EqualIndexes { get; private set; }
+    public Pair<int>[] EqualIndexes { get; }
 
     /// <summary>
     /// Pairs of equal columns.
     /// </summary>
-    public Pair<Column>[] EqualColumns { get; private set; }
+    public Pair<Column>[] EqualColumns { get; }
 
     /// <inheritdoc/>
     protected override string ParametersToString()
@@ -41,18 +41,18 @@ namespace Xtensive.Orm.Rse.Providers
         EqualColumns.Select(p => p.First.Name + " == " + p.Second.Name).ToCommaDelimitedString());
     }
 
-    /// <inheritdoc/>
-    protected override void Initialize()
-    {
-      base.Initialize();
-      EqualColumns = new Pair<Column>[EqualIndexes.Length];
-      for (int i = 0; i < EqualIndexes.Length; i++)
-        EqualColumns[i] = new Pair<Column>(
-          Left.Header.Columns[EqualIndexes[i].First],
-          Right.Header.Columns[EqualIndexes[i].Second]
-          );
-    }
 
+    private static Pair<Column>[] BuildEqualColumns(ColumnCollection leftHeaderColumns, ColumnCollection rightHeaderColumns, Pair<int>[] equalIndexes)
+    {
+      var equalColumns = new Pair<Column>[equalIndexes.Length];
+      for (int i = 0; i < equalIndexes.Length; i++) {
+        equalColumns[i] = new Pair<Column>(
+          leftHeaderColumns[equalIndexes[i].First],
+          rightHeaderColumns[equalIndexes[i].Second]
+          );
+      }
+      return equalColumns;
+    }
 
     // Constructors
 
@@ -67,12 +67,13 @@ namespace Xtensive.Orm.Rse.Providers
     public JoinProvider(CompilableProvider left, CompilableProvider right, JoinType joinType, params Pair<int>[] equalIndexes)
       : base(ProviderType.Join, left, right)
     {
-      if (equalIndexes==null || equalIndexes.Length==0)
+      if (equalIndexes == null || equalIndexes.Length == 0) {
         throw new ArgumentException(
-          Strings.ExAtLeastOneColumnIndexPairMustBeSpecified, "equalIndexes");
+          Strings.ExAtLeastOneColumnIndexPairMustBeSpecified, nameof(equalIndexes));
+      }
       JoinType = joinType;
       EqualIndexes = equalIndexes;
-      Initialize();
+      EqualColumns = BuildEqualColumns(left.Header.Columns, right.Header.Columns, equalIndexes);
     }
 
     /// <summary>
@@ -86,15 +87,17 @@ namespace Xtensive.Orm.Rse.Providers
     public JoinProvider(CompilableProvider left, CompilableProvider right, JoinType joinType, params int[] equalIndexes)
       : base(ProviderType.Join, left, right)
     {
-      if (equalIndexes==null || equalIndexes.Length<2)
+      if (equalIndexes == null || equalIndexes.Length < 2) {
         throw new ArgumentException(
-          Strings.ExAtLeastOneColumnIndexPairMustBeSpecified, "equalIndexes");
+          Strings.ExAtLeastOneColumnIndexPairMustBeSpecified, nameof(equalIndexes));
+      }
       var ei = new Pair<int>[equalIndexes.Length / 2];
-      for (int i = 0, j = 0; i < ei.Length; i++)
+      for (int i = 0, j = 0; i < ei.Length; i++) {
         ei[i] = new Pair<int>(equalIndexes[j++], equalIndexes[j++]);
+      }
       JoinType = joinType;
       EqualIndexes = ei;
-      Initialize();
+      EqualColumns = BuildEqualColumns(left.Header.Columns, right.Header.Columns, ei);
     }
   }
 }

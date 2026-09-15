@@ -1,4 +1,4 @@
-// Copyright (C) 2008-2021 Xtensive LLC.
+// Copyright (C) 2008-2026 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexey Kochetov
@@ -8,9 +8,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
-using Xtensive.Comparison;
-using Xtensive.Orm.Tests;
-using Xtensive.Orm.Linq;
 using Xtensive.Orm.Tests.ObjectModel;
 using Xtensive.Orm.Tests.ObjectModel.ChinookDO;
 
@@ -138,6 +135,7 @@ namespace Xtensive.Orm.Tests.Linq
       Assert.That(list.Count, Is.EqualTo(trackCount));
     }
 
+#if NET10_0_OR_GREATER
     [Test]
     public void SimpleLeftTest()
     {
@@ -146,7 +144,7 @@ namespace Xtensive.Orm.Tests.Linq
         .LeftJoin(Session.Query.All<Album>(),
           track => track.Album.AlbumId,
           album => album.AlbumId,
-          (track, album) => new {track.Name, album.Title, album.AlbumId});
+          (track, album) => new { track.Name, album.Title, album.AlbumId });
       var list = result.ToList();
       Assert.That(list, Is.Not.Empty);
       Assert.That(list.Count, Is.EqualTo(traclCount));
@@ -165,7 +163,7 @@ namespace Xtensive.Orm.Tests.Linq
         album => album,
         (track, album) => new {
           track.Name,
-          Title = album==null ? null : album.Title
+          Title = album == null ? null : album.Title
         });
       Assert.That(result, Is.Not.Empty);
       foreach (var item in result)
@@ -173,6 +171,7 @@ namespace Xtensive.Orm.Tests.Linq
       QueryDumper.Dump(result);
     }
 
+    [Test]
     public void LeftJoin2Test()
     {
       Session.Query.All<Track>().First().Album = null;
@@ -183,12 +182,66 @@ namespace Xtensive.Orm.Tests.Linq
         albums,
         track => track.Album.AlbumId,
         album => album.AlbumId,
+        (track, album) => new { track.Name, album.Title });
+      Assert.That(result, Is.Not.Empty);
+      foreach (var item in result)
+        Console.WriteLine($"{item.Name} {item.Title}");
+      QueryDumper.Dump(result);
+    }
+#else
+    [Test]
+    public void SimpleLeftTest()
+    {
+      var traclCount = Session.Query.All<Track>().Count();
+      var result = Session.Query.All<Track>()
+        .LeftJoinEx(Session.Query.All<Album>(),
+          track => track.Album.AlbumId,
+          album => album.AlbumId,
+          (track, album) => new {track.Name, album.Title, album.AlbumId});
+      var list = result.ToList();
+      Assert.That(list, Is.Not.Empty);
+      Assert.That(list.Count, Is.EqualTo(traclCount));
+    }
+
+    [Test]
+    public void LeftJoin1Test()
+    {
+      Session.Query.All<Track>().First().Album = null;
+      Session.Current.SaveChanges();
+      var tracks = Session.Query.All<Track>();
+      var albums = Session.Query.All<Album>();
+      var result = tracks.LeftJoinEx(
+        albums,
+        track => track.Album,
+        album => album,
+        (track, album) => new {
+          track.Name,
+          Title = album==null ? null : album.Title
+        });
+      Assert.That(result, Is.Not.Empty);
+      foreach (var item in result)
+        Console.WriteLine($"{item.Name} {item.Title}");
+      QueryDumper.Dump(result);
+    }
+
+    [Test]
+    public void LeftJoin2Test()
+    {
+      Session.Query.All<Track>().First().Album = null;
+      Session.Current.SaveChanges();
+      var tracks = Session.Query.All<Track>();
+      var albums = Session.Query.All<Album>();
+      var result = tracks.LeftJoinEx(
+        albums,
+        track => track.Album.AlbumId,
+        album => album.AlbumId,
         (track, album) => new {track.Name, album.Title});
       Assert.That(result, Is.Not.Empty);
       foreach (var item in result)
         Console.WriteLine($"{item.Name} {item.Title}");
       QueryDumper.Dump(result);
     }
+#endif
 
     [Test]
     public void SeveralTest()

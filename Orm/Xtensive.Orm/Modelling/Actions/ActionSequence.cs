@@ -37,7 +37,7 @@ namespace Xtensive.Modelling.Actions
     /// <inheritdoc/>
     public void Add(NodeAction action)
     {
-      ArgumentValidator.EnsureArgumentNotNull(action, "action");
+      ArgumentNullException.ThrowIfNull(action);
       EnsureNotLocked();
       // Only locked actions can be added
       if (action is PropertyChangeAction ca && actions.Count != 0) {
@@ -57,7 +57,7 @@ namespace Xtensive.Modelling.Actions
     /// <inheritdoc/>
     public void Add(IEnumerable<NodeAction> actions)
     {
-      ArgumentValidator.EnsureArgumentNotNull(actions, "actions");
+      ArgumentNullException.ThrowIfNull(actions);
       foreach (NodeAction action in actions)
         Add(action);
     }

@@ -179,7 +179,7 @@ namespace Xtensive.Orm.Manual.Prefetch
           .Prefetch(p => p.Photo) // Lazy load field
           .Prefetch(p => p.Employees.Prefetch(e => e.Photo)) // EntitySet Employees and lazy load field of each of its items with the limit on number of items to be loaded
           .Prefetch(p => p.Manager.Photo); // Referenced entity and lazy load field for each of them
-        await foreach (var person in people.AsAsyncEnumerable()) {
+        await foreach (var person in people) {
           var accessor = DirectStateAccessor.Get(person);
           Assert.That(accessor.GetFieldState("Photo"), Is.EqualTo(PersistentFieldState.Loaded));
           Assert.That(accessor.GetFieldState("Manager"), Is.EqualTo(PersistentFieldState.Loaded));
@@ -274,7 +274,7 @@ namespace Xtensive.Orm.Manual.Prefetch
           .Prefetch(p => p.Employees // EntitySet Employees
             .Prefetch(e => e.Photo)) // and lazy load field of each of its items
           .Prefetch(p => p.Manager); // Referenced entity
-        await foreach (var person in prefetchedPeople.AsAsyncEnumerable()) {
+        await foreach (var person in prefetchedPeople) {
           var accessor = DirectStateAccessor.Get(person);
           Assert.That(accessor.GetFieldState("Photo"), Is.EqualTo(PersistentFieldState.Loaded));
           Assert.That(accessor.GetFieldState("Manager"), Is.EqualTo(PersistentFieldState.Loaded));
@@ -361,7 +361,7 @@ namespace Xtensive.Orm.Manual.Prefetch
           .Prefetch(p => p.Photo) // Lazy load field
           .Prefetch(p => p.Employees.Prefetch(e => e.Photo)) // EntitySet Employees and lazy load field of each of its items with the limit on number of items to be loaded
           .Prefetch(p => p.Manager.Photo); // Referenced entity and lazy load field for each of them
-        await foreach (var person in people.AsAsyncEnumerable()) {
+        await foreach (var person in people) {
           var accessor = DirectStateAccessor.Get(person);
           Assert.That(accessor.GetFieldState("Photo"), Is.EqualTo(PersistentFieldState.Loaded));
           Assert.That(accessor.GetFieldState("Manager"), Is.EqualTo(PersistentFieldState.Loaded));
@@ -449,7 +449,7 @@ namespace Xtensive.Orm.Manual.Prefetch
           .Prefetch(p => p.Photo) // Lazy load field
           .Prefetch(p => p.Employees.Prefetch(e => e.Photo)) // EntitySet Employees and lazy load field of each of its items with the limit on number of items to be loaded
           .Prefetch(p => p.Manager.Photo); // Referenced entity and lazy load field for each of them
-        await foreach (var person in people.AsAsyncEnumerable()) {
+        await foreach (var person in people) {
           var accessor = DirectStateAccessor.Get(person);
           Assert.That(accessor.GetFieldState("Photo"), Is.EqualTo(PersistentFieldState.Loaded));
           Assert.That(accessor.GetFieldState("Manager"), Is.EqualTo(PersistentFieldState.Loaded));

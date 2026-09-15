@@ -7,7 +7,6 @@
 using System;
 using Xtensive.Orm.Rse.Providers;
 using Tuple = Xtensive.Tuples.Tuple;
-using Xtensive.Tuples.Transform;
 
 namespace Xtensive.Orm.Internals
 {
@@ -15,17 +14,17 @@ namespace Xtensive.Orm.Internals
   {
     public readonly ExecutableProvider SeekProvider;
 
-    public readonly MapTransform SeekTransform;
+    public readonly Func<Tuple, Tuple, Tuple> SeekKeyBuilder;
 
     public readonly Func<Tuple, Entity> ItemCtor;
 
     public readonly Func<QueryEndpoint,long> ItemCountQuery;
 
-    public EntitySetTypeState(ExecutableProvider seekProvider, MapTransform seekTransform,
+    public EntitySetTypeState(ExecutableProvider seekProvider, Func<Tuple, Tuple, Tuple> seekKeyBuilder,
       Func<Tuple, Entity> itemCtor, Func<QueryEndpoint, long> itemCountQuery)
     {
       SeekProvider = seekProvider;
-      SeekTransform = seekTransform;
+      SeekKeyBuilder = seekKeyBuilder;
       ItemCtor = itemCtor;
       ItemCountQuery = itemCountQuery;
     }

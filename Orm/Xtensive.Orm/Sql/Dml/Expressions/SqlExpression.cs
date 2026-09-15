@@ -195,7 +195,7 @@ namespace Xtensive.Sql.Dml
 
     public static implicit operator SqlExpression(string value)
     {
-      ArgumentValidator.EnsureArgumentNotNull(value, "value");
+      ArgumentNullException.ThrowIfNull(value);
       return new SqlLiteral<string>(value);
     }
 

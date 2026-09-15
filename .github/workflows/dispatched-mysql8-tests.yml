@@ -55,7 +55,7 @@ jobs:
     if: ${{ inputs.mysql80 }}
     strategy:
       matrix:
-        net: [ 'net6.0', 'net7.0', 'net8.0' ]
+        net: [ 'net8.0', 'net10.0' ]
     uses: DataObjects-NET/dataobjects-net/.github/workflows/reusable-storage-dependant-tests.yml@master
     with:
       storage: mysql80
@@ -75,7 +75,7 @@ jobs:
     if: ${{ inputs.mysql81 }}
     strategy:
       matrix:
-        net: [ 'net6.0', 'net7.0', 'net8.0' ]
+        net: [ 'net8.0', 'net10.0' ]
     uses: DataObjects-NET/dataobjects-net/.github/workflows/reusable-storage-dependant-tests.yml@master
     with:
       storage: mysql81
@@ -95,7 +95,7 @@ jobs:
     if: ${{ inputs.mysql82 }}
     strategy:
       matrix:
-        net: [ 'net6.0', 'net7.0', 'net8.0' ]
+        net: [ 'net8.0', 'net10.0' ]
     uses: DataObjects-NET/dataobjects-net/.github/workflows/reusable-storage-dependant-tests.yml@master
     with:
       storage: mysql82
@@ -115,7 +115,7 @@ jobs:
     if: ${{ inputs.mysql83 }}
     strategy:
       matrix:
-        net: [ 'net6.0', 'net7.0', 'net8.0' ]
+        net: [ 'net8.0', 'net10.0' ]
     uses: DataObjects-NET/dataobjects-net/.github/workflows/reusable-storage-dependant-tests.yml@master
     with:
       storage: mysql83
@@ -135,7 +135,7 @@ jobs:
     if: ${{ inputs.mysql84 }}
     strategy:
       matrix:
-        net: [ 'net6.0', 'net7.0', 'net8.0' ]
+        net: [ 'net8.0', 'net10.0' ]
     uses: DataObjects-NET/dataobjects-net/.github/workflows/reusable-storage-dependant-tests.yml@master
     with:
       storage: mysql84

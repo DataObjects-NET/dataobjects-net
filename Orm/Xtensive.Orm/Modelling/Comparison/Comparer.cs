@@ -126,7 +126,7 @@ namespace Xtensive.Modelling.Comparison
     /// <see langword="null" />, if they're equal.</returns>
     protected virtual Difference Visit(Type type, object source, object target)
     {
-      ArgumentValidator.EnsureArgumentNotNull(type, "type");
+      ArgumentNullException.ThrowIfNull(type);
       if (typeof (Node).IsAssignableFrom(type))
         return VisitNode((Node) source, (Node) target);
       if (typeof(NodeCollection).IsAssignableFrom(type))
@@ -490,7 +490,7 @@ namespace Xtensive.Modelling.Comparison
         let nodeDiff = diff as NodeDifference
         where nodeDiff!=null && (nodeDiff.MovementInfo & MovementInfo.Changed)!=0
         select nodeDiff;
-      // query = query.ToList();
+
       return query.Any();
     }
 
@@ -697,7 +697,7 @@ namespace Xtensive.Modelling.Comparison
     /// <returns>The path of the target node.</returns>
     protected virtual string GetTargetPath(Node source)
     {
-      ArgumentValidator.EnsureArgumentNotNull(source, "source");
+      ArgumentNullException.ThrowIfNull(source);
       if (source.Model==Source) {
         var renameHint = Hints.GetHint<RenameHint>(source);
         if (renameHint!=null)
@@ -720,7 +720,7 @@ namespace Xtensive.Modelling.Comparison
     /// <returns>The name of the target node.</returns>
     protected virtual string GetTargetName(Node source)
     {
-      ArgumentValidator.EnsureArgumentNotNull(source, "source");
+      ArgumentNullException.ThrowIfNull(source);
       if (source.Model==Source) {
         var renameHint = Hints.GetHint<RenameHint>(source);
         if (renameHint!=null)

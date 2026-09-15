@@ -57,7 +57,7 @@ namespace Xtensive.Orm.Rse.Transformation
           var headerCount = visitedProvider.Header.Length - 1;
           visitedProvider = new SelectProvider(
             visitedProvider,
-            CollectionUtils.RangeToArray(0, headerCount));
+            Enumerable.Range(0, headerCount).ToArray());
         }
 
         return visitedProvider;

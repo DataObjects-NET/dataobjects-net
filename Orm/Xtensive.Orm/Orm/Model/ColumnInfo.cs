@@ -26,7 +26,7 @@ namespace Xtensive.Orm.Model
     private int?   precision;
     private object defaultValue;
     private string defaultSqlExpression;
-    private FieldInfo field;
+    private FieldInfo @field;
     private NodeCollection<IndexInfo> indexes;
     private CultureInfo cultureInfo = CultureInfo.InvariantCulture;
 
@@ -122,11 +122,11 @@ namespace Xtensive.Orm.Model
     /// </summary>
     public FieldInfo Field {
       [DebuggerStepThrough]
-      get { return field; }
+      get { return @field; }
       [DebuggerStepThrough]
       set {
         EnsureNotLocked();
-        field = value;
+        @field = value;
       }
     }
 

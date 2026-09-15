@@ -8,10 +8,6 @@ using System;
 using System.Linq;
 using Xtensive.Collections;
 using Xtensive.Core;
-using Xtensive.Tuples;
-using Xtensive.Tuples.Transform;
-using Tuple = Xtensive.Tuples.Tuple;
-
 
 namespace Xtensive.Orm.Rse.Providers
 {
@@ -23,28 +19,7 @@ namespace Xtensive.Orm.Rse.Providers
     /// <summary>
     /// Sort order of the index.
     /// </summary>
-    public DirectionCollection<int> Order { get; private set; }
-
-    /// <summary>
-    /// Gets the key extractor transform.
-    /// </summary>
-    public MapTransform OrderKeyExtractorTransform { get; private set; }
-
-    /// <summary>
-    /// Extracts the key part from <paramref name="tuple"/> using <see cref="OrderKeyExtractorTransform"/>.
-    /// </summary>
-    /// <param name="tuple">The tuple to extract the key from.</param>
-    /// <returns>A tuple containing extracted order key.</returns>
-    public Tuple OrderKeyExtractor(Tuple tuple)
-    {
-      return OrderKeyExtractorTransform.Apply(TupleTransformType.Auto, tuple);
-    }
-
-    /// <inheritdoc/>
-    protected override RecordSetHeader BuildHeader()
-    {
-      return Source.Header.Sort(Order);
-    }
+    public DirectionCollection<int> Order { get; }
 
     /// <inheritdoc/>
     protected override string ParametersToString()
@@ -52,22 +27,6 @@ namespace Xtensive.Orm.Rse.Providers
       return Order
         .Select(pair => Header.Columns[pair.Key].Name + (pair.Value == Direction.Negative ? " desc" : string.Empty))
         .ToCommaDelimitedString();
-    }
-
-    /// <inheritdoc/>
-    protected override void Initialize()
-    {
-      base.Initialize();
-
-      var fieldTypes = new Type[Order.Count];
-      var map = new int[Order.Count];
-      for (var i = 0; i < Order.Count; i++) {
-        var p = Order[i];
-        fieldTypes[i] = Header.Columns[p.Key].Type;
-        map[i] = p.Key;
-      }
-      var orderKeyDescriptor = TupleDescriptor.Create(fieldTypes);
-      OrderKeyExtractorTransform = new MapTransform(true, orderKeyDescriptor, map);
     }
 
 
@@ -80,9 +39,9 @@ namespace Xtensive.Orm.Rse.Providers
     /// <param name="source">The <see cref="UnaryProvider.Source"/> property value.</param>
     /// <param name="order">The <see cref="Order"/> property value.</param>
     protected OrderProviderBase(ProviderType providerType, CompilableProvider source, DirectionCollection<int> order)
-      : base(providerType, source)
+      : base(providerType, source.Header.Sort(order), source)
     {
-      Order = order;
+      Order = order ?? throw new ArgumentNullException(nameof(order));
     }
   }
 }

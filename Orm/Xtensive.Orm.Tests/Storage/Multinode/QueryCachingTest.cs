@@ -426,7 +426,7 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
       return (nodeId == WellKnown.DefaultNodeId)
         ? CustomUpgradeHandler.TypeIdPerNode.Values.ToArray()
         : CustomUpgradeHandler.TypeIdPerNode.Where(i => i.Key != nodeId)
-            .Select(i => i.Value).Union(EnumerableUtils.One(100)).ToArray();
+            .Select(i => i.Value).Union(Enumerable.Repeat(100, 1)).ToArray();
     }
 
     private List<BaseTestEntity> ExecuteSimpleQueryCaching(Session session) =>

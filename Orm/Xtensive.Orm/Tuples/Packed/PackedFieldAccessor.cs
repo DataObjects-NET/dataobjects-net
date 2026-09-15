@@ -149,7 +149,7 @@ namespace Xtensive.Tuples.Packed
 
     protected ValueFieldAccessor(int bitCount, byte index)
       : base(GetRank(bitCount), index)
-    {}
+    { }
   }
 
   internal abstract class ValueFieldAccessor<T> : ValueFieldAccessor

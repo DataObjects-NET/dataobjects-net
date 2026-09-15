@@ -32,12 +32,9 @@ namespace Xtensive.Orm.Rse.Providers
     /// <param name="source">The <see cref="UnaryProvider.Source"/> property value.</param>
     /// <param name="lockMode">The mode of the lock to be acquired.</param>
     /// <param name="lockBehavior">The behavior of the lock.</param>
-    public LockProvider(CompilableProvider source, LockMode lockMode, LockBehavior lockBehavior) :
-      base(ProviderType.Lock, source)
+    public LockProvider(CompilableProvider source, LockMode lockMode, LockBehavior lockBehavior)
+      : this(source, () => lockMode, () => lockBehavior)
     {
-      LockMode = () => lockMode;
-      LockBehavior = () => lockBehavior;
-      Initialize();
     }
 
     /// <summary>
@@ -46,12 +43,11 @@ namespace Xtensive.Orm.Rse.Providers
     /// <param name="source">The <see cref="UnaryProvider.Source"/> property value.</param>
     /// <param name="lockMode">The delegate returning the mode of the lock to be acquired.</param>
     /// <param name="lockBehavior">The delegate returning the behavior of the lock.</param>
-    public LockProvider(CompilableProvider source, Func<LockMode> lockMode, Func<LockBehavior> lockBehavior) :
-      base(ProviderType.Lock, source)
+    public LockProvider(CompilableProvider source, Func<LockMode> lockMode, Func<LockBehavior> lockBehavior)
+      : base(ProviderType.Lock, source)
     {
-      LockMode = lockMode;
-      LockBehavior = lockBehavior;
-      Initialize();
+      LockMode = lockMode ?? throw new ArgumentNullException(nameof(lockMode));
+      LockBehavior = lockBehavior ?? throw new ArgumentNullException(nameof(lockBehavior));
     }
   }
 }

@@ -4,7 +4,6 @@
 // Created by: Alexey Kochetov
 // Created:    2008.07.11
 
-using System.Linq;
 using Xtensive.Core;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
@@ -21,25 +20,17 @@ namespace Xtensive.Orm.Providers
   {
     protected readonly HandlerAccessor handlers;
 
-    private const string ParameterNamePrefix = "@p";
-    private const string ToStringFormat = "[Command: \"{0}\"]";
     private SqlTable permanentReference;
 
     /// <summary>
     /// Gets <see cref="QueryRequest"/> associated with this provider.
     /// </summary>
-    public QueryRequest Request { get; private set; }
+    public QueryRequest Request { get; }
 
     /// <summary>
     /// Gets the permanent reference (<see cref="SqlQueryRef"/>) for <see cref="SqlSelect"/> associated with this provider.
     /// </summary>
-    public SqlTable PermanentReference {
-      get {
-        if (permanentReference is null)
-          permanentReference = SqlDml.QueryRef(Request.Statement);
-        return permanentReference;
-      }
-    }
+    public SqlTable PermanentReference => permanentReference ??= SqlDml.QueryRef(Request.Statement);
 
     /// <summary>
     /// Gets the domain handler this provider is bound to.
@@ -92,23 +83,6 @@ namespace Xtensive.Orm.Providers
     {
       this.handlers = handlers;
       Request = request;
-      if (typeof (SqlProvider)==GetType())
-        Initialize();
-    }
-
-    /// <summary>
-    /// Initializes a new instance of this class.
-    /// </summary>
-    /// <param name="provider">The provider.</param>
-    /// <param name="permanentReference">The permanent reference.</param>
-    public SqlProvider(SqlProvider provider, SqlTable permanentReference)
-      : base(provider.Origin, provider.Sources.Cast<ExecutableProvider>().ToArray(provider.Sources.Count))
-    {
-      this.permanentReference = permanentReference;
-      handlers = provider.handlers;
-      Request = provider.Request;
-      if (typeof (SqlProvider)==GetType())
-        Initialize();
     }
   }
 }

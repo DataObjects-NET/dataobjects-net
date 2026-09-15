@@ -9,6 +9,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Xtensive.Core;
+using Xtensive.Linq;
 
 namespace Xtensive.Orm.SerializableExpressions.Internals
 {
@@ -173,7 +175,7 @@ namespace Xtensive.Orm.SerializableExpressions.Internals
 
     private Expression VisitConditional(SerializableConditionalExpression c)
     {
-      return Expression.Condition(Visit(c.Test), Visit(c.IfTrue), Visit(c.IfFalse), (Type) c.Type);
+      return Expression.Condition(Visit(c.Test), Visit(c.IfTrue), Visit(c.IfFalse), c.Type);
     }
 
     private Expression VisitParameter(SerializableParameterExpression p)
@@ -199,9 +201,9 @@ namespace Xtensive.Orm.SerializableExpressions.Internals
 
     private Expression VisitLambda(SerializableLambdaExpression l)
     {
-      var parameters = l.Parameters.Select(p => (ParameterExpression) Visit(p)).ToList();
+      var parameters = l.Parameters.SelectToArray(p => (ParameterExpression) Visit(p));
       using (CreateParameterScope(parameters)) {
-        return Expression.Lambda(l.Type, Visit(l.Body), parameters);
+        return FastExpression.Lambda(l.Type, Visit(l.Body), parameters);
       }
     }
 
@@ -273,6 +275,7 @@ namespace Xtensive.Orm.SerializableExpressions.Internals
     {
       return expressions.Select(e => Visit(e));
     }
+    
     private LambdaParameterScope CreateParameterScope(IReadOnlyList<ParameterExpression> lambdaParameters)
     {
       var parameters = new Dictionary<string, ParameterExpression>(lambdaParameters.Count);

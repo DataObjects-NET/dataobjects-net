@@ -10,8 +10,7 @@ namespace Xtensive.Comparison
 {
   internal sealed class DoubleComparer : ValueTypeComparer<double>
   {
-    protected override IAdvancedComparer<double> CreateNew(ComparisonRules rules)
-      => new DoubleComparer(Provider, ComparisonRules.Combine(rules));
+    protected override DoubleComparer CreateNew(ComparisonRules rules) => new(Provider, ComparisonRules.Combine(rules));
 
 
     // Constructors

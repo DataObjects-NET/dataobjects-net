@@ -4,8 +4,7 @@
 // Created by: Alexey Kochetov
 // Created:    2008.07.22
 
-using Xtensive.Collections;
-using Xtensive.Core;
+using System;
 
 
 namespace Xtensive.Orm.Rse.Providers
@@ -18,13 +17,8 @@ namespace Xtensive.Orm.Rse.Providers
     /// <summary>
     /// Source provider.
     /// </summary>
-    public CompilableProvider Source { get; private set; }
+    public CompilableProvider Source { get; }
 
-    /// <inheritdoc/>
-    protected override RecordSetHeader BuildHeader()
-    {
-      return Source.Header;
-    }
 
     // Constructors
 
@@ -34,10 +28,20 @@ namespace Xtensive.Orm.Rse.Providers
     /// <param name="type">The type of the provider.</param>
     /// <param name="source">The <see cref="Source"/> property value.</param>
     protected UnaryProvider(ProviderType type, CompilableProvider source)
-      : base(type, source)
+      : this(type, source.Header, source)
     {
-      ArgumentValidator.EnsureArgumentNotNull(source, "source");
-      Source = source;
+    }
+
+    /// <summary>
+    ///   Initializes a new instance of this class.
+    /// </summary>
+    /// <param name="type">The type of the provider.</param>
+    /// <param name="header">The header of the produced sequence of records.</param>
+    /// <param name="source">The <see cref="Source"/> property value.</param>
+    protected UnaryProvider(ProviderType type, RecordSetHeader header, CompilableProvider source)
+      : base(type, header, source)
+    {
+      Source = source ?? throw new ArgumentNullException(nameof(source));
     }
   }
 }

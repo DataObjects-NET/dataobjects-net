@@ -42,10 +42,11 @@ namespace Xtensive.Orm.Upgrade
     /// <returns>The storage model.</returns>
     public StorageModel Run()
     {
-      if (targetModel==null) {
+      if (targetModel is null) {
         targetModel = new StorageModel();
-        foreach (var catalog in sourceModel.Catalogs)
-          VisitCatalog(catalog);
+        foreach (var catalog in sourceModel.Catalogs) {
+          _ = VisitCatalog(catalog);
+        }
       }
 
       return targetModel;
@@ -58,14 +59,14 @@ namespace Xtensive.Orm.Upgrade
     {
       // Build tables, columns and indexes.
       foreach (var table in schema.Tables)
-        Visit(table);
+        _ = Visit(table);
 
       // Build foreign keys.
       var foreignKeys = schema.Tables.SelectMany(t => t.TableConstraints.OfType<ForeignKey>());
       foreach (var foreignKey in foreignKeys)
-        Visit(foreignKey);
+        _ = Visit(foreignKey);
       foreach (var sequence in schema.Sequences)
-        VisitSequence(sequence);
+        _ = VisitSequence(sequence);
 
       return null;
     }
@@ -74,8 +75,7 @@ namespace Xtensive.Orm.Upgrade
     protected override IPathNode Visit(Node node)
     {
       if (!providerInfo.Supports(ProviderFeatures.Sequences)) {
-        var table = node as Table;
-        if (table!=null && IsGeneratorTable(table))
+        if (node is Table table && IsGeneratorTable(table))
           return VisitGeneratorTable(table);
       }
 
@@ -83,22 +83,22 @@ namespace Xtensive.Orm.Upgrade
     }
 
     /// <inheritdoc/>
-    protected override IPathNode VisitTable(Table table)
+    protected override TableInfo VisitTable(Table table)
     {
       var tableInfo = new TableInfo(targetModel, resolver.GetNodeName(table));
 
       currentTable = tableInfo;
 
       foreach (var column in table.TableColumns)
-        Visit(column);
+        _ = Visit(column);
 
       var primaryKey = table.TableConstraints
         .SingleOrDefault(constraint => constraint is PrimaryKey);
-      if (primaryKey!=null)
-        Visit(primaryKey);
+      if (primaryKey is not null)
+        _ = Visit(primaryKey);
 
       foreach (var index in table.Indexes)
-        Visit(index);
+        _ = Visit(index);
 
       currentTable = null;
 
@@ -106,7 +106,7 @@ namespace Xtensive.Orm.Upgrade
     }
 
     /// <inheritdoc/>
-    protected override IPathNode VisitTableColumn(TableColumn tableColumn)
+    protected override StorageColumnInfo VisitTableColumn(TableColumn tableColumn)
     {
       var tableInfo = currentTable;
       var typeInfo = ExtractType(tableColumn);
@@ -115,7 +115,7 @@ namespace Xtensive.Orm.Upgrade
     }
 
     /// <inheritdoc/>
-    protected override IPathNode VisitForeignKey(ForeignKey key)
+    protected override ForeignKeyInfo VisitForeignKey(ForeignKey key)
     {
       var referencingTable = targetModel.Tables[resolver.GetNodeName(key.Owner)];
       var referencingColumns = new List<StorageColumnInfo>();
@@ -131,21 +131,22 @@ namespace Xtensive.Orm.Upgrade
       var referencedTable = targetModel.Tables[resolver.GetNodeName(key.ReferencedTable)];
       foreignKeyInfo.PrimaryKey = referencedTable.PrimaryIndex;
 
-      foreach (var column in referencingColumns)
-        new ForeignKeyColumnRef(foreignKeyInfo, column);
+      foreach (var column in referencingColumns) {
+        _ = new ForeignKeyColumnRef(foreignKeyInfo, column);
+      }
 
       return foreignKeyInfo;
     }
 
     /// <inheritdoc/>
-    protected override IPathNode VisitPrimaryKey(PrimaryKey key)
+    protected override PrimaryIndexInfo VisitPrimaryKey(PrimaryKey key)
     {
       var tableInfo = currentTable;
-      var primaryIndexInfo = new PrimaryIndexInfo(tableInfo, key.Name) {IsClustered = key.IsClustered};
+      var primaryIndexInfo = new PrimaryIndexInfo(tableInfo, key.Name) { IsClustered = key.IsClustered };
 
       foreach (var keyColumn in key.Columns)
-        new KeyColumnRef(primaryIndexInfo, tableInfo.Columns[keyColumn.Name],
-          Direction.Positive);
+        _ = new KeyColumnRef(primaryIndexInfo, tableInfo.Columns[keyColumn.Name]);
+
       // TODO: Get direction for key columns
       primaryIndexInfo.PopulateValueColumns();
 
@@ -153,7 +154,7 @@ namespace Xtensive.Orm.Upgrade
     }
 
     /// <inheritdoc/>
-    protected override IPathNode VisitFullTextIndex(FullTextIndex index)
+    protected override StorageFullTextIndexInfo VisitFullTextIndex(FullTextIndex index)
     {
       var tableInfo = currentTable;
       var name = index.Name.IsNullOrEmpty()
@@ -165,16 +166,17 @@ namespace Xtensive.Orm.Upgrade
       };
       foreach (var column in index.Columns) {
         var columnInfo = tableInfo.Columns[column.Column.Name];
-        string typeColumn = null;
-        if (column.TypeColumn!=null)
-          typeColumn = tableInfo.Columns[column.TypeColumn.Name].Name;
-        new FullTextColumnRef(ftIndex, columnInfo, column.Languages.Single().Name, typeColumn);
+        var typeColumnName = (column.TypeColumn is not null)
+          ? tableInfo.Columns[column.TypeColumn.Name].Name
+          : null;
+
+        _ = new FullTextColumnRef(ftIndex, columnInfo, column.Languages.Single().Name, typeColumnName);
       }
       return ftIndex;
     }
 
     /// <inheritdoc/>
-    protected override IPathNode VisitIndex(Index index)
+    protected override SecondaryIndexInfo VisitIndex(Index index)
     {
       var tableInfo = currentTable;
       var secondaryIndexInfo = new SecondaryIndexInfo(tableInfo, index.Name) {
@@ -185,13 +187,13 @@ namespace Xtensive.Orm.Upgrade
 
       foreach (var keyColumn in index.Columns) {
         var columnInfo = tableInfo.Columns[keyColumn.Column.Name];
-        new KeyColumnRef(secondaryIndexInfo,
+        _ = new KeyColumnRef(secondaryIndexInfo,
           columnInfo, keyColumn.Ascending ? Direction.Positive : Direction.Negative);
       }
 
       foreach (var valueColumn in index.NonkeyColumns) {
         var columnInfo = tableInfo.Columns[valueColumn.Name];
-        new IncludedColumnRef(secondaryIndexInfo, columnInfo);
+        _ = new IncludedColumnRef(secondaryIndexInfo, columnInfo);
       }
 
       secondaryIndexInfo.PopulatePrimaryKeyColumns();
@@ -203,13 +205,13 @@ namespace Xtensive.Orm.Upgrade
     {
       var tableName = resolver.GetNodeName(index.DataTable);
       var result = partialIndexMap.FindIndex(tableName, index.DbName);
-      if (result==null)
+      if (result is null)
         return null;
       return new PartialIndexFilterInfo(result.Filter);
     }
 
     /// <inheritdoc/>
-    protected override IPathNode VisitSequence(Sequence sequence)
+    protected override StorageSequenceInfo VisitSequence(Sequence sequence)
     {
       var sequenceInfo = new StorageSequenceInfo(targetModel, resolver.GetNodeName(sequence)) {
         Increment = sequence.SequenceDescriptor.Increment.Value
@@ -237,7 +239,7 @@ namespace Xtensive.Orm.Upgrade
     /// </summary>
     /// <param name="generatorTable">The generator table.</param>
     /// <returns>Visit result.</returns>
-    private IPathNode VisitGeneratorTable(Table generatorTable)
+    private StorageSequenceInfo VisitGeneratorTable(Table generatorTable)
     {
       var idColumn = generatorTable.TableColumns[0];
       var startValue = idColumn.SequenceDescriptor.StartValue;
@@ -284,20 +286,14 @@ namespace Xtensive.Orm.Upgrade
     /// <returns>Converted action.</returns>
     private ReferentialAction ConvertReferentialAction(Sql.ReferentialAction toConvert)
     {
-      switch (toConvert) {
-      case Sql.ReferentialAction.NoAction:
-        return ReferentialAction.None;
-      case Sql.ReferentialAction.Restrict:
-        return ReferentialAction.Restrict;
-      case Sql.ReferentialAction.Cascade:
-        return ReferentialAction.Cascade;
-      case Sql.ReferentialAction.SetNull:
-        return ReferentialAction.Clear;
-      case Sql.ReferentialAction.SetDefault:
-        return ReferentialAction.Default;
-      default:
-        return ReferentialAction.Default;
-      }
+      return toConvert switch {
+        Sql.ReferentialAction.NoAction => ReferentialAction.None,
+        Sql.ReferentialAction.Restrict => ReferentialAction.Restrict,
+        Sql.ReferentialAction.Cascade => ReferentialAction.Cascade,
+        Sql.ReferentialAction.SetNull => ReferentialAction.Clear,
+        Sql.ReferentialAction.SetDefault => ReferentialAction.Default,
+        _ => ReferentialAction.Default,
+      };
     }
 
     /// <summary>
@@ -307,18 +303,13 @@ namespace Xtensive.Orm.Upgrade
     /// <returns>Converted mode.</returns>
     private FullTextChangeTrackingMode ConvertChangeTrackingMode(ChangeTrackingMode toConvert)
     {
-      switch (toConvert) {
-      case ChangeTrackingMode.Auto:
-        return FullTextChangeTrackingMode.Auto;
-      case ChangeTrackingMode.Manual:
-        return FullTextChangeTrackingMode.Manual;
-      case ChangeTrackingMode.Off:
-        return FullTextChangeTrackingMode.Off;
-      case ChangeTrackingMode.OffWithNoPopulation:
-        return FullTextChangeTrackingMode.OffWithNoPopulation;
-      default:
-        return FullTextChangeTrackingMode.Default;
-      }
+      return toConvert switch {
+        ChangeTrackingMode.Auto => FullTextChangeTrackingMode.Auto,
+        ChangeTrackingMode.Manual => FullTextChangeTrackingMode.Manual,
+        ChangeTrackingMode.Off => FullTextChangeTrackingMode.Off,
+        ChangeTrackingMode.OffWithNoPopulation => FullTextChangeTrackingMode.OffWithNoPopulation,
+        _ => FullTextChangeTrackingMode.Default,
+      };
     }
 
     /// <summary>
@@ -333,7 +324,7 @@ namespace Xtensive.Orm.Upgrade
     {
       int columnNumber = providerInfo.Supports(ProviderFeatures.InsertDefaultValues) ? 1 : 2;
       return table.TableColumns.Count==columnNumber &&
-        table.TableColumns[0].SequenceDescriptor!=null;
+        table.TableColumns[0].SequenceDescriptor is not null;
     }
 
 
@@ -342,9 +333,9 @@ namespace Xtensive.Orm.Upgrade
     public SqlModelConverter(UpgradeServiceAccessor services, SchemaExtractionResult sourceModel,
       IEnumerable<StoredPartialIndexFilterInfo> partialIndexes)
     {
-      ArgumentValidator.EnsureArgumentNotNull(services, "handlers");
-      ArgumentValidator.EnsureArgumentNotNull(sourceModel, "sourceModel");
-      ArgumentValidator.EnsureArgumentNotNull(partialIndexes, "partialIndexes");
+      ArgumentNullException.ThrowIfNull(services);
+      ArgumentNullException.ThrowIfNull(sourceModel);
+      ArgumentNullException.ThrowIfNull(partialIndexes);
 
       this.sourceModel = sourceModel;
 

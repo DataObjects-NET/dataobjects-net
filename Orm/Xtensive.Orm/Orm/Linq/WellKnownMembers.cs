@@ -174,28 +174,28 @@ namespace Xtensive.Orm.Linq
     public static class Enumerable
     {
       // Enumerable
-      public static readonly MethodInfo Select = typeof(System.Linq.Enumerable).GetMethods().First(m => m.Name == nameof(System.Linq.Enumerable.Select));
+      public static readonly MethodInfo Select = WellKnownTypes.Enumerable.GetMethods().First(m => m.Name == nameof(System.Linq.Enumerable.Select));
 
-      public static readonly MethodInfo First = typeof(System.Linq.Enumerable)
+      public static readonly MethodInfo First = WellKnownTypes.Enumerable
           .GetMethods(BindingFlags.Static | BindingFlags.Public)
           .First(m => m.Name == nameof(System.Linq.Enumerable.First) && m.GetParameters().Length == 1);
 
-      public static readonly MethodInfo FirstOrDefault = typeof(System.Linq.Enumerable)
+      public static readonly MethodInfo FirstOrDefault = WellKnownTypes.Enumerable
           .GetMethods(BindingFlags.Static | BindingFlags.Public)
           .First(m => m.Name == nameof(System.Linq.Enumerable.FirstOrDefault) && m.GetParameters().Length == 1);
 
-      public static readonly MethodInfo Single = typeof(System.Linq.Enumerable)
+      public static readonly MethodInfo Single = WellKnownTypes.Enumerable
           .GetMethods(BindingFlags.Static | BindingFlags.Public)
           .First(m => m.Name == nameof(System.Linq.Enumerable.Single) && m.GetParameters().Length == 1);
 
-      public static readonly MethodInfo SingleOrDefault = typeof(System.Linq.Enumerable)
+      public static readonly MethodInfo SingleOrDefault = WellKnownTypes.Enumerable
           .GetMethods(BindingFlags.Static | BindingFlags.Public)
           .First(m => m.Name == nameof(System.Linq.Enumerable.SingleOrDefault) && m.GetParameters().Length == 1);
 
       public static readonly Type OfTuple = WellKnownInterfaces.EnumerableOfT.CachedMakeGenericType(typeof(Xtensive.Tuples.Tuple));
-      public static readonly MethodInfo DefaultIfEmpty = typeof(System.Linq.Enumerable).GetMethods().First(m => m.Name == nameof(System.Linq.Enumerable.DefaultIfEmpty));
-      public static readonly MethodInfo Contains = GetMethod(typeof(System.Linq.Enumerable), nameof(System.Linq.Enumerable.Contains), 1, 2);
-      public static readonly MethodInfo Cast = GetMethod(typeof(System.Linq.Enumerable), nameof(System.Linq.Enumerable.Cast), 1, 1);
+      public static readonly MethodInfo DefaultIfEmpty = WellKnownTypes.Enumerable.GetMethods().First(m => m.Name == nameof(System.Linq.Enumerable.DefaultIfEmpty));
+      public static readonly MethodInfo Contains = GetMethod(WellKnownTypes.Enumerable, nameof(System.Linq.Enumerable.Contains), 1, 2);
+      public static readonly MethodInfo Cast = GetMethod(WellKnownTypes.Enumerable, nameof(System.Linq.Enumerable.Cast), 1, 1);
     }
 
     // IEntity
@@ -251,7 +251,7 @@ namespace Xtensive.Orm.Linq
 
     private static MethodInfo GetQueryableExtensionsMethod(string name, int numberOfGenericArgument, int numberOfArguments)
     {
-      return GetMethod(typeof (QueryableExtensions), name, numberOfGenericArgument, numberOfArguments);
+      return GetMethod(typeof (QueryableExtensionsEx), name, numberOfGenericArgument, numberOfArguments);
     }
   }
 }

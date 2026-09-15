@@ -21,6 +21,10 @@
     <ProjectReference Include="..\Xtensive.Orm\Xtensive.Orm.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.8.1" />
+    <PackageReference Include="NUnit" Version="4.5.1" />
+  </ItemGroup>
+  <ItemGroup>
     <None Include="App.config" />
     <None Include="DO-Tests-Plus.sql" />
     <None Include="DO-Tests.sdf">
@@ -29,10 +33,7 @@
     <None Include="DO-Tests.sql" />
     <None Include="Orm.config" />
   </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
-    <PackageReference Include="NUnit" Version="4.4.0" />
-  </ItemGroup>
+  
   <ItemGroup>
     <None Update="Orm.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

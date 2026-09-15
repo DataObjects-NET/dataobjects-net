@@ -24,7 +24,7 @@ namespace Xtensive.Sql.Dml
         return condition;
       }
       set {
-        ArgumentValidator.EnsureArgumentNotNull(value, "value");
+        ArgumentNullException.ThrowIfNull(value);
         SqlValidator.EnsureIsBooleanExpression(value);
         condition = value;
       }
@@ -38,7 +38,7 @@ namespace Xtensive.Sql.Dml
         return trueStatement;
       }
       set {
-        ArgumentValidator.EnsureArgumentNotNull(value, "value");
+        ArgumentNullException.ThrowIfNull(value);
         trueStatement = value;
       }
     }

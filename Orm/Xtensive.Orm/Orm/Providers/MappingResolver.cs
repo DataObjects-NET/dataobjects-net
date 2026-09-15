@@ -1,11 +1,11 @@
-﻿// Copyright (C) 2012 Xtensive LLC.
+// Copyright (C) 2012 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
 // Created:    2012.03.06
 
+using System;
 using System.Collections.Generic;
-using Xtensive.Core;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Upgrade;
@@ -43,9 +43,9 @@ namespace Xtensive.Orm.Providers
     public static MappingResolver Create(DomainConfiguration configuration, NodeConfiguration nodeConfiguration,
       DefaultSchemaInfo defaultSchemaInfo)
     {
-      ArgumentValidator.EnsureArgumentNotNull(configuration, "configuration");
-      ArgumentValidator.EnsureArgumentNotNull(nodeConfiguration, "nodeConfiguration");
-      ArgumentValidator.EnsureArgumentNotNull(defaultSchemaInfo, "defaultSchemaInfo");
+      ArgumentNullException.ThrowIfNull(configuration);
+      ArgumentNullException.ThrowIfNull(nodeConfiguration);
+      ArgumentNullException.ThrowIfNull(defaultSchemaInfo);
 
       if (configuration.IsMultidatabase)
         return new MultidatabaseMappingResolver(configuration, nodeConfiguration);

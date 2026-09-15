@@ -43,25 +43,20 @@ namespace Xtensive.Orm.Tests.Issues
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.RegisterCaching(typeof (ErrorProvider).Assembly, typeof (ErrorProvider).Namespace);
+      config.Types.Register(typeof(ErrorProvider));
       return config;
     }
 
     [Test]
     public void InsertNullTest()
     {
-      using (var session = Domain.OpenSession()) {
-        using (var t = session.OpenTransaction()) {
-          try {
-            new ErrorProvider(1);
-            session.SaveChanges();
-          }
-          catch (CheckConstraintViolationException exception) {
-            var expected = Domain.Model.Types[typeof (ErrorProvider)];
-            Assert.That(exception.Info.Type, Is.EqualTo(expected));
-            Assert.That(exception.Info.Field, Is.EqualTo(expected.Fields["NotNull"]));
-          }
-        }
+      using (var session = Domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        _ = new ErrorProvider(1);
+        var ex = Assert.Throws<CheckConstraintViolationException>(() => session.SaveChanges());
+        var expected = Domain.Model.Types[typeof(ErrorProvider)];
+        Assert.That(ex.Info.Type, Is.EqualTo(expected));
+        Assert.That(ex.Info.Field, Is.EqualTo(expected.Fields[nameof(ErrorProvider.NotNull)]));
       }
     }
 
@@ -70,13 +65,11 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (var session = Domain.OpenSession())
       using (var t = session.OpenTransaction()) {
-        var exception = Assert.Throws<UniqueConstraintViolationException>(() => {
-          _ = new ErrorProvider(2) { NotNull = string.Empty, Unique = 2 };
-          session.SaveChanges();
-          _ = new ErrorProvider(3) { NotNull = string.Empty, Unique = 2 };
-          session.SaveChanges();
-        });
-        Assert.That(exception.Info.Type, Is.EqualTo(Domain.Model.Types[typeof(ErrorProvider)]));
+        _ = new ErrorProvider(2) { NotNull = string.Empty, Unique = 2 };
+        session.SaveChanges();
+        _ = new ErrorProvider(3) { NotNull = string.Empty, Unique = 2 };
+        var ex = Assert.Throws<UniqueConstraintViolationException>(() => session.SaveChanges());
+        Assert.That(ex.Info.Type, Is.EqualTo(Domain.Model.Types[typeof(ErrorProvider)]));
       }
     }
 
@@ -91,12 +84,10 @@ namespace Xtensive.Orm.Tests.Issues
 
       using (var session = Domain.OpenSession())
       using (var t = session.OpenTransaction()) {
-        var exception = Assert.Throws<UniqueConstraintViolationException>(() => {
-          _ = new ErrorProvider(3) { NotNull = string.Empty, Unique = 32 };
-          session.SaveChanges();
-        });
+        _ = new ErrorProvider(3) { NotNull = string.Empty, Unique = 32 };
 
-        Assert.That(exception.Info.Type, Is.EqualTo(Domain.Model.Types[typeof(ErrorProvider)]));
+        var ex = Assert.Throws<UniqueConstraintViolationException>(() => session.SaveChanges());
+        Assert.That(ex.Info.Type, Is.EqualTo(Domain.Model.Types[typeof(ErrorProvider)]));
       }
     }
   }

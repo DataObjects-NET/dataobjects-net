@@ -12,7 +12,7 @@ namespace Xtensive.Comparison
 {
   internal sealed class BooleanComparer : ValueTypeComparer<bool>
   {
-    protected override IAdvancedComparer<bool> CreateNew(ComparisonRules rules) => new BooleanComparer(Provider, ComparisonRules.Combine(rules));
+    protected override BooleanComparer CreateNew(ComparisonRules rules) => new(Provider, ComparisonRules.Combine(rules));
 
     public override bool GetNearestValue(bool value, Direction direction)
     {

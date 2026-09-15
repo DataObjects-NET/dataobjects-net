@@ -10,7 +10,6 @@ using System.Linq;
 using Xtensive.Core;
 using Xtensive.Orm.Logging;
 
-using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Tuples.Transform;
 using Xtensive.Orm.Internals;
@@ -332,7 +331,7 @@ namespace Xtensive.Orm
     private VersionValidator(Session session, Func<Key, VersionInfo> expectedVersionProvider)
       : base(session)
     {
-      ArgumentValidator.EnsureArgumentNotNull(expectedVersionProvider, "expectedVersionProvider");
+      ArgumentNullException.ThrowIfNull(expectedVersionProvider, "expectedVersionProvider");
       if (session.IsPersisting)
         throw new InvalidOperationException(
           Strings.ExServiceCanNotBeAttachedToSessionWhileItIsPersistingTheChanges);

@@ -39,7 +39,7 @@ namespace Xtensive.Collections
     /// <inheritdoc/>
     public object Get(Type extensionType)
     {
-      ArgumentValidator.EnsureArgumentNotNull(extensionType, "extensionType");
+      ArgumentNullException.ThrowIfNull(extensionType);
       if (extensions is null)
         return null;
       if (extensions.TryGetValue(extensionType, out object result))
@@ -58,13 +58,13 @@ namespace Xtensive.Collections
     public void Set(Type extensionType, object value)
     {
       EnsureNotLocked();
-      ArgumentValidator.EnsureArgumentNotNull(extensionType, "extensionType");
+      ArgumentNullException.ThrowIfNull(extensionType);
       if (extensionType.IsValueType)
         throw new ArgumentException(string.Format(
-          Strings.ExTypeXMustBeReferenceType, extensionType.GetShortName()), "extensionType");
+          Strings.ExTypeXMustBeReferenceType, extensionType.GetShortName()), nameof(extensionType));
       if (value!=null && !extensionType.IsAssignableFrom(value.GetType()))
         throw new ArgumentException(string.Format(
-          Strings.ExTypeXMustImplementY, value.GetType(), extensionType.GetShortName()), "value");
+          Strings.ExTypeXMustImplementY, value.GetType(), extensionType.GetShortName()), nameof(value));
       
       if (extensions is null)
         if (value is null)
@@ -96,7 +96,13 @@ namespace Xtensive.Collections
     #region ICloneable methods
 
     /// <inheritdoc/>
-    public object Clone() => new ExtensionCollection(this);
+    object ICloneable.Clone() => Clone();
+
+    /// <summary>
+    /// Creates a new object that is a copy of the current instance.
+    /// </summary>
+    /// <returns>A new object that is a copy of this instance.</returns>
+    public ExtensionCollection Clone() => new(this);
 
     #endregion
 
@@ -137,7 +143,7 @@ namespace Xtensive.Collections
     public ExtensionCollection(IExtensionCollection source)
       : this()
     {
-      ArgumentValidator.EnsureArgumentNotNull(source, "source");
+      ArgumentNullException.ThrowIfNull(source);
       if (source.Count==0)
         return;
       if (source is ExtensionCollection sourceLikeMe) {

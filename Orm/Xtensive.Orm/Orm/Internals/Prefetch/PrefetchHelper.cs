@@ -17,8 +17,7 @@ namespace Xtensive.Orm.Internals.Prefetch
       type.Fields
         .Where(field => field.Parent == null && IsFieldToBeLoadedByDefault(field))
         .Select(field => new PrefetchFieldDescriptor(field, false, false))
-        .ToList()
-        .AsReadOnly();
+        .ToArray();
 
     public static bool IsFieldToBeLoadedByDefault(FieldInfo field)
     {

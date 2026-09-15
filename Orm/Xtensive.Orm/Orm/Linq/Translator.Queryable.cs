@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2024 Xtensive LLC.
+// Copyright (C) 2009-2026 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexis Kochetov
@@ -179,6 +179,10 @@ namespace Xtensive.Orm.Linq
                 false,
                 mc);
             }
+#if NET10_0_OR_GREATER
+          case QueryableMethodKind.LeftJoin:
+            return VisitLeftJoin(mc);
+#endif
           case QueryableMethodKind.OrderBy:
           case QueryableMethodKind.OrderByDescending:
             using (CreateScope(new TranslatorState(State) { BuildingProjection = false })) {
@@ -322,7 +326,7 @@ namespace Xtensive.Orm.Linq
         currentIndex++;
       }
 
-      var recordSet = targetTypeInfo.Indexes.PrimaryIndex.GetQuery().Alias(context.GetNextAlias()).Select(indexes);
+      CompilableProvider recordSet = targetTypeInfo.Indexes.PrimaryIndex.GetQuery().Alias(context.GetNextAlias()).Select(indexes);
       var keySegment = visitedSource.ItemProjector.GetColumns(ColumnExtractionModes.TreatEntityAsKey);
       var keyPairs = keySegment
         .Select((leftIndex, rightIndex) => new Pair<int>(leftIndex, rightIndex))
@@ -356,7 +360,9 @@ namespace Xtensive.Orm.Linq
       var recordSet = projection.ItemProjector.DataSource;
       var targetTypeInfo = context.Model.Types[targetType];
       var sourceTypeInfo = context.Model.Types[sourceType];
-      var map = Enumerable.Repeat(-1, recordSet.Header.Columns.Count).ToArray();
+      var map = new int[recordSet.Header.Columns.Count];
+      Array.Fill(map, -1);
+
       var targetFieldIndex = 0;
       var targetFields = targetTypeInfo.Fields.Where(f => f.IsPrimitive);
       foreach (var targetField in targetFields) {
@@ -1571,22 +1577,12 @@ namespace Xtensive.Orm.Linq
 
       var outerItemProjector = outer.ItemProjector.RemoveOwner();
       var innerItemProjector = inner.ItemProjector.RemoveOwner();
-      var outerColumnList = outerItemProjector.GetColumns(ColumnExtractionModes.Distinct).ToList();
-      var innerColumnList = innerItemProjector.GetColumns(ColumnExtractionModes.Distinct).ToList();
+      var outerColumns = outerItemProjector.GetColumns(ColumnExtractionModes.Distinct).ToArray();
+      var innerColumns = innerItemProjector.GetColumns(ColumnExtractionModes.Distinct).ToArray();
 
-      int[] outerColumns, innerColumns;
-      if (!outerColumnList.Except(innerColumnList).Any() && outerColumnList.Count == innerColumnList.Count) {
-        var outerColumnListCopy = outerColumnList.ToArray();
-        Array.Sort(outerColumnListCopy);
-        outerColumns = outerColumnListCopy;
-
-        var innerColumnListCopy = innerColumnList.ToArray();
-        Array.Sort(innerColumnListCopy);
-        innerColumns = innerColumnListCopy;
-      }
-      else {
-        outerColumns = outerColumnList.ToArray();
-        innerColumns = innerColumnList.ToArray();
+      if (!outerColumns.Except(innerColumns).Any() && outerColumns.Length == innerColumns.Length) {
+        Array.Sort(outerColumns);
+        Array.Sort(innerColumns);
       }
 
       var outerRecordSet = ShouldWrapDataSourceWithSelect(outerItemProjector, outerColumns)

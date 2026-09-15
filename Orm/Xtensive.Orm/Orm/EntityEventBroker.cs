@@ -132,9 +132,9 @@ namespace Xtensive.Orm
     /// <param name="subscriber">The delegate.</param>
     public void AddSubscriber(Key key, FieldInfo fieldInfo, object eventKey, Delegate subscriber)
     {
-      ArgumentValidator.EnsureArgumentNotNull(key, "key");
-      ArgumentValidator.EnsureArgumentNotNull(eventKey, "eventKey");
-      ArgumentValidator.EnsureArgumentNotNull(subscriber, "subscriber");
+      ArgumentNullException.ThrowIfNull(key);
+      ArgumentNullException.ThrowIfNull(eventKey);
+      ArgumentNullException.ThrowIfNull(subscriber);
       if (subscribers == null)
         subscribers = new Dictionary<(Key, FieldInfo, object), Delegate>();
       var subscriberKey = (key, fieldInfo, eventKey);
@@ -166,9 +166,9 @@ namespace Xtensive.Orm
     /// <param name="subscriber">The delegate.</param>
     public void RemoveSubscriber(Key key, FieldInfo fieldInfo, object eventKey, Delegate subscriber)
     {
-      ArgumentValidator.EnsureArgumentNotNull(key, "key");
-      ArgumentValidator.EnsureArgumentNotNull(eventKey, "eventKey");
-      ArgumentValidator.EnsureArgumentNotNull(subscriber, "subscriber");
+      ArgumentNullException.ThrowIfNull(key);
+      ArgumentNullException.ThrowIfNull(eventKey);
+      ArgumentNullException.ThrowIfNull(subscriber);
       if (subscribers == null)
         return;
       var subscriberKey = (key, fieldInfo, eventKey);

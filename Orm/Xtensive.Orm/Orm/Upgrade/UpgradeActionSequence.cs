@@ -94,8 +94,8 @@ namespace Xtensive.Orm.Upgrade
     /// <param name="nonTransactionalProcessor">Non-transactional processor.</param>
     public void ProcessWith(Action<IEnumerable<string>> regularProcessor, Action<IEnumerable<string>> nonTransactionalProcessor)
     {
-      ArgumentValidator.EnsureArgumentNotNull(regularProcessor, nameof(regularProcessor));
-      ArgumentValidator.EnsureArgumentNotNull(nonTransactionalProcessor, nameof(nonTransactionalProcessor));
+      ArgumentNullException.ThrowIfNull(regularProcessor);
+      ArgumentNullException.ThrowIfNull(nonTransactionalProcessor);
 
       if (NonTransactionalPrologCommands.Count > 0) {
         nonTransactionalProcessor.Invoke(NonTransactionalPrologCommands);
@@ -123,8 +123,8 @@ namespace Xtensive.Orm.Upgrade
       Func<IEnumerable<string>, CancellationToken, Task> nonTransactionalProcessor,
       CancellationToken token)
     {
-      ArgumentValidator.EnsureArgumentNotNull(regularProcessor, nameof(regularProcessor));
-      ArgumentValidator.EnsureArgumentNotNull(nonTransactionalProcessor, nameof(nonTransactionalProcessor));
+      ArgumentNullException.ThrowIfNull(regularProcessor);
+      ArgumentNullException.ThrowIfNull(nonTransactionalProcessor);
 
       if (NonTransactionalPrologCommands.Count > 0) {
         await nonTransactionalProcessor.Invoke(NonTransactionalPrologCommands, token).ConfigureAwait(false);

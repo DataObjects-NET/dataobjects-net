@@ -191,7 +191,7 @@ namespace Xtensive.Orm.Rse.Transformation
       return predicateCollector.TryAdd(newProvider) ? source : newProvider;
     }
 
-    protected override CompilableProvider VisitAlias(AliasProvider provider)
+    protected override AliasProvider VisitAlias(AliasProvider provider)
     {
       var source = VisitCompilable(provider.Source);
       var newProvider = source!=provider.Source ? new AliasProvider(source, provider.Alias) : provider;
@@ -254,7 +254,7 @@ namespace Xtensive.Orm.Rse.Transformation
         : provider;
     }
 
-    protected override CompilableProvider VisitConcat(ConcatProvider provider)
+    protected override ConcatProvider VisitConcat(ConcatProvider provider)
     {
       VisitBinaryProvider(provider, out var left, out var right);
       return left != provider.Left || right != provider.Right
@@ -270,7 +270,7 @@ namespace Xtensive.Orm.Rse.Transformation
         : provider;
     }
 
-    protected override CompilableProvider VisitAggregate(AggregateProvider provider)
+    protected override AggregateProvider VisitAggregate(AggregateProvider provider)
     {
       var source = VisitCompilable(provider.Source);
       var newProvider = provider;

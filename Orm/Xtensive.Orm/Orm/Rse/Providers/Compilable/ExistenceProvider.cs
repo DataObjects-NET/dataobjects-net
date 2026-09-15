@@ -16,19 +16,20 @@ namespace Xtensive.Orm.Rse.Providers
   /// </summary>
   public sealed class ExistenceProvider : UnaryProvider
   {
+    private static readonly TupleDescriptor BoolTupleDescriptor = TupleDescriptor.Create(new[] { WellKnownTypes.Bool });
+
     /// <summary>
     /// Gets the name of the existence column.
     /// </summary>
-    public string ExistenceColumnName { get; private set; }
+    public string ExistenceColumnName { get; }
 
-    private static readonly TupleDescriptor BoolTupleDescriptor = TupleDescriptor.Create(new[] {WellKnownTypes.Bool});
-
-    /// <inheritdoc/>
-    protected override RecordSetHeader BuildHeader()
+    #region Header build
+    private static RecordSetHeader BuildHeader(string existenceColumnName)
     {
       return new RecordSetHeader(
-        BoolTupleDescriptor, new[] { new SystemColumn(ExistenceColumnName, 0, WellKnownTypes.Bool) });
+        BoolTupleDescriptor, new[] { new SystemColumn(existenceColumnName, 0, WellKnownTypes.Bool) });
     }
+    #endregion
 
 
     // Constructors
@@ -37,10 +38,9 @@ namespace Xtensive.Orm.Rse.Providers
     /// Initializes a new instance of this class.
     /// </summary>
     public ExistenceProvider(CompilableProvider source, string existenceColumnName)
-      : base(ProviderType.Existence, source)
+      : base(ProviderType.Existence, BuildHeader(existenceColumnName), source)
     {
       ExistenceColumnName = existenceColumnName;
-      Initialize();
     }
   }
 }

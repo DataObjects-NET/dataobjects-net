@@ -12,7 +12,6 @@ using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Orm.Internals.Prefetch;
 using Xtensive.Orm.Rse;
-using Xtensive.Reflection;
 using Xtensive.Tuples;
 using Xtensive.Tuples.Transform;
 using EnumerationContext = Xtensive.Orm.Providers.EnumerationContext;
@@ -46,7 +45,7 @@ namespace Xtensive.Orm.Linq.Materialization
     public static int[] CreateSingleSourceMap(int targetLength, IReadOnlyList<Pair<int>> remappedColumns)
     {
       var map = new int[targetLength];
-      Array.Fill(map, MapTransform.NoMapping);
+      Array.Fill(map, TransformUtil.NoMapping);
 
       for (var i = 0; i < remappedColumns.Count; i++) {
         var remappedColumn = remappedColumns[i];

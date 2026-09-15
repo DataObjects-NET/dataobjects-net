@@ -10,7 +10,6 @@ using System.Linq;
 using Xtensive.Core;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
-using Xtensive.Tuples.Transform;
 using Xtensive.Orm.Model;
 
 
@@ -115,10 +114,8 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     public ReferencedEntityContainer(Key ownerKey, PrefetchFieldDescriptor referencingFieldDescriptor,
       bool isOwnerTypeKnown, PrefetchManager manager)
-      : base(null, referencingFieldDescriptor.Field.Associations.Last().TargetType, true, manager)
+      : base(null, referencingFieldDescriptor.Field.Associations[^1].TargetType, true, manager)
     {
-      ArgumentValidator.EnsureArgumentNotNull(referencingFieldDescriptor, "referencingFieldDescriptor");
-      ArgumentValidator.EnsureArgumentNotNull(ownerKey, "ownerKey");
       this.ownerKey = ownerKey ?? throw new ArgumentNullException(nameof(ownerKey));
       this.referencingFieldDescriptor = referencingFieldDescriptor ?? throw new ArgumentNullException(nameof(referencingFieldDescriptor));
       this.isOwnerTypeKnown = isOwnerTypeKnown;

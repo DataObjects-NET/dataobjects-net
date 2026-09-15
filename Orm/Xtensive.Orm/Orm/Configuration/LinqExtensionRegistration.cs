@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2011 Xtensive LLC.
+// Copyright (C) 2011 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -42,11 +42,8 @@ namespace Xtensive.Orm.Configuration
     /// <param name="substitution">Value for <see cref="Substitution"/>.</param>
     public LinqExtensionRegistration(MemberInfo member, LambdaExpression substitution)
     {
-      ArgumentValidator.EnsureArgumentNotNull(member, "member");
-      ArgumentValidator.EnsureArgumentNotNull(substitution, "substitution");
-
-      Member = member;
-      Substitution = substitution;
+      Member = member ?? throw new ArgumentNullException(nameof(member));
+      Substitution = substitution ?? throw new ArgumentNullException(nameof(substitution));
     }
 
     /// <summary>
@@ -56,11 +53,8 @@ namespace Xtensive.Orm.Configuration
     /// <param name="compiler">Value for <see cref="Compiler"/>.</param>
     public LinqExtensionRegistration(MemberInfo member, Func<MemberInfo, Expression, Expression[], Expression> compiler)
     {
-      ArgumentValidator.EnsureArgumentNotNull(member, "member");
-      ArgumentValidator.EnsureArgumentNotNull(compiler, "compiler");
-
-      Member = member;
-      Compiler = compiler;
+      Member = member ?? throw new ArgumentNullException(nameof(member));
+      Compiler = compiler ?? throw new ArgumentNullException(nameof(compiler));
     }
   }
 }

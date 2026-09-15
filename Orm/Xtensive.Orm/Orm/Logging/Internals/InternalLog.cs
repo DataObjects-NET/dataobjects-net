@@ -4,7 +4,7 @@
 // Created by: Alexey Kulakov
 // Created:    2013.09.27
 
-using Xtensive.Core;
+using System;
 
 namespace Xtensive.Orm.Logging
 {
@@ -25,8 +25,7 @@ namespace Xtensive.Orm.Logging
     public InternalLog(string name, LogWriter writer)
       : base(name)
     {
-      ArgumentValidator.EnsureArgumentNotNull(writer, "writer");
-      this.writer = writer;
+      this.writer = writer ?? throw new ArgumentNullException(nameof(writer));
     }
   }
 }

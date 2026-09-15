@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2014 Xtensive LLC.
+// Copyright (C) 2014 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -17,13 +17,13 @@ namespace Xtensive.Orm.Internals
 
     public bool Add(StorageNode node)
     {
-      ArgumentValidator.EnsureArgumentNotNull(node, "node");
+      ArgumentNullException.ThrowIfNull(node);
       return nodes.TryAdd(node.Id, node);
     }
 
     public bool Remove(string nodeId)
     {
-      ArgumentValidator.EnsureArgumentNotNull(nodeId, "nodeId");
+      ArgumentNullException.ThrowIfNull(nodeId);
       if (nodeId==WellKnown.DefaultNodeId)
         throw new InvalidOperationException(Strings.ExDefaultStorageNodeCanNotBeRemoved);
       StorageNode dummy;
@@ -32,7 +32,7 @@ namespace Xtensive.Orm.Internals
 
     public StorageNode TryGet(string nodeId)
     {
-      ArgumentValidator.EnsureArgumentNotNull(nodeId, "nodeId");
+      ArgumentNullException.ThrowIfNull(nodeId);
       StorageNode result;
       nodes.TryGetValue(nodeId, out result);
       return result;
@@ -40,7 +40,7 @@ namespace Xtensive.Orm.Internals
 
     public StorageNode Get(string nodeId)
     {
-      ArgumentValidator.EnsureArgumentNotNull(nodeId, "nodeId");
+      ArgumentNullException.ThrowIfNull(nodeId);
       StorageNode result;
       if (!nodes.TryGetValue(nodeId, out result))
         throw new KeyNotFoundException(string.Format(Strings.ExStorageNodeWithIdXIsNotFound, nodeId));

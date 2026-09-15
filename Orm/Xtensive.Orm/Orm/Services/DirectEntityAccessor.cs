@@ -39,7 +39,7 @@ namespace Xtensive.Orm.Services
     /// <param name="target">The target entity.</param>
     public EntityState GetEntityState(Entity target)
     {
-      ArgumentValidator.EnsureArgumentNotNull(target, "target");
+      ArgumentNullException.ThrowIfNull(target);
 
       return target.State;
     }

@@ -19,12 +19,12 @@ namespace Xtensive.Orm.Rse.Providers
     /// <summary>
     /// Join operation type.
     /// </summary>
-    public JoinType JoinType { get; private set; }
+    public JoinType JoinType { get; }
 
     /// <summary>
     /// Gets the predicate.
     /// </summary>
-    public Expression<Func<Tuple, Tuple, bool>> Predicate { get; private set; }
+    public Expression<Func<Tuple, Tuple, bool>> Predicate { get; }
 
 
     // Constructors
@@ -36,9 +36,8 @@ namespace Xtensive.Orm.Rse.Providers
       Expression<Func<Tuple, Tuple, bool>> predicate, JoinType joinType)
       : base(ProviderType.PredicateJoin, left, right)
     {
-      Predicate = predicate;
+      Predicate = predicate ?? throw new ArgumentNullException(nameof(predicate));
       JoinType = joinType;
-      Initialize();
     }
   }
 }

@@ -11,7 +11,7 @@ namespace Xtensive.Sql.Dml
   {
     public override void ReplaceWith(SqlExpression expression)
     {
-      ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
+      ArgumentNullException.ThrowIfNull(expression);
       _ = ArgumentValidator.EnsureArgumentIs<SqlDefaultValue>(expression);
     }
     

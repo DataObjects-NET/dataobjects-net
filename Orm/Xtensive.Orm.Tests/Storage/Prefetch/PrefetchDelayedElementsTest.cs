@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2026 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexander Nikolaev
 // Created:    2009.10.07
 
@@ -41,6 +41,18 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
           PrefetchTestHelper.FillDataBase(session);
         orderType = Domain.Model.Types[typeof (Order)];
         customerType = Domain.Model.Types[typeof (Customer)];
+        transactionScope.Complete();
+      }
+    }
+
+    protected override void PopulateData()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transactionScope = session.OpenTransaction()) {
+        for (int i = 0; i < 111; i++)
+          PrefetchTestHelper.FillDataBase(session);
+        orderType = Domain.Model.Types[typeof(Order)];
+        customerType = Domain.Model.Types[typeof(Customer)];
         transactionScope.Complete();
       }
     }

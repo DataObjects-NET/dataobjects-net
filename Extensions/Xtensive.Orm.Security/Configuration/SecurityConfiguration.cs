@@ -139,7 +139,7 @@ namespace Xtensive.Orm.Security.Configuration
     /// <returns>Loaded configuration or configuration with default settings.</returns>
     public static SecurityConfiguration Load(IConfiguration configuration, string sectionName = null)
     {
-      ArgumentValidator.EnsureArgumentNotNull(configuration, nameof(configuration));
+      ArgumentNullException.ThrowIfNull(configuration);
 
       if (configuration is IConfigurationRoot configurationRoot) {
         return Load(configurationRoot, sectionName);
@@ -160,7 +160,7 @@ namespace Xtensive.Orm.Security.Configuration
     /// <returns>Loaded configuration or configuration with default settings.</returns>
     public static SecurityConfiguration Load(IConfigurationRoot configurationRoot, string sectionName = null)
     {
-      ArgumentValidator.EnsureArgumentNotNull(configurationRoot, nameof(configurationRoot));
+      ArgumentNullException.ThrowIfNull(configurationRoot);
 
       var configuration = new NamelessFormatSecurityConfigurationReader().Read(configurationRoot, sectionName ?? DefaultSectionName);
       if (configuration != null) {
@@ -178,7 +178,7 @@ namespace Xtensive.Orm.Security.Configuration
     /// <returns>Loaded configuration or configuration with default settings.</returns>
     public static SecurityConfiguration Load(IConfigurationSection configurationSection)
     {
-      ArgumentValidator.EnsureArgumentNotNull(configurationSection, nameof(configurationSection));
+      ArgumentNullException.ThrowIfNull(configurationSection);
 
       var configuration = new NamelessFormatSecurityConfigurationReader().Read(configurationSection);
       if (configuration != null) {

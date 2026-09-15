@@ -21,12 +21,12 @@ Namespace Model
         Using scope As TransactionScope = session.OpenTransaction()
           Dim author = New Author With {.Name = "Vasya"}
           Dim book = New Book With {.Name = "The Book", .Author = author}
-          Assert.AreEqual(1, author.Books.Count)
+          Assert.That(author.Books.Count, [Is].EqualTo(1))
           Dim result = From c In Query.All(Of Author)()
                 Select c
           Dim list = result.ToList()
           Dim loaded = result.Single()
-          Assert.AreEqual("Vasya", loaded.Name)
+          Assert.That(loaded.Name, [Is].EqualTo("Vasya"))
         End Using
       End Using
     End Sub

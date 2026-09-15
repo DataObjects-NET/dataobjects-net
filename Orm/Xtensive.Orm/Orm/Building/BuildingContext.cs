@@ -77,9 +77,7 @@ namespace Xtensive.Orm.Building
 
     internal BuildingContext(DomainBuilderConfiguration builderConfiguration)
     {
-      ArgumentValidator.EnsureArgumentNotNull(builderConfiguration, "builderConfiguration");
-
-      BuilderConfiguration = builderConfiguration;
+      BuilderConfiguration = builderConfiguration ?? throw new ArgumentNullException(nameof(builderConfiguration));
       PairedAssociations = new List<Pair<AssociationInfo, string>>();
       DiscardedAssociations = new HashSet<AssociationInfo>();
       ModelInspectionResult = new ModelInspectionResult();
@@ -88,8 +86,8 @@ namespace Xtensive.Orm.Building
       
       Modules = BuilderConfiguration.Services.Modules.ToList(BuilderConfiguration.Services.Modules.Count).AsReadOnly();
       Modules2 = Modules.OfType<IModule2>().ToList().AsReadOnly();
-      Validator = new Validator(builderConfiguration.Services.ProviderInfo.SupportedTypes);
-      DefaultSchemaInfo = builderConfiguration.DefaultSchemaInfo;
+      Validator = new Validator(BuilderConfiguration.Services.ProviderInfo.SupportedTypes);
+      DefaultSchemaInfo = BuilderConfiguration.DefaultSchemaInfo;
     }
   }
 }

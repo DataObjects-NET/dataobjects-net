@@ -147,10 +147,7 @@ namespace Xtensive.Sql.Model
     /// Gets the columns.
     /// </summary>
     /// <value>The columns.</value>
-    public override IList<DataTableColumn> Columns
-    {
-      get { return TableColumns.ToArray().Convert(i => (DataTableColumn) i); }
-    }
+    public override IList<DataTableColumn> Columns => TableColumns.SelectToArray(i => (DataTableColumn) i);
 
     #endregion
 
@@ -160,10 +157,7 @@ namespace Xtensive.Sql.Model
     /// Gets the node constraints.
     /// </summary>
     /// <value>The constraints.</value>
-    IList<Constraint> IConstrainable.Constraints
-    {
-      get { return constraints.ToArray().Convert(i => (Constraint)i); }
-    }
+    IList<Constraint> IConstrainable.Constraints => constraints.SelectToArray(i => (Constraint) i);
 
     #endregion
 

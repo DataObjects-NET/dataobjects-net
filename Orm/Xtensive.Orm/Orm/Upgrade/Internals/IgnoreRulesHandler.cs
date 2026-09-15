@@ -161,9 +161,8 @@ namespace Xtensive.Orm.Upgrade
     /// <param name="resolver"><see cref="MappingResolver"/> to be used.</param>
     public IgnoreRulesHandler(SchemaExtractionResult model, DomainConfiguration configuration, MappingResolver resolver)
     {
-      ArgumentValidator.EnsureArgumentNotNull(model, "model");
-      ArgumentValidator.EnsureArgumentNotNull(configuration, "configuration");
-      targetModel = model;
+      ArgumentNullException.ThrowIfNull(configuration);
+      targetModel = model ?? throw new ArgumentNullException(nameof(model));
       ignoreRules = configuration.IgnoreRules;
       mappingResolver = resolver;
     }

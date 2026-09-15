@@ -23,210 +23,367 @@ namespace Xtensive.Orm.Rse
   /// </summary>
   public static class CompilableProviderExtensions
   {
-    public static CalculateProvider Calculate(this CompilableProvider source,
-      params CalculatedColumnDescriptor[] columns)
-    {
-      return new CalculateProvider(source, columns, false);
-    }
+    /// <summary>
+    /// Applies <see cref="CalculateProvider"/> to the given source.
+    /// </summary>
+    /// <param name="source">Compilable provider.</param>
+    /// <param name="columns"> Calculated columns' descriptors.</param>
+    /// <returns><see cref="CalculateProvider"/> instance.</returns>
+    public static CalculateProvider Calculate(this CompilableProvider source, params CalculatedColumnDescriptor[] columns)
+      => new CalculateProvider(source, columns, false);
 
-    public static CalculateProvider Calculate(this CompilableProvider source, bool isInlined,
-      params CalculatedColumnDescriptor[] columns)
-    {
-      return new CalculateProvider(source, columns, isInlined);
-    }
+    /// <summary>
+    /// Applies <see cref="CalculateProvider"/> to the given source.
+    /// </summary>
+    /// <param name="source">Compilable provider.</param>
+    /// <param name="isInlined">Columns should be inlined or not.</param>
+    /// <param name="columns"> Calculated columns' descriptors.</param>
+    /// <returns><see cref="CalculateProvider"/> instance.</returns>
+    public static CalculateProvider Calculate(this CompilableProvider source, bool isInlined, params CalculatedColumnDescriptor[] columns)
+      => new CalculateProvider(source, columns, isInlined);
 
+    /// <summary>
+    /// Applies <see cref="CalculateProvider"/> to the given source.
+    /// </summary>
+    /// <param name="source">Compilable provider.</param>
+    /// <param name="columns"> Calculated columns' descriptors.</param>
+    /// <returns><see cref="CalculateProvider"/> instance.</returns>
     public static CalculateProvider Calculate(this CompilableProvider source, IReadOnlyList<CalculatedColumnDescriptor> columns)
-    {
-      return new CalculateProvider(source, columns);
-    }
+      => new CalculateProvider(source, columns);
 
+    /// <summary>
+    /// Applies <see cref="CalculateProvider"/> to the given source.
+    /// </summary>
+    /// <param name="source">Compilable provider.</param>
+    /// <param name="isInlined">Columns should be inlined or not.</param>
+    /// <param name="columns"> Calculated columns' descriptors.</param>
+    /// <returns><see cref="CalculateProvider"/> instance.</returns>
     public static CalculateProvider Calculate(this CompilableProvider source, bool isInlined, IReadOnlyList<CalculatedColumnDescriptor> columns)
-    {
-      return new CalculateProvider(source, columns, isInlined);
-    }
+      => new CalculateProvider(source, columns, isInlined);
 
-    public static CompilableProvider RowNumber(this CompilableProvider source, string columnName)
-    {
-      return new RowNumberProvider(source, columnName);
-    }
+    /// <summary>
+    /// Applies <see cref="RowNumberProvider"/> to the given source.
+    /// </summary>
+    /// <param name="source">Compilable provider.</param>
+    /// <param name="columnName">Name of column.</param>
+    /// <returns><see cref="RowNumberProvider"/> instance.</returns>
+    public static CompilableProvider RowNumber(this CompilableProvider source, string columnName) => new RowNumberProvider(source, columnName);
 
-    public static CompilableProvider Join(this CompilableProvider left, CompilableProvider right,
-      params Pair<int>[] joinedColumnIndexes)
-    {
-      return new JoinProvider(left, right, JoinType.Inner, joinedColumnIndexes);
-    }
+    /// <summary>
+    /// Applies <see cref="PredicateJoinProvider"/> to the given source.
+    /// </summary>
+    /// <param name="left">Compilable provider.</param>
+    /// <param name="right">Compilable provider.</param>
+    /// <param name="predicate">Predicate to join.</param>
+    /// <param name="joinType">Join Type</param>
+    /// <returns><see cref="PredicateJoinProvider"/> instance.</returns>
+    public static CompilableProvider Join(this CompilableProvider left, CompilableProvider right, Expression<Func<Tuple, Tuple, bool>> predicate, JoinType joinType)
+      => new PredicateJoinProvider(left, right, predicate, joinType);
 
-    public static CompilableProvider Join(this CompilableProvider left, CompilableProvider right,
-      params int[] joinedColumnIndexes)
-    {
-      return new JoinProvider(left, right, JoinType.Inner, joinedColumnIndexes);
-    }
+    /// <summary>
+    /// Applies <see cref="JoinProvider"/> to the given source.
+    /// </summary>
+    /// <param name="left">Compilable provider.</param>
+    /// <param name="right">Compilable provider.</param>
+    /// <param name="joinedColumnIndexes">Pair of column indexes to join.</param>
+    /// <returns><see cref="JoinProvider"/> instance.</returns>
+    public static CompilableProvider Join(this CompilableProvider left, CompilableProvider right, params Pair<int>[] joinedColumnIndexes)
+      => new JoinProvider(left, right, JoinType.Inner, joinedColumnIndexes);
 
-    public static CompilableProvider LeftJoin(this CompilableProvider left, CompilableProvider right,
-      params Pair<int>[] joinedColumnIndexes)
-    {
-      return new JoinProvider(left, right, JoinType.LeftOuter, joinedColumnIndexes);
-    }
+    /// <summary>
+    /// Applies <see cref="JoinProvider"/> to the given source.
+    /// </summary>
+    /// <param name="left">Compilable provider.</param>
+    /// <param name="right">Compilable provider.</param>
+    /// <param name="joinedColumnIndexes">Pair of column indexes to join.</param>
+    /// <returns><see cref="JoinProvider"/> instance.</returns>
+    public static CompilableProvider Join(this CompilableProvider left, CompilableProvider right, params int[] joinedColumnIndexes)
+      => new JoinProvider(left, right, JoinType.Inner, joinedColumnIndexes);
 
-    public static CompilableProvider LeftJoin(this CompilableProvider left, CompilableProvider right,
-      params int[] joinedColumnIndexes)
-    {
-      return new JoinProvider(left, right, JoinType.LeftOuter, joinedColumnIndexes);
-    }
+    /// <summary>
+    /// Applies <see cref="JoinProvider"/> to the given source.
+    /// </summary>
+    /// <param name="left">Compilable provider.</param>
+    /// <param name="right">Compilable provider.</param>
+    /// <param name="joinedColumnIndexes">Pair of column indexes to join.</param>
+    /// <returns><see cref="JoinProvider"/> instance.</returns>
+    public static CompilableProvider LeftJoin(this CompilableProvider left, CompilableProvider right, params Pair<int>[] joinedColumnIndexes)
+      => new JoinProvider(left, right, JoinType.LeftOuter, joinedColumnIndexes);
 
-    public static CompilableProvider OrderBy(this CompilableProvider source, DirectionCollection<int> columnIndexes)
-    {
-      return new SortProvider(source, columnIndexes);
-    }
+    /// <summary>
+    /// Applies <see cref="JoinProvider"/> to the given source.
+    /// </summary>
+    /// <param name="left">Compilable provider.</param>
+    /// <param name="right">Compilable provider.</param>
+    /// <param name="joinedColumnIndexes">Pair of column indexes to join.</param>
+    /// <returns><see cref="JoinProvider"/> instance.</returns>
+    public static CompilableProvider LeftJoin(this CompilableProvider left, CompilableProvider right, params int[] joinedColumnIndexes)
+      => new JoinProvider(left, right, JoinType.LeftOuter, joinedColumnIndexes);
 
-    public static CompilableProvider Alias(this CompilableProvider source, string alias)
-    {
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(alias, "alias");
-      return new AliasProvider(source, alias);
-    }
+    /// <summary>
+    /// Applies <see cref="SortProvider"/> to the given source.
+    /// </summary>
+    /// <param name="source">Compilable provider.</param>
+    /// <param name="columnIndexes">Column indexes to order.</param>
+    /// <returns><see cref="SortProvider"/> instance.</returns>
+    public static CompilableProvider OrderBy(this CompilableProvider source, DirectionCollection<int> columnIndexes) => new SortProvider(source, columnIndexes);
 
-    public static CompilableProvider Filter(this CompilableProvider source, Expression<Func<Tuple, bool>> predicate)
-    {
-      return new FilterProvider(source, predicate);
-    }
+    /// <summary>
+    /// Applies <see cref="AliasProvider"/> to the given source.
+    /// </summary>
+    /// <param name="source">Compilable provider.</param>
+    /// <param name="alias">Alias.</param>
+    /// <returns><see cref="AliasProvider"/> instance.</returns>
+    public static CompilableProvider Alias(this CompilableProvider source, string alias) => new AliasProvider(source, alias);
 
-    public static CompilableProvider Select(this CompilableProvider source, IReadOnlyList<int> columnIndexes)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(columnIndexes, "columnIndexes");
-      return new SelectProvider(source, columnIndexes);
-    }
+    /// <summary>
+    /// Applies <see cref="FilterProvider"/> to the given source.
+    /// </summary>
+    /// <param name="source">Compilable provider.</param>
+    /// <param name="predicate">Filtration predicate.</param>
+    /// <returns><see cref="FilterProvider"/> instance.</returns>
+    public static CompilableProvider Filter(this CompilableProvider source, Expression<Func<Tuple, bool>> predicate) => new FilterProvider(source, predicate);
 
-    public static CompilableProvider Seek(this CompilableProvider source, Func<ParameterContext, Tuple> key)
-    {
-      return new SeekProvider(source, key);
-    }
+    /// <summary>
+    /// Applies <see cref="SelectProvider"/> to the given source.
+    /// </summary>
+    /// <param name="source">Compilable provider.</param>
+    /// <param name="columnIndexes">Column indexes to select from the source.</param>
+    /// <returns><see cref="SelectProvider"/> instance.</returns>
+    public static CompilableProvider Select(this CompilableProvider source, IReadOnlyList<int> columnIndexes) => new SelectProvider(source, columnIndexes);
 
-    public static CompilableProvider Seek(this CompilableProvider source, Tuple key)
-    {
-      return new SeekProvider(source, key);
-    }
+    /// <summary>
+    /// Applies <see cref="SeekProvider"/> to the given source.
+    /// </summary>
+    /// <param name="source">Compilable provider.</param>
+    /// <param name="key">Seek parameter.</param>
+    /// <returns><see cref="SeekProvider"/> instance.</returns>
+    public static CompilableProvider Seek(this CompilableProvider source, Func<ParameterContext, Tuple> key) => new SeekProvider(source, key);
 
+    /// <summary>
+    /// Applies <see cref="SeekProvider"/> to the given source.
+    /// </summary>
+    /// <param name="source">Compilable provider.</param>
+    /// <param name="key">Seek parameter.</param>
+    /// <returns><see cref="SeekProvider"/> instance.</returns>
+    public static CompilableProvider Seek(this CompilableProvider source, Tuple key) => new SeekProvider(source, key);
+
+    /// <summary>
+    /// Applies <see cref="AggregateProvider"/> to the given source.
+    /// </summary>
+    /// <param name="recordQuery">Compilable provider.</param>
+    /// <param name="groupIndexes">Column indexes to group by.</param>
+    /// <param name="descriptors">Descriptors of aggregate columns.</param>
+    /// <returns><see cref="AggregateProvider"/> instance.</returns>
     public static CompilableProvider Aggregate(this CompilableProvider recordQuery,
       int[] groupIndexes, params AggregateColumnDescriptor[] descriptors)
-    {
-      return new AggregateProvider(recordQuery, groupIndexes, (IReadOnlyList<AggregateColumnDescriptor>) descriptors);
-    }
+      => new AggregateProvider(recordQuery, groupIndexes, descriptors);
 
-    public static CompilableProvider Skip(this CompilableProvider source, Func<ParameterContext, int> count)
-    {
-      return new SkipProvider(source, count);
-    }
+    /// <summary>
+    /// Applies <see cref="AggregateProvider"/> to the given source.
+    /// </summary>
+    /// <param name="recordQuery">Compilable provider.</param>
+    /// <param name="groupIndexes">Column indexes to group by.</param>
+    /// <param name="descriptors">Descriptors of aggregate columns.</param>
+    /// <returns><see cref="AggregateProvider"/> instance.</returns>
+    public static CompilableProvider Aggregate(this CompilableProvider recordQuery,
+      int[] groupIndexes, IReadOnlyList<AggregateColumnDescriptor> descriptors)
+      => new AggregateProvider(recordQuery, groupIndexes, descriptors);
 
-    public static CompilableProvider Skip(this CompilableProvider source, int count)
-    {
-      return new SkipProvider(source, count);
-    }
+    /// <summary>
+    /// Applies <see cref="SkipProvider"/> to the given source.
+    /// </summary>
+    /// <param name="source">Compilable provider.</param>
+    /// <param name="count">Skip amout function.</param>
+    /// <returns><see cref="SkipProvider"/> instance.</returns>
+    public static CompilableProvider Skip(this CompilableProvider source, Func<ParameterContext, int> count) => new SkipProvider(source, count);
 
-    public static CompilableProvider Take(this CompilableProvider source, Func<ParameterContext, int> count)
-    {
-      return new TakeProvider(source, count);
-    }
+    /// <summary>
+    /// Applies <see cref="SkipProvider"/> to the given source.
+    /// </summary>
+    /// <param name="source">Compilable provider.</param>
+    /// <param name="count">Number of skippable items.</param>
+    /// <returns><see cref="SkipProvider"/> instance.</returns>
+    public static CompilableProvider Skip(this CompilableProvider source, int count) => new SkipProvider(source, count);
 
-    public static CompilableProvider Take(this CompilableProvider source, int count)
-    {
-      return new TakeProvider(source, count);
-    }
+    /// <summary>
+    /// Applies <see cref="TakeProvider"/> to the given source.
+    /// </summary>
+    /// <param name="source">Compilable provider.</param>
+    /// <param name="count">Take amount function.</param>
+    /// <returns><see cref="TakeProvider"/> instance.</returns>
+    public static TakeProvider Take(this CompilableProvider source, Func<ParameterContext, int> count) => new TakeProvider(source, count);
 
-    public static CompilableProvider Save(this CompilableProvider source)
-    {
-      return new StoreProvider(source);
-    }
+    /// <summary>
+    /// Applies <see cref="TakeProvider"/> to the given source.
+    /// </summary>
+    /// <param name="source">Compilable provider.</param>
+    /// <param name="count">Number of items to take.</param>
+    /// <returns><see cref="TakeProvider"/> instance.</returns>
+    public static CompilableProvider Take(this CompilableProvider source, int count) => new TakeProvider(source, count);
 
-    public static CompilableProvider Save(this CompilableProvider source, string name)
-    {
-      return new StoreProvider(source, name);
-    }
+    /// <summary>
+    /// Applies <see cref="StoreProvider"/> to the given source.
+    /// </summary>
+    /// <param name="source">Compilable provider.</param>
+    /// <returns><see cref="StoreProvider"/> instance.</returns>
+    public static CompilableProvider Save(this CompilableProvider source) => new StoreProvider(source);
 
-    public static CompilableProvider Distinct(this CompilableProvider source)
-    {
-      return new DistinctProvider(source);
-    }
+    /// <summary>
+    /// Applies <see cref="StoreProvider"/> to the given source.
+    /// </summary>
+    /// <param name="source">Compilable provider.</param>
+    /// <param name="name">Name of saved data.</param>
+    /// <returns><see cref="StoreProvider"/> instance.</returns>
+    public static CompilableProvider Save(this CompilableProvider source, string name) => new StoreProvider(source, name);
 
-    public static CompilableProvider Apply(this CompilableProvider source,
-      ApplyParameter applyParameter, CompilableProvider right)
-    {
-      return new ApplyProvider(applyParameter, source, right);
-    }
+    /// <summary>
+    /// Applies <see cref="DistinctProvider"/> to the given source.
+    /// </summary>
+    /// <param name="source">Compilable provider.</param>
+    /// <returns><see cref="DistinctProvider"/> instance.</returns>
+    public static CompilableProvider Distinct(this CompilableProvider source) => new DistinctProvider(source);
 
+    /// <summary>
+    /// Applies <see cref="ApplyProvider"/> to the given source.
+    /// </summary>
+    /// <param name="source">Left source.</param>
+    /// <param name="applyParameter">Apply parameter.</param>
+    /// <param name="right">Compilable provider for right source (on each itteration of source).</param>
+    /// <returns><see cref="ApplyProvider"/> instance.</returns>
+    public static CompilableProvider Apply(this CompilableProvider source, ApplyParameter applyParameter, CompilableProvider right)
+      => new ApplyProvider(applyParameter, source, right);
+
+    /// <summary>
+    /// Applies <see cref="ApplyProvider"/> to the given source.
+    /// </summary>
+    /// <param name="source">Left source.</param>
+    /// <param name="applyParameter">Apply parameter.</param>
+    /// <param name="right">Compilable provider for right source (on each itteration of source).</param>
+    /// <param name="isInlined">Inline column of apply provider or not.</param>
+    /// <param name="sequenceType">Sequence type.</param>
+    /// <param name="applyType">Apply type.</param>
+    /// <returns><see cref="ApplyProvider"/> instance.</returns>
     public static CompilableProvider Apply(this CompilableProvider source,
       ApplyParameter applyParameter, CompilableProvider right,
       bool isInlined, ApplySequenceType sequenceType, JoinType applyType)
-    {
-      return new ApplyProvider(applyParameter, source, right, isInlined, sequenceType, applyType);
-    }
+      => new ApplyProvider(applyParameter, source, right, isInlined, sequenceType, applyType);
 
-    public static CompilableProvider Existence(this CompilableProvider source, string existenceColumnName)
-    {
-      return new ExistenceProvider(source, existenceColumnName);
-    }
+    /// <summary>
+    /// Applies <see cref="ExistenceProvider"/> to the given source.
+    /// </summary>
+    /// <param name="source">Compilable provider.</param>
+    /// <param name="existenceColumnName">Name of the existance column.</param>
+    /// <returns><see cref="ExistenceProvider"/> instance.</returns>
+    public static CompilableProvider Existence(this CompilableProvider source, string existenceColumnName) => new ExistenceProvider(source, existenceColumnName);
 
+    /// <summary>
+    /// Applies <see cref="IncludeProvider"/> to the given source.
+    /// </summary>
+    /// /// <param name="source">Compilable provider.</param>
+    /// <param name="filterDataSource">Filter data.</param>
+    /// <param name="resultColumnName">Result column name.</param>
+    /// <param name="filteredColumns">Filtered columns</param>
+    /// <returns><see cref="IncludeProvider"/> instance.</returns>
     public static CompilableProvider Include(this CompilableProvider source,
       Expression<Func<ParameterContext, IEnumerable<Tuple>>> filterDataSource, string resultColumnName, int[] filteredColumns)
-    {
-      return new IncludeProvider(
-        source, IncludeAlgorithm.Auto, false, filterDataSource, resultColumnName, filteredColumns);
-    }
+      => new IncludeProvider(source, IncludeAlgorithm.Auto, false, filterDataSource, resultColumnName, filteredColumns);
 
+    /// <summary>
+    /// Applies <see cref="VoidProvider"/> to the given source.
+    /// </summary>
+    /// /// <param name="source">Compilable provider.</param>
+    /// <param name="algorithm">Include algorithm.</param>
+    /// <param name="filterDataSource">Filter data.</param>
+    /// <param name="resultColumnName">Result column name.</param>
+    /// <param name="filteredColumns">Filtered columns</param>
+    /// <returns><see cref="VoidProvider"/> instance.</returns>
     public static CompilableProvider Include(this CompilableProvider source,
       IncludeAlgorithm algorithm, Expression<Func<ParameterContext, IEnumerable<Tuple>>> filterDataSource,
       string resultColumnName, int[] filteredColumns)
-    {
-      return new IncludeProvider(source, algorithm, false, filterDataSource, resultColumnName, filteredColumns);
-    }
+      => new IncludeProvider(source, algorithm, false, filterDataSource, resultColumnName, filteredColumns);
 
+    /// <summary>
+    /// Applies <see cref="IncludeProvider"/> to the given source.
+    /// </summary>
+    /// <param name="source">Compilable provider.</param>
+    /// <param name="algorithm">Include algorithm.</param>
+    /// <param name="isInlined">Result column should be inlined or not.</param>
+    /// <param name="filterDataSource">Filter data.</param>
+    /// <param name="resultColumnName">Result column name.</param>
+    /// <param name="filteredColumns">Filtered columns</param>
+    /// <returns><see cref="IncludeProvider"/> instance.</returns>
     public static CompilableProvider Include(this CompilableProvider source,
       IncludeAlgorithm algorithm, bool isInlined, Expression<Func<ParameterContext, IEnumerable<Tuple>>> filterDataSource,
       string resultColumnName, int[] filteredColumns)
-    {
-      return new IncludeProvider(source, algorithm, isInlined, filterDataSource, resultColumnName, filteredColumns);
-    }
+      => new IncludeProvider(source, algorithm, isInlined, filterDataSource, resultColumnName, filteredColumns);
 
-    public static CompilableProvider Intersect(this CompilableProvider left, CompilableProvider right)
-    {
-      return new IntersectProvider(left, right);
-    }
+    /// <summary>
+    /// Applies <see cref="IntersectProvider"/> to the given source.
+    /// </summary>
+    /// <param name="left">Compilable provider.</param>
+    /// <param name="right">Compilable provider.</param>
+    /// <returns><see cref="IntersectProvider"/> instance.</returns>
+    public static CompilableProvider Intersect(this CompilableProvider left, CompilableProvider right) => new IntersectProvider(left, right);
 
-    public static CompilableProvider Except(this CompilableProvider left, CompilableProvider right)
-    {
-      return new ExceptProvider(left, right);
-    }
+    /// <summary>
+    /// Applies <see cref="ExceptProvider"/> to the given source.
+    /// </summary>
+    /// <param name="left">Compilable provider.</param>
+    /// <param name="right">Compilable provider.</param>
+    /// <returns><see cref="ExceptProvider"/> instance.</returns>
+    public static CompilableProvider Except(this CompilableProvider left, CompilableProvider right) => new ExceptProvider(left, right);
 
-    public static CompilableProvider Concat(this CompilableProvider left, CompilableProvider right)
-    {
-      return new ConcatProvider(left, right);
-    }
+    /// <summary>
+    /// Applies <see cref="ConcatProvider"/> to the given source.
+    /// </summary>
+    /// <param name="left">Compilable provider.</param>
+    /// <param name="right">Compilable provider.</param>
+    /// <returns><see cref="ConcatProvider"/> instance.</returns>
+    public static CompilableProvider Concat(this CompilableProvider left, CompilableProvider right) => new ConcatProvider(left, right);
 
-    public static CompilableProvider Union(this CompilableProvider left, CompilableProvider right)
-    {
-      return new UnionProvider(left, right);
-    }
+    /// <summary>
+    /// Applies <see cref="UnionProvider"/> to the given source.
+    /// </summary>
+    /// <param name="left">Compilable provider.</param>
+    /// <param name="right">Compilable provider.</param>
+    /// <returns><see cref="UnionProvider"/> instance.</returns>
+    public static CompilableProvider Union(this CompilableProvider left, CompilableProvider right) => new UnionProvider(left, right);
 
-    public static CompilableProvider Lock(this CompilableProvider source,
-      LockMode lockMode, LockBehavior lockBehavior)
-    {
-      return new LockProvider(source, lockMode, lockBehavior);
-    }
+    /// <summary>
+    /// Applies <see cref="LockProvider"/> to the given source.
+    /// </summary>
+    /// <param name="source">Compilable provider.</param>
+    /// <param name="lockMode">Lock mode.</param>
+    /// <param name="lockBehavior">Lock behavior</param>
+    /// <returns><see cref="LockProvider"/> instance.</returns>
+    public static CompilableProvider Lock(this CompilableProvider source, LockMode lockMode, LockBehavior lockBehavior)
+      => new LockProvider(source, lockMode, lockBehavior);
 
-    public static CompilableProvider Lock(this CompilableProvider source,
-      Func<LockMode> lockMode, Func<LockBehavior> lockBehavior)
-    {
-      return new LockProvider(source, lockMode, lockBehavior);
-    }
+    /// <summary>
+    /// Applies <see cref="LockProvider"/> to the given source.
+    /// </summary>
+    /// <param name="source">Compilable provider.</param>
+    /// <param name="lockMode">Lock mode.</param>
+    /// <param name="lockBehavior">Lock behavior</param>
+    /// <returns><see cref="LockProvider"/> instance.</returns>
+    public static CompilableProvider Lock(this CompilableProvider source, Func<LockMode> lockMode, Func<LockBehavior> lockBehavior)
+      => new LockProvider(source, lockMode, lockBehavior);
 
-    public static CompilableProvider Tag(this CompilableProvider source, string tag)
-    {
-      return new TagProvider(source, tag);
-    }
+    /// <summary>
+    /// Applies <see cref="TagProvider"/> to the given source.
+    /// </summary>
+    /// <param name="source">Compilable provider.</param>
+    /// <param name="tag">Tag string</param>
+    /// <returns><see cref="TagProvider"/> instance.</returns>
+    public static CompilableProvider Tag(this CompilableProvider source, string tag) => new TagProvider(source, tag);
 
-    public static CompilableProvider MakeVoid(this CompilableProvider source)
-    {
-      return new VoidProvider(source.Header);
-    }
+    /// <summary>
+    /// Applies <see cref="VoidProvider"/> to the given source.
+    /// </summary>
+    /// <param name="source">Compilable provider.</param>
+    /// <returns><see cref="VoidProvider"/> instance.</returns>
+    public static CompilableProvider MakeVoid(this CompilableProvider source) => new VoidProvider(source.Header);
 
     internal static bool CheckIfLeftJoinPrefered(this CompilableProvider provider)
     {

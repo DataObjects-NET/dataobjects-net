@@ -64,10 +64,8 @@ namespace Xtensive.Orm.Configuration.Options
     public void Add(string name, T value)
     {
       ValidateName(name);
+      ArgumentNullException.ThrowIfNull(value);
 
-      if (value == null) {
-        throw new ArgumentNullException(nameof(value));
-      }
       value.Name = name;
 
       if (!internalDictionary.TryAdd(name, value)) {

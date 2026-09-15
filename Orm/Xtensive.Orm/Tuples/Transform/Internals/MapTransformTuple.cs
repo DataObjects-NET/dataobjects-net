@@ -1,71 +1,89 @@
 // Copyright (C) 2003-2010 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
-// Created by: Alexey Kochetov
-// Created:    2008.05.07
+// Created by: Alex Yakunin
+// Created:    2008.06.04
 
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using Xtensive.Core;
 
 
 namespace Xtensive.Tuples.Transform.Internals
 {
   /// <summary>
-  /// A <see cref="MapTransform"/> result tuple mapping arbitrary count of source tuples to a single one (this).
+  /// A <see cref="MapTransform"/> result tuple mapping 1 source tuple to a single one (this).
   /// </summary>
-  public sealed class MapTransformTuple : TransformedTuple<MapTransform>
+  internal sealed class MapTransformTuple : Tuple, ITransformedTuple
   {
-    private readonly Tuple[] tuples;
+    private readonly MapTransform transform;
+    private readonly Tuple source;
+    private Tuple defaultResult;
+
+    /// <summary>
+    /// Gets the default result tuple.
+    /// Can be used to get default values for the result tuple fields.
+    /// </summary>
+    private Tuple DefaultResult => defaultResult ??= Tuple.Create(transform.Descriptor);
 
     /// <inheritdoc/>
-    public override IReadOnlyList<object> Arguments
-    {
-      [DebuggerStepThrough]
-      get => Array.AsReadOnly(tuples);
-    }
+    public override TupleDescriptor Descriptor => transform.Descriptor;
 
     #region GetFieldState, GetValue, SetValue methods
 
     /// <inheritdoc/>
     public override TupleFieldState GetFieldState(int fieldIndex)
     {
-      var indexes = TypedTransform.map[fieldIndex];
-      return tuples[indexes.First].GetFieldState(indexes.Second);
+      var index = GetSourceFieldIndex(fieldIndex);
+      return index == TransformUtil.NoMapping ? TupleFieldState.Default : source.GetFieldState(index);
     }
 
     protected internal override void SetFieldState(int fieldIndex, TupleFieldState fieldState)
     {
-      var indexes = TypedTransform.map[fieldIndex];
-      tuples[indexes.First].SetFieldState(indexes.Second, fieldState);
+      var index = GetSourceFieldIndex(fieldIndex);
+      if (index == TransformUtil.NoMapping) {
+        return;
+      }
+      source.SetFieldState(index, fieldState);
     }
 
     /// <inheritdoc/>
     public override object GetValue(int fieldIndex, out TupleFieldState fieldState)
     {
-      var indexes = TypedTransform.map[fieldIndex];
-      return tuples[indexes.First].GetValue(indexes.Second, out fieldState);
+      int index = GetSourceFieldIndex(fieldIndex);
+      return index == TransformUtil.NoMapping
+        ? DefaultResult.GetValue(fieldIndex, out fieldState)
+        : source.GetValue(index, out fieldState);
     }
 
     /// <inheritdoc/>
     public override void SetValue(int fieldIndex, object fieldValue)
     {
-      if (Transform.IsReadOnly)
+      if (transform.IsReadOnly) {
         throw Exceptions.ObjectIsReadOnly(null);
-      var indexes = TypedTransform.map[fieldIndex];
-      tuples[indexes.First].SetValue(indexes.Second, fieldValue);
+      }
+      source.SetValue(GetSourceFieldIndex(fieldIndex), fieldValue);
     }
 
     #endregion
 
+    private int GetSourceFieldIndex(int fieldIndex)
+    {
+      var mappedIndex = transform.Map[fieldIndex];
+      return mappedIndex < 0 ? TransformUtil.NoMapping : mappedIndex;
+    }
+
     protected internal override Pair<Tuple, int> GetMappedContainer(int fieldIndex, bool isWriting)
     {
-      if (isWriting && Transform.IsReadOnly)
+      if (isWriting && transform.IsReadOnly) {
         throw Exceptions.ObjectIsReadOnly(null);
-      var map = TypedTransform.map[fieldIndex];
-      return tuples[map.First].GetMappedContainer(map.Second, isWriting);
+      }
+      var index = GetSourceFieldIndex(fieldIndex);
+      return index == TransformUtil.NoMapping ? default : source.GetMappedContainer(index, isWriting);
     }
+
+    /// <inheritdoc/>
+    public override string ToString() =>
+      string.Format(Strings.TransformedTupleFormat, base.ToString(), transform, source);
 
 
     // Constructors
@@ -74,13 +92,11 @@ namespace Xtensive.Tuples.Transform.Internals
     /// Initializes new instance of this type.
     /// </summary>
     /// <param name="transform">The transform.</param>
-    /// <param name="sources">Source tuples.</param>
-    public MapTransformTuple(MapTransform transform, params Tuple[] sources)
-      : base(transform)
+    /// <param name="source">Source tuple.</param>
+    public MapTransformTuple(MapTransform transform, Tuple source)
     {
-      ArgumentValidator.EnsureArgumentNotNull(sources, "tuples");
-      // Other checks are omitted: this transform should be fast, so delayed errors are ok
-      this.tuples = sources;
+      this.transform = transform;
+      this.source = source ?? throw new ArgumentNullException(nameof(source));
     }
   }
 }

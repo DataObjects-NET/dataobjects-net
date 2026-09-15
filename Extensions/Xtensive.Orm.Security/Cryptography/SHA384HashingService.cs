@@ -16,10 +16,7 @@ namespace Xtensive.Orm.Security.Cryptography
   public class SHA384HashingService : GenericHashingService
   {
     /// <inheritdoc/>
-#pragma warning disable SYSLIB0021 // Type or member is obsolete
-    // direct creation is more efficient than SHA384.Create()
-    protected override HashAlgorithm GetHashAlgorithm() => new SHA384Managed();
-#pragma warning restore SYSLIB0021 // Type or member is obsolete
+    protected override HashAlgorithm GetHashAlgorithm() => SHA384.Create();
 
     /// <summary>
     /// Initializes a new instance of the <see cref="SHA384HashingService"/> class.

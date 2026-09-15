@@ -14,8 +14,8 @@ namespace Xtensive.Orm.Internals
   {
     public readonly TypeInfo Type;
     public readonly MapTransform KeyTransform;
-    public readonly IReadOnlyList<int> KeyIndexes;
     public readonly MapTransform Transform;
+    public readonly IReadOnlyList<int> KeyIndexes;
 
 
     // Constructors

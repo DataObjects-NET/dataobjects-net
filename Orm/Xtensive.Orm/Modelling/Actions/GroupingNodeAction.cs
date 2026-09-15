@@ -42,7 +42,7 @@ namespace Xtensive.Modelling.Actions
     /// <param name="action">The action to add.</param>
     public void Add(NodeAction action)
     {
-      ArgumentValidator.EnsureArgumentNotNull(action, "action");
+      ArgumentNullException.ThrowIfNull(action);
       EnsureNotLocked();
       // Only locked actions can be added
       if (action is PropertyChangeAction ca && actions.Count != 0) {

@@ -10,8 +10,7 @@ namespace Xtensive.Comparison
 {
   internal sealed class Int64Comparer : ValueTypeComparer<long>
   {
-    protected override IAdvancedComparer<long> CreateNew(ComparisonRules rules)
-      => new Int64Comparer(Provider, ComparisonRules.Combine(rules));
+    protected override Int64Comparer CreateNew(ComparisonRules rules) => new(Provider, ComparisonRules.Combine(rules));
 
 
     // Constructors

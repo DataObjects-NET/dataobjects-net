@@ -15,8 +15,7 @@ namespace Xtensive.Comparison
     private readonly AdvancedComparer<T> systemComparer;
     private readonly int nullHashCode;
 
-    protected override IAdvancedComparer<T> CreateNew(ComparisonRules rules)
-      => new ObjectComparer<T>(Provider, ComparisonRules.Combine(rules));
+    protected override ObjectComparer<T> CreateNew(ComparisonRules rules) => new(Provider, ComparisonRules.Combine(rules));
 
     public override int Compare(T x, T y)
     {

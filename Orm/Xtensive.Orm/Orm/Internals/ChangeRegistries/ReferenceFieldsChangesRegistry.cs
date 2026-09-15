@@ -26,9 +26,9 @@ namespace Xtensive.Orm.Internals
     /// <param name="field">Field which value was set./</param>
     public void Register(Key fieldOwner, Key fieldValue, FieldInfo field)
     {
-      ArgumentValidator.EnsureArgumentNotNull(fieldOwner, "fieldOwner");
-      ArgumentValidator.EnsureArgumentNotNull(fieldValue, "fieldValue");
-      ArgumentValidator.EnsureArgumentNotNull(field, "field");
+      ArgumentNullException.ThrowIfNull(fieldOwner);
+      ArgumentNullException.ThrowIfNull(fieldValue);
+      ArgumentNullException.ThrowIfNull(field);
       Register(new ReferenceFieldChangeInfo(fieldOwner, fieldValue, field));
     }
 
@@ -41,10 +41,10 @@ namespace Xtensive.Orm.Internals
     /// <param name="field">Field which value was set.</param>
     public void Register(Key fieldOwner, Key fieldValue, Key auxiliaryEntity, FieldInfo field)
     {
-      ArgumentValidator.EnsureArgumentNotNull(fieldOwner, "fieldOwner");
-      ArgumentValidator.EnsureArgumentNotNull(fieldValue, "fieldValue");
-      ArgumentValidator.EnsureArgumentNotNull(auxiliaryEntity, "auxiliaryEntity");
-      ArgumentValidator.EnsureArgumentNotNull(field, "field");
+      ArgumentNullException.ThrowIfNull(fieldOwner);
+      ArgumentNullException.ThrowIfNull(fieldValue);
+      ArgumentNullException.ThrowIfNull(auxiliaryEntity);
+      ArgumentNullException.ThrowIfNull(field);
       Register(new ReferenceFieldChangeInfo(fieldOwner, fieldValue, auxiliaryEntity, field));
     }
 

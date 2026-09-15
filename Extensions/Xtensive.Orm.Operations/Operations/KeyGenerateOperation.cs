@@ -66,7 +66,7 @@ namespace Xtensive.Orm.Operations
           columnIndex++;
         }
         else {
-          var association = keyField.Associations.Last();
+          var association = keyField.Associations[^1];
           var componentKeyValue = Tuple.Create(association.TargetType.Key.TupleDescriptor);
           sourceTuple.CopyTo(componentKeyValue, columnIndex, keyField.MappingInfo.Length);
           var componentKey = Key.Create(domain, nodeId, association.TargetType.UnderlyingType,
@@ -109,7 +109,7 @@ namespace Xtensive.Orm.Operations
     public KeyGenerateOperation(Key key)
       : base(key)
     {
-      ArgumentValidator.EnsureArgumentNotNull(key, "key");
+      ArgumentNullException.ThrowIfNull(key);
     }
   }
 }

@@ -43,7 +43,7 @@ namespace Xtensive.Orm.Internals.Prefetch
     public RootEntityContainer(Key key, TypeInfo type, bool exactType, PrefetchManager manager)
       : base(key, type, exactType, manager)
     {
-      ArgumentValidator.EnsureArgumentNotNull(key, "key");
+      ArgumentNullException.ThrowIfNull(key);
     }
   }
 }

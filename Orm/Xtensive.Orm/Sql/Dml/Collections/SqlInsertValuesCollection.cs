@@ -45,7 +45,7 @@ namespace Xtensive.Sql.Dml.Collections
     /// -or- <paramref name="row"/> is empty.</exception>
     public void Add(Dictionary<SqlColumn, SqlExpression> row)
     {
-      ArgumentNullException.ThrowIfNull(row, nameof(row));
+      ArgumentNullException.ThrowIfNull(row);
       if (row.Count == 0) {
         throw new ArgumentException("Empty row is not allowed.");
       }
@@ -65,7 +65,7 @@ namespace Xtensive.Sql.Dml.Collections
         else {
           //re-arrange values to be the same order
           //and also make sure all columns exist
-          var rowList = new List<SqlExpression>();
+          var rowList = new List<SqlExpression>(columns.Count);
           foreach (var column in columns) {
             if (row.TryGetValue(column, out var value)) {
               rowList.Add(value);

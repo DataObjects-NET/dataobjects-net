@@ -124,7 +124,7 @@ namespace Xtensive.Comparison
     public AdvancedComparer(IAdvancedComparer<T> implementation)
       : this(implementation, implementation, implementation)
     {
-      ArgumentValidator.EnsureArgumentNotNull(implementation, "implementation");
+      ArgumentNullException.ThrowIfNull(implementation);
     }
 
     /// <summary>

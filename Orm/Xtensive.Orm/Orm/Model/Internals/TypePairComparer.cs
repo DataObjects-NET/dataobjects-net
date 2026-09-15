@@ -50,7 +50,7 @@ namespace Xtensive.Orm.Model.Internals
       return obj.GetHashCode();
     }
 
-    protected override IAdvancedComparer<Pair<TypeInfo, TypeInfo>> CreateNew(ComparisonRules rules)
+    protected override TypePairComparer CreateNew(ComparisonRules rules)
     {
       return new TypePairComparer(Provider, rules);
     }

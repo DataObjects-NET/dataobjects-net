@@ -50,17 +50,17 @@ namespace Xtensive.Orm
     /// <param name="key">The key to combine.</param>
     /// <param name="versionInfo">The version info to combine.</param>
     /// <returns>Combined version info.</returns>
-    internal VersionInfo Combine(Key key, VersionInfo versionInfo)
+    internal VersionInfo Concat(Key key, VersionInfo versionInfo)
     {
-      ArgumentValidator.EnsureArgumentNotNull(key, "key");
+      ArgumentNullException.ThrowIfNull(key);
 
       Tuple resultVersion = Value;
       if (resultVersion is null)
         resultVersion = key.Value;
       else
-        resultVersion = resultVersion.Combine(key.Value);
+        resultVersion = resultVersion.Concat(key.Value);
       if (!versionInfo.IsVoid)
-        resultVersion = resultVersion.Combine(versionInfo.Value);
+        resultVersion = resultVersion.Concat(versionInfo.Value);
 
       return new VersionInfo(resultVersion.ToRegular());
     }
