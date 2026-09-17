@@ -36,6 +36,7 @@ namespace Xtensive.Orm.Linq
   {
     private static readonly Type OrmCollectionExtensionsType = typeof(CollectionExtensionsEx);
     private static readonly Type OrmQueryableExtensionsType = typeof(QueryableExtensionsEx);
+    private static readonly Type SystemMemoryExtensionsType = typeof(System.MemoryExtensions);
     private static readonly ParameterExpression ParameterContextParam = Expression.Parameter(WellKnownOrmTypes.ParameterContext, "context");
     private static readonly ConstantExpression
       NullKeyExpression = Expression.Constant(null, WellKnownOrmTypes.Key),
@@ -503,7 +504,7 @@ namespace Xtensive.Orm.Linq
 #pragma warning restore 612,618
 
         // Visit Queryable extensions.
-        if (methodDeclaringType == typeof(QueryableExtensionsEx)) {
+        if (methodDeclaringType == OrmQueryableExtensionsType) {
           return methodName switch {
 #if !NET10_0_OR_GREATER
             Reflection.WellKnown.QueryableExtensions.LeftJoin => VisitLeftJoin(mc),
@@ -521,7 +522,7 @@ namespace Xtensive.Orm.Linq
           };
         }
         // Visit Collection extensions
-        if (methodDeclaringType == typeof(CollectionExtensionsEx)) {
+        if (methodDeclaringType == OrmCollectionExtensionsType) {
           switch (methodName) {
             case Reflection.WellKnown.CollectionExtensions.ContainsAny:
               return VisitContainsAny(mc.Arguments[0], mc.Arguments[1], context.IsRoot(mc), method.GetGenericArguments()[0]);
@@ -531,9 +532,7 @@ namespace Xtensive.Orm.Linq
               return VisitContainsNone(mc.Arguments[0], mc.Arguments[1], context.IsRoot(mc), method.GetGenericArguments()[0]);
           }
         }
-        if (methodDeclaringType == typeof(System.MemoryExtensions)) {
-          var parameters = method.GetParameters();
-          
+        if (methodDeclaringType == SystemMemoryExtensionsType) {
           if (methodName.Equals(nameof(System.MemoryExtensions.Contains), StringComparison.Ordinal)){
             // There might be 2 or 3 arguments.
             // In case of three, last one is IEqualityComparer<T> which will probably have default value

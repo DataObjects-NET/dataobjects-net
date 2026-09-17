@@ -40,7 +40,7 @@ namespace Xtensive.Orm.BulkOperations
           Descriptor = descriptor,
           Lambda =
             FastExpression.Lambda(
-              WellKnownMembers.FuncOfTArgTResultType.CachedMakeGenericType(typeof(T), descriptor.Expression.Type),
+              WellKnownTypes.FuncOfTArgTResultType.CachedMakeGenericType(typeof(T), descriptor.Expression.Type),
               descriptor.Expression,
               descriptor.Parameter),
           Statement = Statement,
@@ -96,7 +96,7 @@ namespace Xtensive.Orm.BulkOperations
               _ = Descriptors.Remove(setDescriptor);
               var exp = setDescriptor.Expression;
               //var call = ex as MethodCallExpression;
-              if (exp is MethodCallExpression call && call.Method.DeclaringType == WellKnownMembers.QueryableType
+              if (exp is MethodCallExpression call && call.Method.DeclaringType == WellKnownTypes.QueryableType
                 && call.Method.Name is nameof(Queryable.First) or nameof(Queryable.FirstOrDefault)
                     or nameof(Queryable.Single) or nameof(Queryable.SingleOrDefault)) {
                 throw new NotSupportedException("Subqueries with structures are not supported");
@@ -126,7 +126,7 @@ namespace Xtensive.Orm.BulkOperations
       var column = SqlDml.TableColumn(addContext.Statement.Table, addContext.Field.Column.Name);
       var all = Expression.Call(Expression.Constant(parent.Session.Query), nameof(QueryEndpoint.All), new[] { typeof(T) });
       var selectExpression = Expression.Call(
-        WellKnownMembers.QueryableType,
+        WellKnownTypes.QueryableType,
         nameof(Queryable.OrderBy),
         addContext.Lambda.Type.GetGenericArguments(),
         all,
@@ -156,7 +156,7 @@ namespace Xtensive.Orm.BulkOperations
       var column = SqlDml.TableColumn(addContext.Statement.Table, addContext.Field.Column.Name);
       var all = Expression.Call(Expression.Constant(parent.Session.Query), nameof(QueryEndpoint.All), new[] {typeof (T)});
       var selectExpression = Expression.Call(
-        WellKnownMembers.QueryableType,
+        WellKnownTypes.QueryableType,
         nameof(Queryable.OrderBy),
         addContext.Lambda.Type.GetGenericArguments(),
         all,
@@ -235,29 +235,29 @@ namespace Xtensive.Orm.BulkOperations
           }
           return;
         }
-        if (methodCall.Method.DeclaringType == WellKnownMembers.QueryableType
+        if (methodCall.Method.DeclaringType == WellKnownTypes.QueryableType
           && (methodCall.Method.Name is nameof(Queryable.Single) or nameof(Queryable.SingleOrDefault)
                 or nameof(Queryable.First) or nameof(Queryable.FirstOrDefault))) {
 
           var exp = methodCall.Arguments[0];
           var fieldValueType = parent.GetTypeInfo(addContext.Field.ValueType);
           if (methodCall.Arguments.Count == 2) {
-            exp = Expression.Call(WellKnownMembers.QueryableType,
+            exp = Expression.Call(WellKnownTypes.QueryableType,
               nameof(Queryable.Where), new[] { fieldValueType.UnderlyingType }, exp, methodCall.Arguments[1]);
           }
-          exp = Expression.Call(WellKnownMembers.QueryableType, nameof(Queryable.Take), new[] {fieldValueType.UnderlyingType}, exp, Expression.Constant(1));
+          exp = Expression.Call(WellKnownTypes.QueryableType, nameof(Queryable.Take), new[] {fieldValueType.UnderlyingType}, exp, Expression.Constant(1));
           i = -1;
           foreach (var field in fieldValueType.Key.Fields) {
             i++;
             var p = Expression.Parameter(fieldValueType.UnderlyingType);
             var lambda =
               FastExpression.Lambda(
-                WellKnownMembers.FuncOfTArgTResultType.CachedMakeGenericType(fieldValueType.UnderlyingType, field.ValueType),
+                WellKnownTypes.FuncOfTArgTResultType.CachedMakeGenericType(fieldValueType.UnderlyingType, field.ValueType),
                 Expression.MakeMemberAccess(p, field.UnderlyingProperty),
                 p);
             var q = ((IQueryProvider) parent.QueryProvider)
               .CreateQuery(Expression.Call(
-                WellKnownMembers.QueryableType,
+                WellKnownTypes.QueryableType,
                 nameof(Queryable.Select),
                 new[] { fieldValueType.UnderlyingType, field.ValueType },
                 exp,
@@ -266,7 +266,6 @@ namespace Xtensive.Orm.BulkOperations
             parent.Bindings.AddRange(request.ParameterBindings);
             var column = SqlDml.TableColumn(addContext.Statement.Table, addContext.Field.Columns[i].Name);
             addContext.Values.Add(column, SqlDml.SubQuery(request.Query));
-            //addContext.Statement.AddValue(c, SqlDml.SubQuery(request.Query));
           }
           return;
         }

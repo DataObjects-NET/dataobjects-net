@@ -83,7 +83,7 @@ namespace Xtensive.Linq
     /// </summary>
     /// <param name="mc">Possible candidate for transformation.</param>
     /// <returns>New instance of expression, if transformation was required, otherwise, the same expression.</returns>
-    public static MethodCallExpression TryTransformToOldFashionContains(this MethodCallExpression mc)
+    public static MethodCallExpression TryTransformToEnumerableContains(this MethodCallExpression mc)
     {
       if (mc.Method.DeclaringType == MemoryExtensionsType) {
         var genericMethod = mc.Method.GetGenericMethodDefinition();
