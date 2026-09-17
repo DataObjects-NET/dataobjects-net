@@ -29,7 +29,7 @@ namespace Xtensive.Orm.BulkOperations
     internal static object Invoke(this Expression expression)
     {
       return FastExpression.Lambda(
-        WellKnownMembers.FuncOfTResultType.CachedMakeGenericType(expression.Type), expression).Compile().DynamicInvoke();
+        WellKnownTypes.FuncOfTResultType.CachedMakeGenericType(expression.Type), expression).Compile().DynamicInvoke();
     }
 
     internal static Expression Visit<T>(this Expression exp, Func<T, Expression> visitor) where T : Expression

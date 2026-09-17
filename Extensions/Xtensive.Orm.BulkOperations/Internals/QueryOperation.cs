@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using Xtensive.Core;
+using Xtensive.Linq;
 using Xtensive.Orm.Linq;
 using Xtensive.Orm.Model;
 using Xtensive.Reflection;
@@ -29,43 +30,52 @@ namespace Xtensive.Orm.BulkOperations
     {
       var e = query.Expression.Visit((MethodCallExpression ex) => {
 
-          var methodInfo = ex.Method;
-          //rewrite localCollection.Contains(entity.SomeField) -> entity.SomeField.In(localCollection)
-          if (methodInfo.DeclaringType == WellKnownMembers.EnumerableType &&
-              string.Equals(methodInfo.Name, "Contains", StringComparison.Ordinal) &&
-              ex.Arguments.Count == 2) {
-            var localCollection = ex.Arguments[0];//IEnumerable<T>
+        var methodInfo = ex.Method;
+        // both of names are 'Contains'
+        if (string.Equals(methodInfo.Name, WellKnownMembers.SpanContainsExtensionName, StringComparison.Ordinal)
+         /*|| string.Equals(methodInfo.Name, WellKnownMembers.SpanContainsExtensionName, StringComparison.Ordinal)*/)
+        {
+          Expression localCollection = null;
+
+          if (methodInfo.DeclaringType == WellKnownTypes.MemoryExtensionsType) {
+            localCollection = ex.Arguments[0].StripImplicitCast();// array with implicit cast to span
+          }
+          if (methodInfo.DeclaringType == WellKnownTypes.EnumerableType)
+            localCollection = ex.Arguments[0]; // IEnumerable<T>
+
+          if (localCollection is not null) {
             var valueToCheck = ex.Arguments[1];
             var genericInMethod = WellKnownMembers.InMethod.CachedMakeGenericMethod(valueToCheck.Type);
             ex = Expression.Call(genericInMethod, valueToCheck, Expression.Constant(IncludeAlgorithm.ComplexCondition), localCollection);
             methodInfo = ex.Method;
           }
+        }
 
-          if (methodInfo.DeclaringType == WellKnownMembers.QueryableExtensionsType &&
-              string.Equals(methodInfo.Name, WellKnownMembers.InMethodName, StringComparison.Ordinal) &&
-              ex.Arguments.Count > 1) {
-            if (ex.Arguments[1].Type == WellKnownMembers.IncludeAlgorithmType) {
-              var algorithm = (IncludeAlgorithm) ex.Arguments[1].Invoke();
-              if (algorithm == IncludeAlgorithm.TemporaryTable) {
-                throw new NotSupportedException("IncludeAlgorithm.TemporaryTable is not supported");
-              }
-
-              if (algorithm == IncludeAlgorithm.Auto) {
-                var arguments = ex.Arguments.ToList();
-                arguments[1] = Expression.Constant(IncludeAlgorithm.ComplexCondition);
-                ex = Expression.Call(methodInfo, arguments);
-              }
+        if (methodInfo.DeclaringType == WellKnownTypes.QueryableExtensionsType &&
+            string.Equals(methodInfo.Name, WellKnownMembers.InMethodName, StringComparison.Ordinal) &&
+            ex.Arguments.Count > 1) {
+          if (ex.Arguments[1].Type == WellKnownTypes.IncludeAlgorithmType) {
+            var algorithm = (IncludeAlgorithm) ex.Arguments[1].Invoke();
+            if (algorithm == IncludeAlgorithm.TemporaryTable) {
+              throw new NotSupportedException("IncludeAlgorithm.TemporaryTable is not supported");
             }
-            else {
+
+            if (algorithm == IncludeAlgorithm.Auto) {
               var arguments = ex.Arguments.ToList();
-              arguments.Insert(1, Expression.Constant(IncludeAlgorithm.ComplexCondition));
-              ex = Expression.Call(WellKnownMembers.InMethod.MakeGenericMethod(methodInfo.GetGenericArguments()),
-                arguments.ToArray());
+              arguments[1] = Expression.Constant(IncludeAlgorithm.ComplexCondition);
+              ex = Expression.Call(methodInfo, arguments);
             }
           }
+          else {
+            var arguments = ex.Arguments.ToList();
+            arguments.Insert(1, Expression.Constant(IncludeAlgorithm.ComplexCondition));
+            ex = Expression.Call(WellKnownMembers.InMethod.MakeGenericMethod(methodInfo.GetGenericArguments()),
+              arguments.ToArray());
+          }
+        }
 
-          return ex;
-        });
+        return ex;
+      });
       query = QueryProvider.CreateQuery<T>(e);
       return 0;
     }
