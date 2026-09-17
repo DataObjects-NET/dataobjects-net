@@ -409,12 +409,14 @@ namespace Xtensive.Orm.Providers
 
     protected override SqlExpression VisitMethodCall(MethodCallExpression mc)
     {
-      if (mc.AsTupleAccess(activeParameters) != null)
+      if (mc.AsTupleAccess(activeParameters) is not null)
         return VisitTupleAccess(mc);
 
-      if (mc.Method.Name.Equals(nameof(Enumerable.Contains), StringComparison.Ordinal)) {
-        // there might be "innovative" implicit cast to ReadOnlySpan inside, which is not supported by expression tree but yet existing
-        mc = mc.TryTransformToOldFashionContains();
+      if (mc.Method.Name.Equals(nameof(MemoryExtensions.Contains), StringComparison.Ordinal)) {
+        // there might be "innovative" implicit cast to ReadOnlySpan inside,
+        // which is not supported by expression tree but yet exist in Linq expressions
+        // created by dotnet compiler
+        mc = mc.TryTransformToEnumerableContains();
       }
       var arguments = mc.Arguments.SelectToArray(a => Visit(a));
       var mi = mc.Method;
