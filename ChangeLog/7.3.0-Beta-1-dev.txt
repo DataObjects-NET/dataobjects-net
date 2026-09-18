@@ -14,9 +14,10 @@
 [main] Xtensive.Orm.Rse.Providers.Provider descendants no longer build RecordSetHeader on initialization via virtual method
 [main] Many compilable providers build headers more easily with static methods
 [main] Collections.Deque<T> collection as well as Collections.Interfaces.IDeque interface marked obsolete because there is no internal use
-[main] TupleUpdater marked [Obsolete] because it is not in use so will be removed.
+[main] TupleUpdater is obsolete because it is not in use so will be removed
+[main] IntegrityException is obsolete
 [main] ReferenceInfo struct became readonly, properties replaced with readonly fields
-[main] ColumnInfoRef properties replaced wth readonly fields
+[main] ColumnInfoRef properties replaced with readonly fields
 [main] Improve domain model validation speed
 [main] Fixed Tuple.Format() method, which correctly works with DateOnly, TimeOnly, DateTimeOffset and byte[] values now
 [firebird] Switch to .NET8/.NET10-only support, nuget packages actualized
