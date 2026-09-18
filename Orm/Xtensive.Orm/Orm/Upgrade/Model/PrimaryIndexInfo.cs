@@ -41,7 +41,6 @@ namespace Xtensive.Orm.Upgrade.Model
     {
       using (var ea = new ExceptionAggregator()) {
         ea.Execute(base.ValidateState);
-        base.ValidateState();
 
         var tableColumns = Parent.Columns;
         var keys = KeyColumns.Select(keyRef => keyRef.Value).ToArray(KeyColumns.Count);
