@@ -17,7 +17,6 @@ namespace Xtensive.Orm.Tests.Issues.Issue0016_Model
     Slave Slave { get; set; }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class Master : Entity, IMaster
   {
@@ -27,7 +26,6 @@ namespace Xtensive.Orm.Tests.Issues.Issue0016_Model
     public Slave Slave { get; set; }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class Slave : Entity
   {
@@ -46,31 +44,31 @@ namespace Xtensive.Orm.Tests.Issues
     protected override DomainConfiguration BuildConfiguration()
     {
       var config =  base.BuildConfiguration();
-      config.Types.RegisterCaching(typeof (Slave).Assembly, typeof (Slave).Namespace);
+      config.Types.Register(typeof(Master));
+      config.Types.Register(typeof(Slave));
       return config;
     }
 
     [Test]
     public void MainTest()
     {
-      using (var session = Domain.OpenSession()) {
-        using (var t = session.OpenTransaction()) {
+      using (var session = Domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
 
-          Master m = new Master();
-          Slave s = new Slave();
-          m.Slave = s;
-          Assert.That(m.Slave, Is.Not.Null);
-          Assert.That(m.Slave, Is.SameAs(s));
+        var m = new Master();
+        var s = new Slave();
+        m.Slave = s;
+        Assert.That(m.Slave, Is.Not.Null);
+        Assert.That(m.Slave, Is.SameAs(s));
 
-          m.Slave = null;
-          Assert.That(m.Slave, Is.Null);
+        m.Slave = null;
+        Assert.That(m.Slave, Is.Null);
 
-          s.Master = m;
-          Assert.That(s.Master, Is.Not.Null);
-          Assert.That(s.Master, Is.SameAs(m));
+        s.Master = m;
+        Assert.That(s.Master, Is.Not.Null);
+        Assert.That(s.Master, Is.SameAs(m));
 
-          t.Complete();
-        }
+        t.Complete();
       }
     }
   }

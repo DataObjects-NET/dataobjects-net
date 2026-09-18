@@ -12,7 +12,6 @@ namespace Xtensive.Orm.Rse.Providers
   /// <summary>
   /// Abstract <see cref="CompilableProvider"/> visitor class.
   /// </summary>
-  [Serializable]
   public abstract class ProviderVisitor<TResult> where TResult : Provider
   {
     /// <summary>

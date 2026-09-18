@@ -8,7 +8,6 @@ using System;
 
 namespace Xtensive.Orm.Manual.Upgrade.Model_3
 {
-  [Serializable]
   [HierarchyRoot]
   public class Order : Entity
   {
@@ -31,7 +30,6 @@ namespace Xtensive.Orm.Manual.Upgrade.Model_3
     {}
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class Person : Entity
   {

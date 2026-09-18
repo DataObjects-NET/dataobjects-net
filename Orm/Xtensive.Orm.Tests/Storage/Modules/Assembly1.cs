@@ -14,7 +14,6 @@ using Xtensive.Orm.Upgrade;
 
 namespace Modules.Model
 {
-  [Serializable]
   [HierarchyRoot]
   public class Simple1 : Entity
   {

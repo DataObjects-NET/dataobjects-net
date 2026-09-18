@@ -7,19 +7,13 @@ using System.Collections.Generic;
 
 namespace Xtensive.Sql.Dml
 {
-  [Serializable]
   public class SqlJoinedTable : SqlTable
   {
-    private SqlJoinExpression joinExpression;
-
     /// <summary>
     /// Gets the join expression.
     /// </summary>
     /// <value>The join expression.</value>
-    public SqlJoinExpression JoinExpression
-    {
-      get { return joinExpression; }
-    }
+    public SqlJoinExpression JoinExpression { get; }
 
     /// <summary>
     /// Gets or sets the aliased columns.
@@ -29,19 +23,19 @@ namespace Xtensive.Sql.Dml
 
     internal override SqlJoinedTable Clone(SqlNodeCloneContext context) =>
       context.GetOrAdd(this, static (t, c) =>
-        new SqlJoinedTable(t.joinExpression.Clone(c)) {
+        new SqlJoinedTable(t.JoinExpression.Clone(c)) {
             AliasedColumns = new SqlColumnCollection(new List<SqlColumn>(t.AliasedColumns))
           });
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {
-      joinExpression.AcceptVisitor(visitor);
+      JoinExpression.AcceptVisitor(visitor);
     }
 
     /// <inheritdoc/>
     public override IEnumerator<SqlTable> GetEnumerator()
     {
-      return joinExpression.GetEnumerator();
+      return JoinExpression.GetEnumerator();
     }
 
 
@@ -54,7 +48,7 @@ namespace Xtensive.Sql.Dml
 
     internal SqlJoinedTable(SqlJoinExpression joinExpression, IReadOnlyList<SqlColumn> leftColumns, IReadOnlyList<SqlColumn> rightColumns)
     {
-      this.joinExpression = joinExpression;
+      JoinExpression = joinExpression;
       var allLeftColumns = joinExpression.Left.Columns;
       var allRightColumns = joinExpression.Right.Columns;
 

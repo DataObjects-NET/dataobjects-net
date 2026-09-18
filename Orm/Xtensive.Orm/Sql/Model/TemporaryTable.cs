@@ -10,7 +10,6 @@ namespace Xtensive.Sql.Model
   /// <summary>
   /// Represents a temporary table object.
   /// </summary>
-  [Serializable]
   public class TemporaryTable : Table
   {
     private bool isGlobal;

@@ -7,21 +7,11 @@ using Xtensive.Sql.Model;
 
 namespace Xtensive.Sql.Ddl
 {
-  [Serializable]
   public class SqlDropSchema : SqlStatement, ISqlCompileUnit
   {
-    private bool cascade = true;
-
     public Schema Schema { get; }
 
-    public bool Cascade {
-      get {
-        return cascade;
-      }
-      set {
-        cascade = value;
-      }
-    }
+    public bool Cascade { get; set; } = true;
 
     internal override SqlDropSchema Clone(SqlNodeCloneContext context) =>
       context.GetOrAdd(this, static (t, c) =>
@@ -40,7 +30,7 @@ namespace Xtensive.Sql.Ddl
     internal SqlDropSchema(Schema schema, bool cascade) : base(SqlNodeType.Drop)
     {
       Schema = schema;
-      this.cascade = cascade;
+      Cascade = cascade;
     }
   }
 }

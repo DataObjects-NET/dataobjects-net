@@ -7,26 +7,16 @@ using Xtensive.Core;
 
 namespace Xtensive.Sql.Dml
 {
-  [Serializable]
   public class SqlCursor: SqlExpression
   {
-    private readonly string name;
-    private bool insensitive;
-    private bool scroll;
-    private ISqlQueryExpression query;
-    private bool readOnly = false;
     private readonly SqlColumnCollection columns = new SqlColumnCollection();
-    private bool withHold;
-    private bool withReturn;
+    private ISqlQueryExpression query;
 
     /// <summary>
     /// Gets the name of the cursor.
     /// </summary>
     /// <value>The name of the cursor.</value>
-    public string Name
-    {
-      get { return name; }
-    }
+    public string Name { get; }
 
     /// <summary>
     /// Gets or sets a value indicating whether this <see cref="SqlCursor"/>
@@ -34,21 +24,13 @@ namespace Xtensive.Sql.Dml
     /// </summary>
     /// <value><see langword="true"/> if this <see cref="SqlCursor"/> makes a temporary
     /// copy of the data to be used; otherwise, <see langword="false"/>.</value>
-    public bool Insensitive
-    {
-      get { return insensitive; }
-      set { insensitive = value; }
-    }
+    public bool Insensitive { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether all fetch options are available for this cursor.
     /// </summary>
     /// <value><see langword="true"/> if all fetch options are available; otherwise, <see langword="false"/>.</value>
-    public bool Scroll
-    {
-      get { return scroll; }
-      set { scroll = value; }
-    }
+    public bool Scroll { get; set; }
 
     /// <summary>
     /// Gets or sets the select statement that defines the result set of the cursor.
@@ -56,32 +38,21 @@ namespace Xtensive.Sql.Dml
     /// <value>The select statement that defines the result set of the cursor.</value>
     public ISqlQueryExpression Query
     {
-      get { return query; }
-      set
-      {
-        ArgumentNullException.ThrowIfNull(value);
-        query = value;
-      }
+      get => query;
+      set => query = value ?? throw new ArgumentNullException(nameof(value));
     }
 
     /// <summary>
     /// Gets or sets a value indicating whether cursor is read only.
     /// </summary>
     /// <value><see langword="true"/> if cursor is read only; otherwise, <see langword="false"/>.</value>
-    public bool ReadOnly
-    {
-      get { return readOnly; }
-      set { readOnly = value; }
-    }
+    public bool ReadOnly { get; set; } = false;
 
     /// <summary>
     /// Gets updatable columns within the cursor.
     /// </summary>
     /// <value>Updatable columns within the cursor.</value>
-    public SqlColumnCollection Columns
-    {
-      get { return columns; }
-    }
+    public SqlColumnCollection Columns => columns;
 
     /// <summary>
     /// Gets or sets a value indicating whether this <see cref="SqlCursor"/> is holdable cursor.
@@ -89,11 +60,7 @@ namespace Xtensive.Sql.Dml
     /// <value>
     ///   <see langword="true"/> if this instance is a holdable cursor; otherwise, <see langword="false"/>.
     /// </value>
-    public bool WithHold
-    {
-      get { return withHold; }
-      set { withHold = value; }
-    }
+    public bool WithHold { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether this instance is result set cursor.
@@ -101,11 +68,7 @@ namespace Xtensive.Sql.Dml
     /// <value>
     /// <see langword="true"/> if this instance is result set cursor; otherwise, <see langword="false"/>.
     /// </value>
-    public bool WithReturn
-    {
-      get { return withReturn; }
-      set { withReturn = value; }
-    }
+    public bool WithReturn { get; set; }
 
     public SqlDeclareCursor Declare()
     {
@@ -181,7 +144,7 @@ namespace Xtensive.Sql.Dml
     internal SqlCursor(string name, ISqlQueryExpression query)
       : base(SqlNodeType.Cursor)
     {
-      this.name = name;
+      Name = name;
       this.query = query;
     }
   }

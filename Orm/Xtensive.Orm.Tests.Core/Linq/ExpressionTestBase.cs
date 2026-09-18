@@ -13,7 +13,6 @@ using Xtensive.Collections;
 
 namespace Xtensive.Orm.Tests.Core.Linq
 {
-  [Serializable]
   public class ExpressionTestBase
   {
     public LambdaExpression[] Expressions { get; private set; }

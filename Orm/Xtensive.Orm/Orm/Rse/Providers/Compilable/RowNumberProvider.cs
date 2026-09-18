@@ -12,7 +12,6 @@ namespace Xtensive.Orm.Rse.Providers
   /// <summary>
   /// Compilable provider that adds row number to <see cref="UnaryProvider.Source"/>.
   /// </summary>
-  [Serializable]
   public sealed class RowNumberProvider : UnaryProvider
   {
     /// <summary>

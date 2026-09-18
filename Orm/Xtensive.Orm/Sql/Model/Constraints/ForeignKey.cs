@@ -15,7 +15,6 @@ namespace Xtensive.Sql.Model
   /// each value in the column exists in the corresponding referenced column or columns 
   /// in the referenced table.
   /// </summary>
-  [Serializable]
   public class ForeignKey : TableConstraint
   {
     private NodeCollection<TableColumn> columns = new NodeCollection<TableColumn>();

@@ -5,7 +5,6 @@ using Xtensive.Orm.Tests.Issues.IssueJira0674_ReferenceFinderBugModel;
 
 namespace Xtensive.Orm.Tests.Issues.IssueJira0674_ReferenceFinderBugModel
 {
-  [Serializable]
   [HierarchyRoot]
   public class TestA : Entity
   {
@@ -18,7 +17,6 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0674_ReferenceFinderBugModel
     public string Text { get; set; }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class TestB : Entity
   {

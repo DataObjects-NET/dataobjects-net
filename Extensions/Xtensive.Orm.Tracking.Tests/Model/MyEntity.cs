@@ -1,8 +1,7 @@
-﻿using System;
+using System;
 
 namespace Xtensive.Orm.Tracking.Tests.Model
 {
-  [Serializable]
   [HierarchyRoot]
   public class MyEntity : Entity
   {

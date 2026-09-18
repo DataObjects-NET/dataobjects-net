@@ -12,7 +12,6 @@ namespace Xtensive.Orm.Configuration
   /// Miscellaneous naming policy rules.
   /// </summary>
   [Flags]
-  [Serializable]
   public enum NamingRules
   {
     /// <summary>

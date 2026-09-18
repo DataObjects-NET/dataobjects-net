@@ -10,7 +10,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Reflection;
-using System.Runtime.Serialization;
 using Xtensive.Core;
 using Xtensive.Modelling.Actions;
 using Xtensive.Modelling.Attributes;
@@ -24,37 +23,29 @@ namespace Xtensive.Modelling
   /// <summary>
   /// An abstract base class for model node.
   /// </summary>
-  [Serializable]
   [DebuggerDisplay("{Name}")]
   public abstract class Node : LockableBase,
-    INode,
-    IDeserializationCallback
+    INode
   {
     /// <summary>
     /// Path delimiter character.
     /// </summary>
     public static readonly char PathDelimiter = '/';
+    /// <summary>
+    /// Same as <see cref="PathDelimiter"/> but string.
+    /// </summary>
     public static readonly string PathDelimiterString = PathDelimiter.ToString();
     /// <summary>
     /// Path escape character.
     /// </summary>
     public static readonly char PathEscape = '\\';
 
-    [NonSerialized]
-    private static readonly ConcurrentDictionary<Type, Lazy<PropertyAccessorDictionary>> CachedPropertyAccessors =
-      new ConcurrentDictionary<Type, Lazy<PropertyAccessorDictionary>>();
-    [NonSerialized]
-    private Node model;
-    [NonSerialized]
-    private string cachedPath;
-    [NonSerialized]
-    private Nesting nesting;
-    [NonSerialized]
-    private PropertyAccessorDictionary propertyAccessors;
+    private static readonly ConcurrentDictionary<Type, Lazy<PropertyAccessorDictionary>> CachedPropertyAccessors = new();
+
     internal Node parent;
+    private string cachedPath;
     private string name;
     private string escapedName;
-    private NodeState state;
     private int index;
 
     #region Properties
@@ -77,10 +68,7 @@ namespace Xtensive.Modelling
     }
 
     /// <inheritdoc/>
-    public Node Model {
-      [DebuggerStepThrough]
-      get { return model; }
-    }
+    public Node Model { get; private set; }
 
     /// <inheritdoc/>
     [SystemProperty]
@@ -89,26 +77,17 @@ namespace Xtensive.Modelling
       [DebuggerStepThrough]
       get { return name; }
       [DebuggerStepThrough]
-      set {
-        Move(Parent, value, Index);
-      }
+      set => Move(Parent, value, Index);
     }
 
     /// <inheritdoc/>
     public string EscapedName
-    {
-      [DebuggerStepThrough]
-      get {
-        if (escapedName==null)
-          escapedName = new[] {Name}.RevertibleJoin(PathEscape, PathDelimiter);
-        return escapedName;
-      }
+    { [DebuggerStepThrough]
+      get => escapedName ??= new[] { Name }.RevertibleJoin(PathEscape, PathDelimiter);
     }
 
     /// <inheritdoc/>
-    public NodeState State {
-      get { return state; }
-    }
+    public NodeState State { get; private set; }
 
     /// <inheritdoc/>
     [SystemProperty]
@@ -125,13 +104,13 @@ namespace Xtensive.Modelling
     /// <inheritdoc/>
     public Nesting Nesting {
       [DebuggerStepThrough]
-      get { return nesting; }
+      get; private set;
     }
 
     /// <inheritdoc/>
     public PropertyAccessorDictionary PropertyAccessors {
       [DebuggerStepThrough]
-      get { return propertyAccessors; }
+      get; private set;
     }
 
     /// <inheritdoc/>
@@ -166,7 +145,7 @@ namespace Xtensive.Modelling
     /// <inheritdoc/>
     public IEnumerable<Pair<string, IPathNode>> GetPathNodes(bool nestedOnly)
     {
-      foreach (var pair in propertyAccessors) {
+      foreach (var pair in PropertyAccessors) {
         string propertyName = pair.Key;
         var accessor = pair.Value;
         if (accessor.PropertyInfo.GetAttribute<SystemPropertyAttribute>(
@@ -347,15 +326,15 @@ namespace Xtensive.Modelling
         var model = isModel ? null : (IModel) newParent.Model;
         Node node;
         if (isModel) {
-          node = TryConstructor(null, newName);
+          node = TryConstructor(newName);
         }
         else {
-          node = TryConstructor(model, newParent, newName); // Regular node
-          if (node == null) {
-            node = TryConstructor(model, newParent); // Unnamed node
-          }
+          //node = TryConstructor(currentType, newParent, newName, out var newParentType) // Regular node
+          //  ?? TryConstructor(currentType, newParent, newParentType); // Unnamed node
+          // first Regular node and then Unnamed one as fallback
+          node = TryConstructor(newParent, newName);
         }
-        if (node==null) {
+        if (node is null) {
           throw new InvalidOperationException(string.Format(
             Strings.ExCannotFindConstructorToExecuteX, this));
         }
@@ -383,15 +362,15 @@ namespace Xtensive.Modelling
     {
       var propertyName = accessor.PropertyInfo.Name;
       var nested = GetNestedProperty(propertyName);
-      if (nested!=null) {
+      if (nested is not null) {
         if (nested is NodeCollection collection) {
           foreach (Node newNode in collection) {
-            newNode.Clone(target, newNode.Name);
+            _ = newNode.Clone(target, newNode.Name);
           }
         }
         else {
           var newNode = (Node) nested;
-          newNode.Clone(target, newNode.Name);
+          _ = newNode.Clone(target, newNode.Name);
         }
       }
       else if (accessor.HasSetter) {
@@ -509,7 +488,7 @@ namespace Xtensive.Modelling
         }
       }
 
-      state = NodeState.Live;
+      State = NodeState.Live;
     }
 
     /// <summary>
@@ -659,7 +638,7 @@ namespace Xtensive.Modelling
     /// </summary>
     protected virtual void PerformRemove(Node source)
     {
-      state = NodeState.Removed;
+      State = NodeState.Removed;
       if (source == this) {
         // Updating parents
         if (!Nesting.IsNestedToCollection) {
@@ -785,7 +764,6 @@ namespace Xtensive.Modelling
     #region INotifyPropertyChanged methods
 
     /// <inheritdoc/>
-    [field : NonSerialized]
     public event PropertyChangedEventHandler PropertyChanged;
 
     /// <summary>
@@ -794,9 +772,7 @@ namespace Xtensive.Modelling
     /// <param name="name">Name of the property.</param>
     protected virtual void OnPropertyChanged(string name)
     {
-      if (PropertyChanged != null) {
-        PropertyChanged.Invoke(this, new PropertyChangedEventArgs(name));
-      }
+      PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
     }
 
     /// <summary>
@@ -812,7 +788,7 @@ namespace Xtensive.Modelling
       EnsureIsEditable();
       var pathNode = value as IPathNode;
       var model = Model;
-      if (pathNode!=null && model!=null && pathNode.Model!=model) {
+      if (pathNode is not null && model is not null && pathNode.Model!=model) {
         throw new ArgumentOutOfRangeException(nameof(value), Strings.ExPropertyValueMustBelongToTheSameModel);
       }
 
@@ -845,7 +821,7 @@ namespace Xtensive.Modelling
     private void UpdateModel()
     {
       var p = Parent;
-      model = p == null ? (Node) (this as IModel) : p.Model;
+      Model = p == null ? (Node) (this as IModel) : p.Model;
     }
 
     private static PropertyAccessorDictionary GetPropertyAccessors(Type type)
@@ -865,7 +841,7 @@ namespace Xtensive.Modelling
           const BindingFlags propertyBindingFlags =
             BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly;
           foreach (var p in entityType.GetProperties(propertyBindingFlags)) {
-            if (p.GetAttribute<PropertyAttribute>(AttributeSearchOptions.InheritNone) != null) {
+            if (p.GetAttribute<PropertyAttribute>(AttributeSearchOptions.InheritNone) is not null) {
               d.Add(p.Name, new PropertyAccessor(p));
             }
           }
@@ -877,11 +853,21 @@ namespace Xtensive.Modelling
       return CachedPropertyAccessors.GetOrAdd(type, PropertyAccessorExtractor).Value;
     }
 
-    private Node TryConstructor(IModel model, params object[] args)
+    private Node TryConstructor(string nameAsParameter)
     {
-      var argTypes = args.Select(a => a.GetType()).ToArray();
-      var ci = GetType().GetConstructor(argTypes);
-      return ci == null ? null : (Node) ci.Invoke(args);
+      var ci = GetType().GetConstructor([WellKnownTypes.String]);
+      return ci is null ? null : (Node) ci.Invoke([nameAsParameter]);
+    }
+
+    private Node TryConstructor(Node node, string nameAsParameter)
+    {
+      var instanceType = GetType();
+      var nodeType = node.GetType();
+      var ci = instanceType.GetConstructor([nodeType, WellKnownTypes.String]);
+      if (ci is not null)
+        return (Node) ci.Invoke([node, nameAsParameter]);
+      ci = instanceType.GetConstructor([nodeType]);
+      return ci is null ? null : (Node) ci.Invoke([node]);
     }
 
     #endregion
@@ -900,12 +886,12 @@ namespace Xtensive.Modelling
     /// <exception cref="InvalidOperationException"><see cref="CreateNesting"/> has returned <see langword="null" />.</exception>
     protected virtual void Initialize()
     {
-      nesting = CreateNesting();
-      if (nesting == null) {
+      Nesting = CreateNesting();
+      if (Nesting is null) {
         throw new InvalidOperationException(Strings.ExNoNesting);
       }
 
-      propertyAccessors = GetPropertyAccessors(GetType());
+      PropertyAccessors = GetPropertyAccessors(GetType());
     }
 
     #endregion
@@ -941,7 +927,7 @@ namespace Xtensive.Modelling
         }
 
         // Everything else
-        foreach (var pair in propertyAccessors) {
+        foreach (var pair in PropertyAccessors) {
           var propertyName = pair.Key;
           var accessor = pair.Value;
           if (accessor.PropertyInfo.GetAttribute<SystemPropertyAttribute>(
@@ -955,7 +941,7 @@ namespace Xtensive.Modelling
           }
 
           var propertyType =
-            (propertyValue == null ? accessor.PropertyInfo.PropertyType : propertyValue.GetType())
+            (propertyValue is null ? accessor.PropertyInfo.PropertyType : propertyValue.GetType())
             .GetShortName();
           var nested = GetNestedProperty(propertyName);
           if (nested != null) {
@@ -982,7 +968,7 @@ namespace Xtensive.Modelling
     {
       var m = Model;
       var fullName = Path;
-      if (m != null) {
+      if (m is not null) {
         fullName = string.Concat(m.EscapedName, PathDelimiterString, fullName);
       }
 
@@ -1019,26 +1005,6 @@ namespace Xtensive.Modelling
       }
       else {
         Move(parent, name, ((NodeCollection) Nesting.PropertyGetter(parent)).Count);
-      }
-    }
-
-    // Deserialization
-
-    /// <inheritdoc/>
-    void IDeserializationCallback.OnDeserialization(object sender)
-    {
-      if (nesting!=null) {
-        return; // Protects from multiple calls
-      }
-
-      Initialize();
-      if (Parent is IDeserializationCallback p) {
-        p.OnDeserialization(sender);
-      }
-
-      UpdateModel();
-      if (IsLocked) {
-        cachedPath = Path;
       }
     }
   }

@@ -12,7 +12,6 @@ using Xtensive.Orm.Tests.Issues.Issue0082_ReferentialManagerProblem_Model;
 
 namespace Xtensive.Orm.Tests.Issues.Issue0082_ReferentialManagerProblem_Model
 {
-  [Serializable]
   [HierarchyRoot]
   public class Ancestor : Entity
   {
@@ -20,7 +19,6 @@ namespace Xtensive.Orm.Tests.Issues.Issue0082_ReferentialManagerProblem_Model
     public int Id { get; private set; }
   }
 
-  [Serializable]
   public class Descendant : Ancestor
   {
     [Field]
@@ -36,7 +34,7 @@ namespace Xtensive.Orm.Tests.Issues.Issue0082_ReferentialManagerProblem_Model
     public EntitySet<Descendant> Set3 { get; private set; }
 
     [Field]
-    public String StringField { get; set; }
+    public string StringField { get; set; }
 
     [Field]
     public Descendant Ref2 { get; set; }
@@ -59,8 +57,8 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (var session = Domain.OpenSession()) {
         using (var t = session.OpenTransaction()) {
-          new Descendant {StringField = "1",};
-          new Descendant {StringField = "2",};
+          _ = new Descendant { StringField = "1" };
+          _ = new Descendant { StringField = "2" };
           t.Complete();
         }
         using (var t = session.OpenTransaction()) {

@@ -14,7 +14,6 @@ namespace Xtensive.Orm.Tests.Core.Modelling.IndexingModel
   /// A base class for all nodes in storage model.
   /// </summary>
   /// <typeparam name="TParent">The type of the parent node.</typeparam>
-  [Serializable]
   public abstract class NodeBase<TParent> : Node<TParent, StorageInfo> 
     where TParent : Node
   {

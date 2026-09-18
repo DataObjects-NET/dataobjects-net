@@ -6,7 +6,6 @@
 
 using System;
 using System.Linq;
-using System.Runtime.Serialization;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Model;
@@ -30,11 +29,6 @@ namespace Xtensive.Orm.Tests.Issues
     {
       protected ItemItemVersionsEntitySet(Entity owner, FieldInfo field)
         : base(owner, field)
-      {
-      }
-
-      protected ItemItemVersionsEntitySet(SerializationInfo info, StreamingContext context)
-        : base(info, context)
       {
       }
     }

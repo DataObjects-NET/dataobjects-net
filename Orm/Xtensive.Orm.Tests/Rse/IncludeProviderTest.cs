@@ -15,7 +15,6 @@ using Xtensive.Orm.Rse;
 
 namespace Xtensive.Orm.Tests.Rse
 {
-  [Serializable]
   [TestFixture, Category("Rse")]
   public class IncludeProviderTest: ChinookDOModelTest
   {

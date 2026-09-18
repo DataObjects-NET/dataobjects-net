@@ -14,7 +14,6 @@ namespace Xtensive.Orm.Upgrade.Model
   /// <summary>
   /// Column.
   /// </summary>
-  [Serializable]
   public sealed class StorageColumnInfo : NodeBase<TableInfo>
   {
     private StorageTypeInfo type;
@@ -25,8 +24,9 @@ namespace Xtensive.Orm.Upgrade.Model
     /// Gets or sets the type of the column.
     /// </summary>
     [Property(Priority = -1000)]
-    public StorageTypeInfo Type {
-      get { return type; }
+    public StorageTypeInfo Type
+    {
+      get => type;
       set {
         EnsureIsEditable();
         using (var scope = LogPropertyChange("Type", value)) {
@@ -42,7 +42,7 @@ namespace Xtensive.Orm.Upgrade.Model
     [Property(IgnoreInComparison = true)]
     public object DefaultValue
     {
-      get { return defaultValue; }
+      get => defaultValue;
       set {
         EnsureIsEditable();
         using (var scope = LogPropertyChange("DefaultValue", value)) {
@@ -59,9 +59,8 @@ namespace Xtensive.Orm.Upgrade.Model
     [Property(IgnoreInComparison = true)]
     public string DefaultSqlExpression
     {
-      get { return defaultSqlExpression; }
-      set
-      {
+      get => defaultSqlExpression;
+      set {
         EnsureIsEditable();
         using (var scope = LogPropertyChange("DefaultSqlExpression", value)) {
           defaultSqlExpression = value;
@@ -76,12 +75,8 @@ namespace Xtensive.Orm.Upgrade.Model
     {
       using (var ea = new ExceptionAggregator()) {
         ea.Execute(base.ValidateState);
-        if (Type==null) {
-          ea.Execute(() => {
-            throw new ValidationException(
-              string.Format(Strings.ExUndefinedTypeOfColumnX, Name),
-              Path);
-          });
+        if (Type is null) {
+          ea.Add(new ValidationException(string.Format(Strings.ExUndefinedTypeOfColumnX, Name), Path), handle: true);
         }
         ea.Complete();
       }

@@ -10,13 +10,13 @@ using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration;
 using System.Linq;
-using M=Xtensive.Orm.Model;
+using M = Xtensive.Orm.Model;
+using Xtensive.Orm.Tests.Storage.VersionModel;
 
 #region Model
 
 namespace Xtensive.Orm.Tests.Storage.VersionModel
 {
-  [Serializable]
   [HierarchyRoot]
   [KeyGenerator(null)]
   public class Address : Entity
@@ -33,7 +33,6 @@ namespace Xtensive.Orm.Tests.Storage.VersionModel
     }
   }
 
-  [Serializable]
   public class Phone : Structure
   {
     [Field]
@@ -43,7 +42,6 @@ namespace Xtensive.Orm.Tests.Storage.VersionModel
     public int Number { get; set; }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class Person : Entity
   {
@@ -54,7 +52,6 @@ namespace Xtensive.Orm.Tests.Storage.VersionModel
     public string Name { get; set; }
   }
 
-  [Serializable]
   public class Customer : Person
   {
     [Field]
@@ -64,7 +61,6 @@ namespace Xtensive.Orm.Tests.Storage.VersionModel
     public Phone Phone { get; set; }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class Author : Entity
   {
@@ -87,7 +83,6 @@ namespace Xtensive.Orm.Tests.Storage.VersionModel
     public EntitySet<Comment> Comments { get; private set; }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class Book : Entity
   {
@@ -104,7 +99,6 @@ namespace Xtensive.Orm.Tests.Storage.VersionModel
     public EntitySet<Author> Authors { get; private set; }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class Comment : Entity
   {
@@ -115,8 +109,6 @@ namespace Xtensive.Orm.Tests.Storage.VersionModel
     public Author Author { get; set; }
   }
 
-
-  [Serializable]
   public class VersionStructure : Structure
   {
     [Field]
@@ -124,7 +116,6 @@ namespace Xtensive.Orm.Tests.Storage.VersionModel
     public int Version { get; set; }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class VersionEntity : Entity
   {
@@ -151,7 +142,6 @@ namespace Xtensive.Orm.Tests.Storage.VersionModel
     }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class ItemWithEntityVersion : Entity
   {
@@ -171,7 +161,6 @@ namespace Xtensive.Orm.Tests.Storage.VersionModel
     }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class ItemWithCustomVersions : Entity
   {
@@ -191,7 +180,6 @@ namespace Xtensive.Orm.Tests.Storage.VersionModel
     }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class ItemWithAutoVersions : Entity
   {
@@ -231,8 +219,6 @@ namespace Xtensive.Orm.Tests.Storage.VersionModel
 
 namespace Xtensive.Orm.Tests.Storage
 {
-  using VersionModel;
-
   [TestFixture]
   public class UpdateVersionTest : AutoBuildTest
   {
@@ -506,24 +492,6 @@ namespace Xtensive.Orm.Tests.Storage
           transactionScope.Complete();
         }
       }
-    }
-
-    [Test]
-    public void SerializeVersionInfoTest()
-    {
-      VersionInfo versionInfo;
-
-      using (var session = Domain.OpenSession()) {
-        using (var transactionScope = session.OpenTransaction()) {
-          var instance = new ItemWithAutoVersions();
-          versionInfo = instance.VersionInfo;
-          transactionScope.Complete();
-        }
-      }
-      Assert.That(versionInfo.IsVoid, Is.False);
-      var clone = Cloner.Clone(versionInfo);
-      Assert.That(clone.IsVoid, Is.False);
-      Assert.That(versionInfo==clone, Is.True);
     }
   }
 }

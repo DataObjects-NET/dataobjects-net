@@ -14,7 +14,6 @@ using Xtensive.Orm.Tests.Issues_Issue0828_LinqMaterializeException;
 
 namespace Xtensive.Orm.Tests.Issues_Issue0828_LinqMaterializeException
 {
-  [Serializable]
   [HierarchyRoot]
   public class MyEntity : Entity
   {
@@ -70,25 +69,25 @@ namespace Xtensive.Orm.Tests.Issues
       return config;
     }
 
+    protected override void CheckRequirements() => Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
+
     [Test]
     public void MainTest()
     {
-      Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
-      using (var session = Domain.OpenSession()) {
-        using (var transaction = session.OpenTransaction()) {
-          var myEntity = new MyEntity() {
-            Date = DateTime.Now,
-            Text = "Text"
-          };
-          var query = session.Query.All<MyEntity>()
-            .Select(e => new {
-              MyEntity = e,
-              Year = (int?) e.Date.Value.Year,
-              Status = e.Infos.OfType<SuccessInfo>().Any() ? Status.Success : (e.Infos.OfType<ErrorInfo>().Any() ? Status.Error : Status.Unknown)
-            })
-            .Select(o => new object[] {o.MyEntity.Id, o.Year, o.Status});
-          var result = query.ToList();
-        }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var myEntity = new MyEntity() {
+          Date = DateTime.Now,
+          Text = "Text"
+        };
+        var query = session.Query.All<MyEntity>()
+          .Select(e => new {
+            MyEntity = e,
+            Year = (int?) e.Date.Value.Year,
+            Status = e.Infos.OfType<SuccessInfo>().Any() ? Status.Success : (e.Infos.OfType<ErrorInfo>().Any() ? Status.Error : Status.Unknown)
+          })
+          .Select(o => new object[] { o.MyEntity.Id, o.Year, o.Status });
+        var result = query.ToList();
       }
     }
   }

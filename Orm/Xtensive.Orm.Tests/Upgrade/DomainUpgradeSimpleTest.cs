@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using NUnit.Framework;
 
 using Xtensive.Core;
+using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Providers;
 using Xtensive.Orm.Tests.Upgrade.Model.SimpleVersion1;
 using SimpleVersion1 = Xtensive.Orm.Tests.Upgrade.Model.SimpleVersion1;
@@ -20,56 +21,58 @@ namespace Xtensive.Orm.Tests.Upgrade
   [TestFixture, Category("Upgrade")]
   public class DomainUpgradeSimpleTest
   {
-    private Domain domain;
-
-    [SetUp]
-    public void SetUp()
+    [Test]
+    public void UpgradeTest()
     {
-      BuildDomain("SimpleVersion1", DomainUpgradeMode.Recreate);
-      FillData();
+      var domain = BuildDomain("SimpleVersion1", DomainUpgradeMode.Recreate);
+      using (domain)
+        FillData(domain);
+
+      BuildDomain("SimpleVersion2", DomainUpgradeMode.PerformSafely).Dispose();
     }
 
     [Test]
-    public void UpgradeTest() =>
-      BuildDomain("SimpleVersion2", DomainUpgradeMode.PerformSafely);
-
-    [Test]
-    public async Task UpgradeAsyncTest() =>
-      await BuildDomainAsync("SimpleVersion2", DomainUpgradeMode.PerformSafely);
-
-    private void BuildDomain(string version, DomainUpgradeMode upgradeMode)
+    public async Task UpgradeAsyncTest()
     {
-      if (domain != null) {
-        domain.DisposeSafely();
-      }
+      var domain = BuildDomain("SimpleVersion1", DomainUpgradeMode.Recreate);
+      using (domain)
+        FillData(domain);
+      (await BuildDomainAsync("SimpleVersion2", DomainUpgradeMode.PerformSafely)).Dispose();
+    }
 
-      var configuration = DomainConfigurationFactory.Create();
-      configuration.UpgradeMode = upgradeMode;
-      configuration.Types.RegisterCaching(Assembly.GetExecutingAssembly(),
-        "Xtensive.Orm.Tests.Upgrade.Model." + version);
-      configuration.Types.Register(typeof(SimpleUpgrader));
+    private Domain BuildDomain(string version, DomainUpgradeMode upgradeMode)
+    {
+      var configuration = BuildConfiguration(version, upgradeMode);
+
+      Domain domain;
       using (SimpleUpgrader.Enable(version)) {
         domain = Domain.Build(configuration);
       }
+      return domain;
     }
 
-    private async Task BuildDomainAsync(string version, DomainUpgradeMode upgradeMode)
+    private async Task<Domain> BuildDomainAsync(string version, DomainUpgradeMode upgradeMode)
     {
-      if (domain != null) {
-        domain.DisposeSafely();
-      }
+      var configuration = BuildConfiguration(version, upgradeMode);
 
+      Domain domain;
+      using (SimpleUpgrader.Enable(version)) {
+        domain = await Domain.BuildAsync(configuration);
+      }
+      return domain;
+    }
+
+    private static DomainConfiguration BuildConfiguration(string version, DomainUpgradeMode upgradeMode)
+    {
       var configuration = DomainConfigurationFactory.Create();
       configuration.UpgradeMode = upgradeMode;
       configuration.Types.RegisterCaching(Assembly.GetExecutingAssembly(),
         "Xtensive.Orm.Tests.Upgrade.Model." + version);
       configuration.Types.Register(typeof(SimpleUpgrader));
-      using (SimpleUpgrader.Enable(version)) {
-        domain = await Domain.BuildAsync(configuration);
-      }
+      return configuration;
     }
 
-    private void FillData()
+    private static void FillData(Domain domain)
     {
       using (var session = domain.OpenSession())
       using (var transactionScope = session.OpenTransaction()) {
@@ -125,7 +128,7 @@ namespace Xtensive.Orm.Tests.Upgrade
         };
 
         // Orders
-        new Order {
+        _ = new Order {
           OrderNumber = "1",
           Customer = helen,
           Employee = michael,
@@ -133,7 +136,7 @@ namespace Xtensive.Orm.Tests.Upgrade
           OrderDate = new DateTime(1996, 7, 4),
           ProductName = "Maxilaku"
         };
-        new Order {
+        _ = new Order {
           OrderNumber = "2",
           Customer = helen,
           Employee = nancy,
@@ -141,7 +144,7 @@ namespace Xtensive.Orm.Tests.Upgrade
           OrderDate = new DateTime(1996, 7, 4),
           ProductName = "Filo Mix"
         };
-        new Order {
+        _ = new Order {
           OrderNumber = "3",
           Customer = philip,
           Employee = michael,
@@ -149,7 +152,7 @@ namespace Xtensive.Orm.Tests.Upgrade
           OrderDate = new DateTime(1996, 7, 4),
           ProductName = "Tourtiere"
         };
-        new Order {
+        _ = new Order {
           OrderNumber = "4",
           Customer = philip,
           Employee = nancy,

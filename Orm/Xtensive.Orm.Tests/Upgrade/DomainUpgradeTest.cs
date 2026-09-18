@@ -140,18 +140,18 @@ namespace Xtensive.Orm.Tests.Upgrade
       var syncedTypeSet = ThreeTypesSet;
       var missingTypeSet = TwoTypesSet;
 
-      BuildDomain(1, DomainUpgradeMode.Recreate, missingTypeSet).DisposeSafely();
+      BuildDomain(1, DomainUpgradeMode.Recreate, missingTypeSet).Dispose();
 
-      BuildDomain(1, DomainUpgradeMode.PerformSafely, syncedTypeSet).DisposeSafely();
+      BuildDomain(1, DomainUpgradeMode.PerformSafely, syncedTypeSet).Dispose();
       AssertEx.Throws<SchemaSynchronizationException>(() =>
         BuildDomain(1, DomainUpgradeMode.PerformSafely, missingTypeSet));
 
-      BuildDomain(1, DomainUpgradeMode.Validate, syncedTypeSet).DisposeSafely();
+      BuildDomain(1, DomainUpgradeMode.Validate, syncedTypeSet).Dispose();
       AssertEx.Throws<SchemaSynchronizationException>(() =>
-        BuildDomain(1, DomainUpgradeMode.Validate, missingTypeSet));
+        BuildDomain(1, DomainUpgradeMode.Validate, missingTypeSet).Dispose());
 
       AssertEx.Throws<SchemaSynchronizationException>(() =>
-        BuildDomain(1, DomainUpgradeMode.Validate, OrdersModelTypeSet));
+        BuildDomain(1, DomainUpgradeMode.Validate, OrdersModelTypeSet).Dispose());
     }
 
     [Test]
@@ -160,18 +160,18 @@ namespace Xtensive.Orm.Tests.Upgrade
       var syncedTypeSet = ThreeTypesSet;
       var missingTypeSet = TwoTypesSet;
 
-      (await BuildDomainAsync(1, DomainUpgradeMode.Recreate, missingTypeSet).ConfigureAwait(false)).DisposeSafely();
+      (await BuildDomainAsync(1, DomainUpgradeMode.Recreate, missingTypeSet).ConfigureAwait(false)).Dispose();
 
-      (await BuildDomainAsync(1, DomainUpgradeMode.PerformSafely, syncedTypeSet).ConfigureAwait(false)).DisposeSafely();
+      (await BuildDomainAsync(1, DomainUpgradeMode.PerformSafely, syncedTypeSet).ConfigureAwait(false)).Dispose();
       _ = Assert.ThrowsAsync<SchemaSynchronizationException>(async () =>
         await BuildDomainAsync(1, DomainUpgradeMode.PerformSafely, missingTypeSet));
 
-      (await BuildDomainAsync(1, DomainUpgradeMode.Validate, syncedTypeSet).ConfigureAwait(false)).DisposeSafely();
+      (await BuildDomainAsync(1, DomainUpgradeMode.Validate, syncedTypeSet).ConfigureAwait(false)).Dispose();
       _ = Assert.ThrowsAsync<SchemaSynchronizationException>(async () =>
-        await BuildDomainAsync(1, DomainUpgradeMode.Validate, missingTypeSet));
+        (await BuildDomainAsync(1, DomainUpgradeMode.Validate, missingTypeSet)).Dispose());
 
       _ = Assert.ThrowsAsync<SchemaSynchronizationException>(async () =>
-        await BuildDomainAsync(1, DomainUpgradeMode.Validate, OrdersModelTypeSet));
+        (await BuildDomainAsync(1, DomainUpgradeMode.Validate, OrdersModelTypeSet)).Dispose());
     }
 
     [Test]
@@ -407,11 +407,13 @@ namespace Xtensive.Orm.Tests.Upgrade
     {
       Require.ProviderIsNot(StorageProvider.Firebird);
 
-      var domain = BuildDomain(1, DomainUpgradeMode.Recreate);
-      FillData(domain);
+      using (var domain = BuildDomain(1, DomainUpgradeMode.Recreate)) {
+        FillData(domain);
+      }
 
-      domain = BuildDomain(2, DomainUpgradeMode.Perform);
-      TestComplexModelUpgradedData(domain);
+      using (var domain = BuildDomain(2, DomainUpgradeMode.Perform)) {
+        TestComplexModelUpgradedData(domain);
+      }
     }
 
     [Test]
@@ -420,11 +422,13 @@ namespace Xtensive.Orm.Tests.Upgrade
     {
       Require.ProviderIsNot(StorageProvider.Firebird);
 
-      var domain = await BuildDomainAsync(1, DomainUpgradeMode.Recreate).ConfigureAwait(false);
-      FillData(domain);
+      await using (var domain = await BuildDomainAsync(1, DomainUpgradeMode.Recreate).ConfigureAwait(false)) {
+        FillData(domain);
+      }
 
-      domain = await BuildDomainAsync(2, DomainUpgradeMode.Perform).ConfigureAwait(false);
-      TestComplexModelUpgradedData(domain);
+      await using (var domain = await BuildDomainAsync(2, DomainUpgradeMode.Perform).ConfigureAwait(false)) {
+        TestComplexModelUpgradedData(domain);
+      }
     }
 
     private void TestComplexModelUpgradedData(Domain domain)

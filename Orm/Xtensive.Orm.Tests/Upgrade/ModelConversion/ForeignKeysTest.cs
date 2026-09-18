@@ -43,7 +43,6 @@ namespace Xtensive.Orm.Tests.Upgrade
     }
   }
 
-  [Serializable]
   public class TargetSchemaVerifier : UpgradeHandler
   {
     private static bool isEnabled = false;

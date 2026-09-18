@@ -1,8 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
-// Created by: 
-// Created:    2008.09.17
+// Copyright (C) 2008-2026 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 
 using System;
 using NUnit.Framework;
@@ -103,7 +101,6 @@ namespace Xtensive.Orm.Tests.Storage
       public TimeSpan Key15 { get; private set; }
     }
 
-    [Serializable]
     [HierarchyRoot]
     public class Container : Entity
     {

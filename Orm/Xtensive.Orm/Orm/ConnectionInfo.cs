@@ -14,7 +14,6 @@ namespace Xtensive.Orm
   /// A wrapper representing connection information.
   /// Connection can be specified by either <see cref="ConnectionString"/> or <see cref="ConnectionUrl"/>.
   /// </summary>
-  [Serializable]
   public sealed class ConnectionInfo : IEquatable<ConnectionInfo>
   {
     private const string ToStringFormat = "[{0}] {1}";
@@ -37,7 +36,7 @@ namespace Xtensive.Orm
     /// <inheritdoc/>
     public override string ToString()
     {
-      return ConnectionUrl!=null
+      return ConnectionUrl is not null
         ? ConnectionUrl.ToString()
         : string.Format(ToStringFormat, Provider, ConnectionString);
     }

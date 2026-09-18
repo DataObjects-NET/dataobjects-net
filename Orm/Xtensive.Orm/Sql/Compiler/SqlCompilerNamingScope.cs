@@ -11,12 +11,11 @@ namespace Xtensive.Sql.Compiler
   /// <summary>
   /// SQL compiler naming scope.
   /// </summary>
-  [Serializable]
   public class SqlCompilerNamingScope : IDisposable
   {
     private readonly SqlCompilerContext context;
 
-    internal SqlCompilerNamingOptions ParentOptions { get; private set; }
+    internal SqlCompilerNamingOptions ParentOptions { get; }
 
     /// <inheritdoc/>
     public void Dispose()

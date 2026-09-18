@@ -13,7 +13,6 @@ namespace Xtensive.Orm.Rse.Providers
   /// Produces except operation between <see cref="BinaryProvider.Left"/> and 
   /// <see cref="BinaryProvider.Right"/> sources.
   /// </summary>
-  [Serializable]
   public sealed class ExceptProvider : BinaryProvider
   {
     #region Header build

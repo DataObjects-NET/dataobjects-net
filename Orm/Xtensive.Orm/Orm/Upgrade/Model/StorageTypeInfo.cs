@@ -5,10 +5,7 @@
 // Created:    2009.03.24
 
 using System;
-using System.Globalization;
 using Xtensive.Core;
-
-using System.Text;
 using Xtensive.Reflection;
 using Xtensive.Modelling.Validation;
 using Xtensive.Sql;
@@ -18,7 +15,6 @@ namespace Xtensive.Orm.Upgrade.Model
   /// <summary>
   /// Type of table column.
   /// </summary>
-  [Serializable]
   public sealed class StorageTypeInfo : IEquatable<StorageTypeInfo>,
     IValidatable,
     ICloneable

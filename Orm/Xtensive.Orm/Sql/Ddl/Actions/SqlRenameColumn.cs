@@ -9,11 +9,10 @@ using Xtensive.Sql.Model;
 
 namespace Xtensive.Sql.Ddl
 {
-  [Serializable]
   public class SqlRenameColumn : SqlAction
   {
-    public TableColumn Column { get; private set; }
-    public string NewName { get; private set; }
+    public TableColumn Column { get; }
+    public string NewName { get; }
 
     internal override SqlRenameColumn Clone(SqlNodeCloneContext context) =>
       context.GetOrAdd(this, static (t, c) =>

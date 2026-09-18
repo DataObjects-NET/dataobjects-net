@@ -14,7 +14,6 @@ namespace Xtensive.Tuples.Transform
   /// <summary>
   /// Maps fields of a destination tuple to the specified fields of of the source tuple.
   /// </summary>
-  [Serializable]
   public sealed class MapTransform
   {
     private readonly IReadOnlyList<int> map;

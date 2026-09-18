@@ -9,7 +9,6 @@ namespace Xtensive.Sql.Dml
   /// <summary>
   /// Represents a join option (hint) for a query optimizer.
   /// </summary>
-  [Serializable]
   public class SqlJoinHint : SqlHint
   {
     /// <summary>

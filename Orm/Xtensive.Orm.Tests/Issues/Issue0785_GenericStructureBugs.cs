@@ -13,7 +13,6 @@ using Xtensive.Core;
 
 namespace Xtensive.Orm.Tests.Issues.Issue0785.Model
 {
-  [Serializable]
   [HierarchyRoot]
   public class Book : Entity
   {
@@ -47,7 +46,6 @@ namespace Xtensive.Orm.Tests.Issues.Issue0785.Model
     
   }
 
-  [Serializable]
   public class RefHolder<T> : Structure
   {
     [Field]

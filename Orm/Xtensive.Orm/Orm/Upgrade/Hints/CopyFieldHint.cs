@@ -7,7 +7,6 @@
 using System;
 using System.Linq.Expressions;
 using Xtensive.Core;
-
 using Xtensive.Reflection;
 
 namespace Xtensive.Orm.Upgrade
@@ -15,7 +14,6 @@ namespace Xtensive.Orm.Upgrade
   /// <summary>
   /// Copy field hint.
   /// </summary>
-  [Serializable]
   public class CopyFieldHint : UpgradeHint,
     IEquatable<CopyFieldHint>
   {

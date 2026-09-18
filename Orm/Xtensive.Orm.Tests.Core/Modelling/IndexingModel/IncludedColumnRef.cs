@@ -12,7 +12,6 @@ namespace Xtensive.Orm.Tests.Core.Modelling.IndexingModel
   /// <summary>
   /// References to included column.
   /// </summary>
-  [Serializable]
   public sealed class IncludedColumnRef : ColumnInfoRef<SecondaryIndexInfo>
   {
     /// <inheritdoc/>

@@ -14,7 +14,6 @@ using Xtensive.Orm.Tests.ObjectModel.ChinookDO;
 
 namespace Xtensive.Orm.Tests.Issues
 {
-  [Serializable]
   public class Issue0766_LinqTranslationError : ChinookDOModelTest
   {
     protected override void CheckRequirements()

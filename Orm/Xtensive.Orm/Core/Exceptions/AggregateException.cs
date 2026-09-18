@@ -7,8 +7,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Runtime.Serialization;
-using System.Security;
 using System.Text;
 using System.Linq;
 
@@ -17,18 +15,15 @@ namespace Xtensive.Core
   /// <summary>
   /// Aggregates a set of caught exceptions.
   /// </summary>
-  [Serializable]
   public class AggregateException : Exception
   {
-    private Exception[] exceptions;
-
     /// <summary>
     /// Gets the list of caught exceptions.
     /// </summary>
     public IReadOnlyList<Exception> Exceptions
     {
       [DebuggerStepThrough]
-      get { return exceptions; }
+      get;
     }
 
     /// <summary>
@@ -41,9 +36,8 @@ namespace Xtensive.Core
     {
       var result = new List<Exception>();
 
-      foreach (var exception in exceptions) {
-        var ae = exception as AggregateException;
-        if (ae!=null)
+      foreach (var exception in Exceptions) {
+        if (exception is AggregateException ae)
           result.AddRange(ae.GetFlatExceptions());
         else
           result.Add(exception);
@@ -55,29 +49,15 @@ namespace Xtensive.Core
     /// <inheritdoc/>
     public override string ToString()
     {
-      StringBuilder sb = new StringBuilder(64);
-      _ = sb.Append(base.ToString())
+      var sb = new StringBuilder(64)
+        .Append(base.ToString())
         .AppendLine()
         .AppendFormat($"{Strings.OriginalExceptions}:");
       int i = 1;
-      foreach (Exception exception in exceptions)
+      foreach (var exception in Exceptions)
         _ = sb.AppendLine().AppendFormat($"{i++}: {exception}");
       return sb.ToString();
     }
-
-    #region Private \ internal methods
-
-    private void SetExceptions(Exception[] exceptions)
-    {
-      this.exceptions = exceptions;
-    }
-
-    private void SetExceptions(Exception exception)
-    {
-      exceptions =  new Exception[] { exception };
-    }
-
-    #endregion
 
 
     // Constructors
@@ -107,7 +87,7 @@ namespace Xtensive.Core
     public AggregateException(string message, Exception innerException) 
       : base(message, innerException)
     {
-      SetExceptions(innerException);
+      Exceptions = new[] { innerException };
     }
 
     /// <summary>
@@ -117,7 +97,7 @@ namespace Xtensive.Core
     public AggregateException(Exception[] exceptions) 
       : base(Strings.ExASetOfExceptionsIsCaught, exceptions.First())
     {
-      SetExceptions(exceptions);
+      Exceptions = exceptions;
     }
 
     /// <summary>
@@ -128,39 +108,7 @@ namespace Xtensive.Core
     public AggregateException(string message, Exception[] exceptions) 
       : base(message, exceptions.First())
     {
-      SetExceptions(exceptions);
-    }
-
-
-    // Serialization
-
-    /// <summary>
-    /// Deserializes instance of this type.
-    /// </summary>
-    /// <param name="info"></param>
-    /// <param name="context"></param>
-#if NET8_0_OR_GREATER
-    [Obsolete(DiagnosticId = "SYSLIB0051")]
-#endif
-    protected AggregateException(SerializationInfo info, StreamingContext context)
-      : base(info, context)
-    {
-      exceptions = (Exception[]) info.GetValue("Exceptions", typeof (Exception[]));
-    }
-
-    /// <summary>
-    /// Serializes instance of this type.
-    /// </summary>
-    /// <param name="info"></param>
-    /// <param name="context"></param>
-    [SecurityCritical]
-#if NET8_0_OR_GREATER
-    [Obsolete(DiagnosticId = "SYSLIB0051")]
-#endif
-    public override void GetObjectData(SerializationInfo info, StreamingContext context)
-    {
-      base.GetObjectData(info, context);
-      info.AddValue("Exceptions", exceptions);
+      Exceptions = exceptions;
     }
   }
 }

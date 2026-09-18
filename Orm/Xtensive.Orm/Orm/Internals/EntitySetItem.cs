@@ -20,7 +20,6 @@ namespace Xtensive.Orm.Internals
   /// </summary>
   /// <typeparam name="TMaster">The type of the master.</typeparam>
   /// <typeparam name="TSlave">The type of the slave.</typeparam>
-  [Serializable]
   [KeyGenerator(KeyGeneratorKind.None)]
   [HierarchyRoot(InheritanceSchema = InheritanceSchema.ConcreteTable)]
   public abstract class EntitySetItem<TMaster, TSlave> : Entity

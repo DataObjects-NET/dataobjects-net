@@ -13,7 +13,6 @@ namespace Xtensive.Orm.Upgrade.Model
   /// <summary>
   /// References to value column.
   /// </summary>
-  [Serializable]
   public sealed class ValueColumnRef : ColumnInfoRef<PrimaryIndexInfo>
   {
     /// <inheritdoc/>

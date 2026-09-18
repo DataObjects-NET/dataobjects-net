@@ -12,7 +12,6 @@ namespace Xtensive.Orm.Operations
   /// <summary>
   /// Defines possible operation types.
   /// </summary>
-  [Serializable]
   public enum OperationType
   {
     /// <summary>

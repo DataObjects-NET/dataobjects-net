@@ -9,7 +9,6 @@ namespace Xtensive.Sql
   /// <summary>
   /// Levels of checking to be done when inserting or updating data through a view.
   /// </summary>
-  [Serializable]
   public enum CheckOptions
   {
     /// <summary>

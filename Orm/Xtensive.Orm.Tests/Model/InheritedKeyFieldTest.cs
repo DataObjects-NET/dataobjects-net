@@ -8,17 +8,16 @@ using System;
 using Xtensive.Orm;
 using Xtensive.Orm.Configuration;
 using InheritedKeyFieldModel;
+using NUnit.Framework;
 
 namespace InheritedKeyFieldModel
 {
-  [Serializable]
   public class H0 : Entity
   {
     [Field]
     public virtual int Id { get; private set; }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class H1 : H0
   {
@@ -32,7 +31,6 @@ namespace InheritedKeyFieldModel
     }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class H2 : H0
   {
@@ -49,12 +47,14 @@ namespace InheritedKeyFieldModel
 
 namespace Xtensive.Orm.Tests.Model
 {
-  public class InheritedKeyFieldTest : AutoBuildTest
+  [TestFixture, Category("Model")]
+  public class InheritedKeyFieldTest : DomainBuildabilityTest
   {
     protected override DomainConfiguration BuildConfiguration()
     {
-      var config = base.BuildConfiguration();
-      config.Types.RegisterCaching(typeof (H0).Assembly, typeof (H0).Namespace);
+      var config = DomainConfigurationFactory.Create();
+      config.Types.Register(typeof (H0));
+      config.Types.Register(typeof (H2));
       return config;
     }
   }

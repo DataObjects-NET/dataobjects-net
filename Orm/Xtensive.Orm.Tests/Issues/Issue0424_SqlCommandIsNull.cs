@@ -12,20 +12,18 @@ using Xtensive.Orm.Tests.Issues.Issue0296_Model;
 
 namespace Xtensive.Orm.Tests.Issues.Issue0296_Model
 {
-  [Serializable]
   [HierarchyRoot]
-  public class TheParent : Entity
+  public class Parent : Entity
   {
     [Key, Field]
     public int Id { get; private set;}
 
     [Field]
-    public TheChild Child { get; set; }
+    public Child Child { get; set; }
   }
 
-  [Serializable]
   [HierarchyRoot]
-  public class TheChild : Entity
+  public class Child : Entity
   {
     [Key, Field]
     public int Id { get; private set; }
@@ -37,22 +35,21 @@ namespace Xtensive.Orm.Tests.Issues.Issue0296_Model
 
 namespace Xtensive.Orm.Tests.Issues
 {
-  [Serializable]
   public class Issue0424_SqlCommandIsNull : AutoBuildTest
   {
     protected override DomainConfiguration BuildConfiguration()
     {
       var configuration = base.BuildConfiguration();
-      configuration.Types.RegisterCaching(typeof (TheParent).Assembly, typeof (TheParent).Namespace);
+      configuration.Types.Register(typeof (Parent));
+      configuration.Types.Register(typeof (Child));
       return configuration;
     }
 
-    public override void TestFixtureSetUp()
+    protected override void PopulateData()
     {
-      base.TestFixtureSetUp();
       using (var session = Domain.OpenSession())
       using (var t = session.OpenTransaction()) {
-        new TheParent {Child = new TheChild()};
+        _ = new Parent {Child = new Child()};
         t.Complete();
       }
     }
@@ -62,8 +59,8 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (var session = Domain.OpenSession())
       using (var t = session.OpenTransaction()) {
-        var parent = session.Query.All<TheParent>().Single();
-        var result = session.Query.All<TheChild>().Single(child => child.Value==parent.Child.Value);
+        var parent = session.Query.All<Parent>().Single();
+        var result = session.Query.All<Child>().Single(child => child.Value==parent.Child.Value);
         t.Complete();
       }
     }

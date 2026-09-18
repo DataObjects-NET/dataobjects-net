@@ -49,7 +49,6 @@ namespace Xtensive.Orm.Tests.Issues
     }
   }
 
-  [Serializable]
   public class IssueA408_TargetException : AutoBuildTest
   {
     protected override DomainConfiguration BuildConfiguration()
@@ -63,26 +62,25 @@ namespace Xtensive.Orm.Tests.Issues
     public void MainTest()
     {
       using (var session = Domain.OpenSession())
-      using (var t = session.OpenTransaction())
-      {
-        var some = new Some {Tag = 100500, Reference = new Ref{Tag = 9000}, Structure = new Struct{Tag = 777}};
+      using (var t = session.OpenTransaction()) {
+        var some = new Some { Tag = 100500, Reference = new Ref { Tag = 9000 }, Structure = new Struct { Tag = 777 } };
         var tagObject = some.GetProperty<object>("Tag");
         var tagValue = some.GetProperty<uint>("Tag");
         var tagIndexed = some["Tag"];
         AssertEx.Throws<InvalidCastException>(() => some.GetProperty<long>("Tag"));
         Assert.That(tagValue, Is.EqualTo(100500));
-        Assert.That((uint)tagObject, Is.EqualTo(100500));
-        Assert.That((uint)tagIndexed, Is.EqualTo(100500));
+        Assert.That((uint) tagObject, Is.EqualTo(100500));
+        Assert.That((uint) tagIndexed, Is.EqualTo(100500));
 
         var refObject = some.GetProperty<object>("Reference.Tag");
         var refValue = some.Reference.Tag;
         Assert.That(refValue, Is.EqualTo(9000));
-        Assert.That((uint)refObject, Is.EqualTo(9000));
+        Assert.That((uint) refObject, Is.EqualTo(9000));
 
         var strObject = some.GetProperty<object>("Structure.Tag");
         var strValue = some.Structure.Tag;
         Assert.That(strValue, Is.EqualTo(777));
-        Assert.That((uint)strObject, Is.EqualTo(777));
+        Assert.That((uint) strObject, Is.EqualTo(777));
 
         some.SetProperty("Tag", 111u);
         some.SetProperty("Reference.Tag", 111u);

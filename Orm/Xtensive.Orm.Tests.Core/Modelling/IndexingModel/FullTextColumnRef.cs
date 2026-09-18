@@ -14,7 +14,6 @@ namespace Xtensive.Orm.Tests.Core.Modelling.IndexingModel
   /// <summary>
   /// Reference to full-text column.
   /// </summary>
-  [Serializable]
   public sealed class FullTextColumnRef : ColumnInfoRef<FullTextIndexInfo>
   {
     [Property(Priority = -1100)]

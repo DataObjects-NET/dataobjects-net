@@ -11,7 +11,6 @@ namespace Xtensive.Orm.Tests.Core.Modelling.IndexingModel
   /// <summary>
   /// A collection of <see cref="PrimaryKeyColumnRef"/> instances.
   /// </summary>
-  [Serializable]
   public sealed class PrimaryKeyColumnRefCollection : NodeCollectionBase<PrimaryKeyColumnRef, SecondaryIndexInfo>
   {
     // Constructors

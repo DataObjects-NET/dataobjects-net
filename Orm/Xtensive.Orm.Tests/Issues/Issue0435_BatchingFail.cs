@@ -12,7 +12,6 @@ using Xtensive.Orm.Tests.Issues.Issue0435_Model;
 
 namespace Xtensive.Orm.Tests.Issues.Issue0435_Model
 {
-  [Serializable]
   [HierarchyRoot]
   public class MyEntity : Entity
   {

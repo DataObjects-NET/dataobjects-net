@@ -45,13 +45,13 @@ namespace Xtensive.Orm.Tests.Issues_Issue0827_LinqDtoMaterialization
 
 namespace Xtensive.Orm.Tests.Issues
 {
-  [Serializable]
   public class Issue0827_LinqDtoMaterialization : AutoBuildTest
   {
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.RegisterCaching(typeof (DocEntity).Assembly, typeof (DocEntity).Namespace);
+      config.Types.Register(typeof(DocEntity));
+      config.Types.Register(typeof(BaseEntity));
       return config;
     }
 

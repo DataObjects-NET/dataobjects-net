@@ -8,25 +8,19 @@ using System.Linq;
 
 namespace Xtensive.Sql.Dml
 {
-  [Serializable]
   public class SqlQueryRef : SqlTable
   {
-    private readonly ISqlQueryExpression query;
-
     /// <summary>
     /// Gets the query statement.
     /// </summary>
     /// <value>The query statement.</value>
-    public ISqlQueryExpression Query
-    {
-      get { return query; }
-    }
+    public ISqlQueryExpression Query { get; }
 
     internal override SqlQueryRef Clone(SqlNodeCloneContext context) =>
       context.GetOrAdd(this, static (t, c) =>
-        t.query is SqlSelect ss
+        t.Query is SqlSelect ss
           ? new SqlQueryRef(ss.Clone(c), t.Name)
-          : new SqlQueryRef(((SqlQueryExpression) t.query).Clone(c), t.Name));
+          : new SqlQueryRef(((SqlQueryExpression) t.Query).Clone(c), t.Name));
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {
@@ -41,7 +35,7 @@ namespace Xtensive.Sql.Dml
     internal SqlQueryRef(ISqlQueryExpression query, string name)
       : base(name)
     {
-      this.query = query;
+      Query = query;
       var queryColumns = new List<SqlTableColumn>();
       foreach (var queryExpression in query) {
         if (queryExpression is SqlSelect sqlSelect) {

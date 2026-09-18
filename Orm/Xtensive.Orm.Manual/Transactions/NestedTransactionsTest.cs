@@ -13,7 +13,6 @@ namespace Xtensive.Orm.Manual.Transactions.NestedTransactions
 {
   #region Model
 
-  [Serializable]
   [HierarchyRoot]
   public class User : Entity
   {
@@ -53,7 +52,6 @@ namespace Xtensive.Orm.Manual.Transactions.NestedTransactions
     {}
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class WebPage : Entity
   {
@@ -71,7 +69,6 @@ namespace Xtensive.Orm.Manual.Transactions.NestedTransactions
     {}
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class BlogPost : Entity
   {

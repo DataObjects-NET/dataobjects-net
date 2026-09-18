@@ -7,7 +7,6 @@ using System;
 namespace Xtensive.Sql
 {
   [Flags]
-  [Serializable]
   public enum Action
   {
     All = 0x01,

@@ -6,7 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using Xtensive.Core;
 
@@ -15,13 +14,12 @@ namespace Xtensive.Orm.Rse.Providers
   /// <summary>
   /// Compilable provider that declares select operator over the <see cref="UnaryProvider.Source"/>.
   /// </summary>
-  [Serializable]
   public sealed class SelectProvider : UnaryProvider
   {
     /// <summary>
     /// Indexes of columns that should be selected from the <see cref="UnaryProvider.Source"/>.
     /// </summary>
-    public IReadOnlyList<int> ColumnIndexes { [DebuggerStepThrough] get; }
+    public IReadOnlyList<int> ColumnIndexes { get; }
 
     /// <inheritdoc/>
     protected override string ParametersToString()

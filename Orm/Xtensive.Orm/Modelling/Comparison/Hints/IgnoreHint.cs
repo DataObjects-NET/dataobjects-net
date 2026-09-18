@@ -17,13 +17,12 @@ namespace Xtensive.Modelling.Comparison.Hints
   /// Ignore node hint. 
   /// Add possibilities to ignore specified node in comparison.
   /// </summary>
-  [Serializable]
   public class IgnoreHint : Hint
   {
     /// <summary>
     /// Gets ignored node path.
     /// </summary>
-    public string Path { get; private set; }
+    public string Path { get; }
 
     /// <inheritdoc/>
     public override IEnumerable<HintTarget> GetTargets()

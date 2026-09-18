@@ -549,51 +549,34 @@ namespace Xtensive.Orm.Tests.Storage
   [TestFixture]
   public class PartialIndexTest
   {
-    private Domain domain;
-
     [OneTimeSetUp]
     public void TestFixtureSetUp() =>
       Require.AllFeaturesSupported(ProviderFeatures.PartialIndexes);
 
-    [TearDown]
-    public void TearDown() => CleanDomain();
-
-    private void CleanDomain()
+    private Domain BuildDomain(IEnumerable<Type> entities, DomainUpgradeMode mode)
     {
-      if (domain==null)
-        return;
-      try {
-        domain.Dispose();
-      }
-      finally {
-        domain = null;
-      }
-    }
-
-    private void BuildDomain(IEnumerable<Type> entities, DomainUpgradeMode mode)
-    {
-      CleanDomain();
       var config = DomainConfigurationFactory.Create();
       foreach (var entity in entities) {
         config.Types.Register(entity);
       }
 
       config.UpgradeMode = mode;
-      domain = Domain.Build(config);
+      return Domain.Build(config);
     }
 
     private void AssertBuildSuccess(params Type[] entities)
     {
-      BuildDomain(entities, DomainUpgradeMode.Recreate);
-      var partialIndexes = domain.Model.RealIndexes
-        .Where(index => index.IsPartial && index.FilterExpression != null && index.Filter != null)
-        .ToList();
-      Assert.That(partialIndexes, Is.Not.Empty);
+      using (var domain = BuildDomain(entities, DomainUpgradeMode.Recreate)) {
+        var partialIndexes = domain.Model.RealIndexes
+          .Where(index => index.IsPartial && index.FilterExpression != null && index.Filter != null)
+          .ToList();
+        Assert.That(partialIndexes, Is.Not.Empty);
+      }
     }
 
     private void AssertBuildFailure(params Type[] entities)
     {
-      AssertEx.Throws<DomainBuilderException>(() => BuildDomain(entities, DomainUpgradeMode.Recreate));
+      AssertEx.Throws<DomainBuilderException>(() => BuildDomain(entities, DomainUpgradeMode.Recreate).Dispose());
     }
 
     [Test]
@@ -680,8 +663,9 @@ namespace Xtensive.Orm.Tests.Storage
           && type != typeof(FilterOnComplexReferenceField3)
           && type != typeof(FilterOnComplexReferenceField4))
         .ToList();
-      BuildDomain(types, DomainUpgradeMode.Recreate);
-      BuildDomain(types, DomainUpgradeMode.Validate);
+      using (BuildDomain(types, DomainUpgradeMode.Recreate)) { }
+
+      Assert.DoesNotThrow(() => BuildDomain(types, DomainUpgradeMode.Validate).Dispose());
     }
 
     [Test, RequireSqlServer]
@@ -697,8 +681,9 @@ namespace Xtensive.Orm.Tests.Storage
           && type != typeof(FilterOnComplexReferenceField3)
           && type != typeof(FilterOnComplexReferenceField4))
         .ToList();
-      BuildDomain(types, DomainUpgradeMode.Recreate);
-      BuildDomain(types, DomainUpgradeMode.Validate);
+      using (BuildDomain(types, DomainUpgradeMode.Recreate)) { }
+
+      Assert.DoesNotThrow(() => BuildDomain(types, DomainUpgradeMode.Validate).Dispose());
     }
   }
 }

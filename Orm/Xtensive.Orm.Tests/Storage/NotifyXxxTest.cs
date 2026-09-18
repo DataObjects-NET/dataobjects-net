@@ -15,7 +15,6 @@ using Xtensive.Orm.Services;
 
 namespace Xtensive.Orm.Tests.Storage.NotifyXxxTests
 {
-  [Serializable]
   [HierarchyRoot]
   public class Book : Entity
   {

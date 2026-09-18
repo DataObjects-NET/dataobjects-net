@@ -19,7 +19,6 @@ namespace Xtensive.Orm
   /// Represents a delayed sequence query (query where result can be enumerated after an execution).
   /// </summary>
   /// <typeparam name="TElement">The type of the element in a resulting sequence.</typeparam>
-  [Serializable]
   public sealed class DelayedQuery<TElement> : DelayedQuery, IEnumerable<TElement>
   {
     /// <inheritdoc/>

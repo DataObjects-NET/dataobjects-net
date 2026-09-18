@@ -12,9 +12,8 @@ namespace Xtensive.Orm
 {
   /// <summary>
   /// Contract for an operation that could be executed later
-  /// after being logged in <see cref="OperationLog"/>.
-  /// You shouldn't implement this interface directly. 
-  /// Inherit from <see cref="Operation"/> instead.
+  /// after being logged.
+  /// You shouldn't implement this interface directly.
   /// </summary>
   public interface IOperation
   {
@@ -53,18 +52,6 @@ namespace Xtensive.Orm
     /// Value of this property can be assigned just once.
     /// </summary>
     IReadOnlyDictionary<string, Key> IdentifiedEntities { get; set; }
-
-    /// <summary>
-    /// Prepares the operation using specified execution context.
-    /// </summary>
-    /// <param name="context">The operation execution context.</param>
-    void Prepare(OperationExecutionContext context);
-
-    /// <summary>
-    /// Executes the operation using specified execution context.
-    /// </summary>
-    /// <param name="context">The operation execution context.</param>
-    void Execute(OperationExecutionContext context);
 
     /// <summary>
     /// Clones the operation, <see cref="PrecedingOperations"/>,

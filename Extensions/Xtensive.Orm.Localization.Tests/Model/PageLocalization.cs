@@ -10,7 +10,6 @@ using Xtensive.Orm;
 
 namespace Xtensive.Orm.Localization.Tests.Model
 {
-  [Serializable]
   [HierarchyRoot]
   public class PageLocalization : Localization<Page>
   {

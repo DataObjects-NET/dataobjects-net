@@ -9,7 +9,6 @@ namespace Xtensive.Sql
   /// <summary>
   /// Enumerates supported SQL column types.
   /// </summary>
-  [Serializable]
   public struct SqlType : IEquatable<SqlType>
   {
     public readonly string Name;

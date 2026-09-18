@@ -5,9 +5,6 @@
 // Created:    2014.05.29
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
@@ -76,7 +73,7 @@ namespace Xtensive.Orm.Tests.Upgrade
       var firstModelConfiguration = DomainConfigurationFactory.Create();
       firstModelConfiguration.Types.Register(typeof(model1.Foo));
       firstModelConfiguration.UpgradeMode = DomainUpgradeMode.Recreate;
-      BuildDomain(firstModelConfiguration).Dispose();
+      using var domain = BuildDomain(firstModelConfiguration);
     }
 
     [Test]
@@ -85,7 +82,7 @@ namespace Xtensive.Orm.Tests.Upgrade
       var secondModelConfiguration = DomainConfigurationFactory.Create();
       secondModelConfiguration.Types.Register(typeof(model2.Foo));
       secondModelConfiguration.UpgradeMode = DomainUpgradeMode.PerformSafely;
-      Assert.DoesNotThrow(()=> BuildDomain(secondModelConfiguration));
+      Assert.DoesNotThrow(() => BuildDomain(secondModelConfiguration).Dispose());
     }
 
     [Test]
@@ -94,7 +91,7 @@ namespace Xtensive.Orm.Tests.Upgrade
       var secondModelConfiguration = DomainConfigurationFactory.Create();
       secondModelConfiguration.Types.Register(typeof(model2.Foo));
       secondModelConfiguration.UpgradeMode = DomainUpgradeMode.PerformSafely;
-      Assert.DoesNotThrowAsync(async () => await BuildDomainAsync(secondModelConfiguration));
+      Assert.DoesNotThrowAsync(async () => (await BuildDomainAsync(secondModelConfiguration)).Dispose());
     }
 
     [Test]
@@ -105,7 +102,7 @@ namespace Xtensive.Orm.Tests.Upgrade
       secondModelConfiguration.Types.Register(typeof(model3.Upgrader));
       secondModelConfiguration.UpgradeMode = DomainUpgradeMode.PerformSafely;
 
-      _ = Assert.Throws<SchemaSynchronizationException>(() => BuildDomain(secondModelConfiguration));
+      _ = Assert.Throws<SchemaSynchronizationException>(() => BuildDomain(secondModelConfiguration).Dispose());
     }
 
     [Test]
@@ -116,7 +113,7 @@ namespace Xtensive.Orm.Tests.Upgrade
       secondModelConfiguration.Types.Register(typeof(model3.Upgrader));
       secondModelConfiguration.UpgradeMode = DomainUpgradeMode.PerformSafely;
 
-      _ = Assert.ThrowsAsync<SchemaSynchronizationException>(async () => await BuildDomainAsync(secondModelConfiguration));
+      _ = Assert.ThrowsAsync<SchemaSynchronizationException>(async () => (await BuildDomainAsync(secondModelConfiguration)).Dispose());
     }
 
     private Domain BuildDomain(DomainConfiguration configuration) => Domain.Build(configuration);

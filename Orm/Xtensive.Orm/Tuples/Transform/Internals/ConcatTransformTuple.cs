@@ -10,7 +10,6 @@ namespace Xtensive.Tuples.Transform.Internals
   /// <summary>
   /// A <see cref="ConcatTransform"/> result tuple mapping 1 source tuple to a single one (this).
   /// </summary>
-  [Serializable]
   internal sealed class ConcatTransformTuple : Tuple, ITransformedTuple
   {
     private readonly ConcatTransform transform;

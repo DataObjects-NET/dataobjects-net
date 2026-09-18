@@ -9,7 +9,6 @@ namespace Xtensive.Sql
   /// <summary>
   /// Base class for SQL statements.
   /// </summary>
-  [Serializable]
   public abstract class SqlStatement : SqlNode
   {
     protected SqlStatement(SqlNodeType nodeType) : base(nodeType)

@@ -5,7 +5,6 @@
 // Created:    2008.07.03
 
 using System;
-using System.Collections.Generic;
 
 namespace Xtensive.Orm.Rse.Providers
 {
@@ -13,7 +12,6 @@ namespace Xtensive.Orm.Rse.Providers
   /// Abstract base class for any query provider,
   /// that requires storage-specific compilation before in can be executed.
   /// </summary>
-  [Serializable]
   public abstract class CompilableProvider : Provider
   {
     // Constructors

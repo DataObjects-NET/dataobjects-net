@@ -8,15 +8,11 @@ using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
-using System.Runtime.Serialization;
-using Xtensive.Comparison;
 using Xtensive.Core;
 
 using Xtensive.Orm.Validation;
 using Xtensive.Tuples;
 using Xtensive.Orm.Configuration;
-using Xtensive.Orm.Serialization;
-using Xtensive.Orm.Services;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Orm;
 using Xtensive.Orm.Model;
@@ -473,16 +469,6 @@ namespace Xtensive.Orm
         InitializationErrorOnMaterialize(error);
         throw;
       }
-    }
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="Structure"/> class.
-    /// </summary>
-    /// <param name="info">The info.</param>
-    /// <param name="context">The context.</param>
-    protected Structure(SerializationInfo info, StreamingContext context)
-    {
-      DeserializationContext.Demand().SetObjectData(this, info, context);
     }
   }
 }

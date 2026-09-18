@@ -11,7 +11,6 @@ namespace Xtensive.Sql.Model
   /// of character data are sorted and compared, based on the norms of 
   /// particular languages and locales.
   /// </summary>
-  [Serializable]
   public class Collation : SchemaNode
   {
     #region SchemaNode Members

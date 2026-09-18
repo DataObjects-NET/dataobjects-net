@@ -7,7 +7,6 @@ using Xtensive.Core;
 
 namespace Xtensive.Sql.Dml
 {
-  [Serializable]
   public abstract class SqlColumn : SqlExpression
   {
     private string name;
@@ -17,19 +16,13 @@ namespace Xtensive.Sql.Dml
     /// Gets or sets the name of this instance.
     /// </summary>
     /// <value>The alias.</value>
-    public virtual string Name
-    {
-      get { return name; }
-    }
+    public virtual string Name => name;
 
     /// <summary>
     /// Gets the table reference.
     /// </summary>
     /// <value>The table reference.</value>
-    public SqlTable SqlTable
-    {
-      get { return sqlTable; }
-    }
+    public SqlTable SqlTable => sqlTable;
 
     public override void ReplaceWith(SqlExpression expression)
     {
@@ -59,6 +52,5 @@ namespace Xtensive.Sql.Dml
     internal SqlColumn() : base(SqlNodeType.Column)
     {
     }
-
   }
 }

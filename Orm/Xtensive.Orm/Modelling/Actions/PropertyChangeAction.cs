@@ -14,7 +14,6 @@ namespace Xtensive.Modelling.Actions
   /// <summary>
   /// Property change action.
   /// </summary>
-  [Serializable]
   public class PropertyChangeAction : NodeAction
   {
     private IDictionary<string, object> properties = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
@@ -22,15 +21,12 @@ namespace Xtensive.Modelling.Actions
     /// <summary>
     /// Gets or sets the properties.
     /// </summary>
-    public IDictionary<string, object> Properties {
-      get { return properties; }
-    }
+    public IDictionary<string, object> Properties => properties;
 
     /// <inheritdoc/>
     protected override void PerformExecute(IModel model, IPathNode item)
     {
-      ArgumentNullException.ThrowIfNull(item);
-      var node = (Node) item;
+      var node = (Node) (item ?? throw new ArgumentNullException(nameof(item)));
       foreach (var pair in properties)
         node.SetProperty(pair.Key, PathNodeReference.Resolve(model, pair.Value));
     }
@@ -40,7 +36,7 @@ namespace Xtensive.Modelling.Actions
     {
       base.GetParameters(parameters);
       foreach (var pair in properties)
-        parameters.Add(new Pair<string>(pair.Key, pair.Value==null ? null : pair.Value.ToString()));
+        parameters.Add(new Pair<string>(pair.Key, pair.Value is null ? null : pair.Value.ToString()));
     }
 
     /// <inheritdoc/>

@@ -17,7 +17,6 @@ namespace Xtensive.Orm.Model
   /// <summary>
   /// Loosely-coupled reference that describes <see cref="IndexInfo"/> instance.
   /// </summary>
-  [Serializable]
   [DebuggerDisplay("IndexName = {IndexName}, TypeName = {TypeName}")]
   public sealed class IndexInfoRef
   {
@@ -33,6 +32,9 @@ namespace Xtensive.Orm.Model
     /// </summary>
     public string TypeName { get; private set; }
 
+    /// <summary>
+    /// Gets the tuple descriptor containing just key columns.
+    /// </summary>
     public TupleDescriptor KeyTupleDescriptor { get; private set; }
 
     /// <summary>
@@ -41,13 +43,11 @@ namespace Xtensive.Orm.Model
     /// <param name="model">Domain model.</param>
     public IndexInfo Resolve(DomainModel model)
     {
-      TypeInfo type;
-      if (!model.Types.TryGetValue(TypeName, out type))
+      if (!model.Types.TryGetValue(TypeName, out var type))
         throw new InvalidOperationException(string.Format(Strings.ExCouldNotResolveXYWithinDomain, "type", TypeName));
-      IndexInfo index;
-      if (!type.Indexes.TryGetValue(IndexName, out index)) {
+      if (!type.Indexes.TryGetValue(IndexName, out var index)) {
         var hierarchy = type.Hierarchy;
-        if (hierarchy != null && hierarchy.InheritanceSchema == InheritanceSchema.SingleTable && hierarchy.Root.Indexes.TryGetValue(IndexName, out index)) 
+        if (hierarchy != null && hierarchy.InheritanceSchema == InheritanceSchema.SingleTable && hierarchy.Root.Indexes.TryGetValue(IndexName, out index))
           return index;
         throw new InvalidOperationException(string.Format(Strings.ExCouldNotResolveXYWithinDomain, "index", IndexName));
       }
@@ -124,10 +124,7 @@ namespace Xtensive.Orm.Model
     #endregion
 
     /// <inheritdoc/>
-    public override string ToString()
-    {
-      return string.Format(ToStringFormat, IndexName, TypeName);
-    }
+    public override string ToString() => string.Format(ToStringFormat, IndexName, TypeName);
 
 
     // Constructors
@@ -138,7 +135,7 @@ namespace Xtensive.Orm.Model
     /// <param name="indexInfo"><see cref="IndexInfo"/> object to make reference for.</param>
     public IndexInfoRef(IndexInfo indexInfo)
     {
-      IndexName = indexInfo.Name;      
+      IndexName = indexInfo.Name;
       TypeName = indexInfo.ReflectedType.Name;
       KeyTupleDescriptor = indexInfo.KeyTupleDescriptor;
     }

@@ -18,7 +18,6 @@ namespace Xtensive.Orm.Tests.Linq
 {
   [Category("Linq")]
   [TestFixture]
-  [Serializable]
   public class ArrayTest : ChinookDOModelTest
   {
     [Test]

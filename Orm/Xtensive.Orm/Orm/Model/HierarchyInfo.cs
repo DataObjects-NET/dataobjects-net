@@ -12,7 +12,6 @@ namespace Xtensive.Orm.Model
   /// <summary>
   /// Describes a single persistent type hierarchy.
   /// </summary>
-  [Serializable]
   public sealed class HierarchyInfo : Node
   {
     /// <summary>

@@ -6,7 +6,6 @@
 
 using System;
 using System.Linq.Expressions;
-
 using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Rse.Providers
@@ -15,7 +14,6 @@ namespace Xtensive.Orm.Rse.Providers
   /// Produces join between <see cref="BinaryProvider.Left"/> and 
   /// <see cref="BinaryProvider.Right"/> sources by <see cref="Predicate"/>.
   /// </summary>
-  [Serializable]
   public sealed class PredicateJoinProvider : BinaryProvider
   {
     /// <summary>

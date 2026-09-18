@@ -9,7 +9,6 @@ namespace Xtensive.Sql.Model
   /// <summary>
   /// Represents a list partition.
   /// </summary>
-  [Serializable]
   public class ListPartition : Partition
   {
     /// <summary>

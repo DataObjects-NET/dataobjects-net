@@ -5,7 +5,6 @@
 // Created:    2009.04.24
 
 using System;
-
 using Xtensive.Orm.Rse.Providers;
 
 namespace Xtensive.Orm.Rse.Transformation
@@ -13,8 +12,7 @@ namespace Xtensive.Orm.Rse.Transformation
   /// <summary>
   /// Descriptor of a provider's ordering behavior.
   /// </summary>
-  [Serializable]
-  public struct ProviderOrderingDescriptor
+  public readonly struct ProviderOrderingDescriptor
   {
     /// <summary>
     /// Gets a value indicating whether the <see cref="CompilableProvider"/> 

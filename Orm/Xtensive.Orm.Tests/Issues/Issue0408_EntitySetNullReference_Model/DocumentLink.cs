@@ -1,8 +1,7 @@
-﻿using System;
+using System;
 
 namespace Xtensive.Orm.Tests.Issues.Issue0408_EntitySetNullReference_Model
 {
-  [Serializable]
   [HierarchyRoot]
   public class DocumentLink : Entity
   {

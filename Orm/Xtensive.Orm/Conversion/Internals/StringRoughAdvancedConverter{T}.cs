@@ -8,15 +8,11 @@ using System;
 
 namespace Xtensive.Conversion
 {
-  [Serializable]
   internal class StringRoughAdvancedConverter<T> :
     RoughAdvancedConverterBase,
     IAdvancedConverter<T, string>
   {
-    string IAdvancedConverter<T, string>.Convert(T value)
-    {
-      return value.ToString();
-    }
+    string IAdvancedConverter<T, string>.Convert(T value) => value.ToString();
 
 
     // Constructors

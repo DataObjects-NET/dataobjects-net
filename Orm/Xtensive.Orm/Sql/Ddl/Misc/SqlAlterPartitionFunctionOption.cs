@@ -6,7 +6,6 @@ using System;
 
 namespace Xtensive.Sql.Ddl
 {
-  [Serializable]
   public enum SqlAlterPartitionFunctionOption
   {
     Split = 1,

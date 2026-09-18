@@ -12,7 +12,6 @@ namespace Xtensive.Sql.Model
   /// <summary>
   /// Represents <see cref="Table"/> default constraint.
   /// </summary>
-  [Serializable]
   public sealed class DefaultConstraint : TableConstraint
   {
     /// <summary>

@@ -10,7 +10,6 @@ namespace Xtensive.Sql.Model
   /// <summary>
   /// An base class for <see cref="Table"/> and <see cref="View"/> types.
   /// </summary>
-  [Serializable]
   public abstract class DataTable : SchemaNode
   {
     private PairedNodeCollection<DataTable, Index> indexes;

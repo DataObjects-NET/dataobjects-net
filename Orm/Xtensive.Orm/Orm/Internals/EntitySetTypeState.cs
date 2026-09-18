@@ -10,7 +10,6 @@ using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Internals
 {
-  [Serializable]
   internal sealed class EntitySetTypeState
   {
     public readonly ExecutableProvider SeekProvider;

@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2003-2010 Xtensive LLC.
+// Copyright (C) 2003-2010 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Roman Churakov
@@ -9,7 +9,6 @@ using System.Globalization;
 
 namespace Xtensive.Conversion
 {
-  [Serializable]
   internal class Int16AdvancedConverter :
     StrictAdvancedConverterBase<short>,
     IAdvancedConverter<short, byte>,
@@ -62,10 +61,7 @@ namespace Xtensive.Conversion
       }
     }
 
-    long IAdvancedConverter<short, long>.Convert(short value)
-    {
-      return value;
-    }
+    long IAdvancedConverter<short, long>.Convert(short value) => value;
 
     ulong IAdvancedConverter<short, ulong>.Convert(short value)
     {
@@ -74,20 +70,11 @@ namespace Xtensive.Conversion
       }
     }
 
-    float IAdvancedConverter<short, float>.Convert(short value)
-    {
-      return System.Convert.ToSingle(value);
-    }
+    float IAdvancedConverter<short, float>.Convert(short value) => System.Convert.ToSingle(value);
 
-    double IAdvancedConverter<short, double>.Convert(short value)
-    {
-      return System.Convert.ToDouble(value);
-    }
+    double IAdvancedConverter<short, double>.Convert(short value) => System.Convert.ToDouble(value);
 
-    decimal IAdvancedConverter<short, decimal>.Convert(short value)
-    {
-      return System.Convert.ToDecimal(value);
-    }
+    decimal IAdvancedConverter<short, decimal>.Convert(short value) => System.Convert.ToDecimal(value);
 
     DateTime IAdvancedConverter<short, DateTime>.Convert(short value)
     {
@@ -103,15 +90,9 @@ namespace Xtensive.Conversion
       }
     }
 
-    string IAdvancedConverter<short, string>.Convert(short value)
-    {
-      return value.ToString(CultureInfo.InvariantCulture);
-    }
+    string IAdvancedConverter<short, string>.Convert(short value) => value.ToString(CultureInfo.InvariantCulture);
 
-    char IAdvancedConverter<short, char>.Convert(short value)
-    {
-      return System.Convert.ToChar(value);
-    }
+    char IAdvancedConverter<short, char>.Convert(short value) => System.Convert.ToChar(value);
 
 
     // Constructors

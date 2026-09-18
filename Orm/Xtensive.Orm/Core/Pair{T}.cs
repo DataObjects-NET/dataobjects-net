@@ -16,7 +16,6 @@ namespace Xtensive.Core
   /// A pair of two values of the same type.
   /// </summary>
   /// <typeparam name="T">The type of both stored values.</typeparam>
-  [Serializable]
   [DebuggerDisplay("{First}, {Second}")]
   public readonly struct Pair<T> :
     IEquatable<Pair<T>>,

@@ -54,7 +54,7 @@ namespace Xtensive.Orm.Tests.Issues
       public Guid ID { get; private set; }
 
       [Field]
-      public abstract Int64 Duration { get; }
+      public abstract long Duration { get; }
     }
 
     [HierarchyRoot]
@@ -87,13 +87,13 @@ namespace Xtensive.Orm.Tests.Issues
     {
       protected OutputTrack() { }
 
-      protected OutputTrack(Int32 trackDefinition)
+      protected OutputTrack(int trackDefinition)
       {
         TrackDefinition = trackDefinition;
       }
 
       [Field]
-      public Int32 TrackDefinition { get; private set; }
+      public int TrackDefinition { get; private set; }
     }
 
     [HierarchyRoot]
@@ -101,7 +101,7 @@ namespace Xtensive.Orm.Tests.Issues
     {
       public SimpleOutputTrack() { }
 
-      public SimpleOutputTrack(Int32 trackDefinition)
+      public SimpleOutputTrack(int trackDefinition)
         : base(trackDefinition) { }
 
       [Field, Key]
@@ -111,17 +111,17 @@ namespace Xtensive.Orm.Tests.Issues
     public abstract class SimpleMedia<MT> : MediaItem<MT, SimpleOutputTrack>
       where MT : MediaType
     {
-      private Int64 _duration = 0;
+      private long _duration = 0;
 
       public SimpleMedia() { }
 
-      public SimpleMedia(Int64 duration, IList<SimpleOutputTrack> outputTracks)
+      public SimpleMedia(long duration, IList<SimpleOutputTrack> outputTracks)
         : base(outputTracks)
       {
         _duration = duration;
       }
 
-      public override Int64 Duration { get { return _duration; } }
+      public override long Duration { get { return _duration; } }
     }
 
     [HierarchyRoot]
@@ -129,12 +129,11 @@ namespace Xtensive.Orm.Tests.Issues
     {
       public SimpleVirtualMedia() { }
 
-      public SimpleVirtualMedia(Int64 duration, IList<SimpleOutputTrack> outputTracks)
+      public SimpleVirtualMedia(long duration, IList<SimpleOutputTrack> outputTracks)
         : base(duration, outputTracks) { }
     }
   }
 
-  [Serializable]
   public class Issue0597_OpenGenericsInDomainModel : AutoBuildTest
   {
     protected override DomainConfiguration BuildConfiguration()
@@ -148,9 +147,6 @@ namespace Xtensive.Orm.Tests.Issues
     public void MainTest()
     {
       Assert.That(Domain.Model.Types.Contains(typeof(WrongMediaItemBase<VirtualMedia>)), Is.False);
-      using (var session = Domain.OpenSession())
-      using (var t = session.OpenTransaction()) {
-      }
     }
   }
 }

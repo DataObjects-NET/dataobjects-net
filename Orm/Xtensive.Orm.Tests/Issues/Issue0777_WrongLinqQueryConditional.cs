@@ -29,11 +29,10 @@ namespace Xtensive.Orm.Tests.Issues
     }
   }
 
-  [Serializable]
   public class Issue0777_WrongLinqQueryConditional : AutoBuildTest
   {
-    DateTime? apocalypseNow = DateTime.Now;
-    DateTime? apocalypseNever = null;
+    private readonly DateTime? apocalypseNow = DateTime.Now;
+    private readonly DateTime? apocalypseNever = null;
 
     protected override DomainConfiguration BuildConfiguration()
     {
@@ -47,7 +46,7 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (var session = Domain.OpenSession())
       using (var t = session.OpenTransaction()) {
-        new BooleanHell { ApocalypseDate = new DateTime(2012, 12, 12), DefaultApocalypseDate = new DateTime(2012, 12, 12)};
+        _ = new BooleanHell { ApocalypseDate = new DateTime(2012, 12, 12), DefaultApocalypseDate = new DateTime(2012, 12, 12)};
         session.SaveChanges();
 
         var firstHell = session.Query.All<BooleanHell>()

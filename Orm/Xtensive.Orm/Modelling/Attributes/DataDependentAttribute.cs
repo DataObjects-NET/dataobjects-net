@@ -11,7 +11,6 @@ namespace Xtensive.Modelling.Attributes
   /// <summary>
   /// Data dependent node marker.
   /// </summary>
-  [Serializable]
   [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
   public sealed class DataDependentAttribute : Attribute
   {

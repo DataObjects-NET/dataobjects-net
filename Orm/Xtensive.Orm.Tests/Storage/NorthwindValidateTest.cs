@@ -15,10 +15,9 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void MainTest()
     {
-      var initialDomain = BuildDomain(DomainUpgradeMode.Recreate);
-      initialDomain.Dispose();
-      var validatedDomain = BuildDomain(DomainUpgradeMode.Validate);
-      validatedDomain.Dispose();
+      using (var initialDomain = BuildDomain(DomainUpgradeMode.Recreate)) { }
+
+      using (var validatedDomain = BuildDomain(DomainUpgradeMode.Validate)) { }
     }
 
     public Domain BuildDomain(DomainUpgradeMode mode)

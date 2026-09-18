@@ -12,7 +12,6 @@ namespace Xtensive.Linq
   /// <summary>
   /// Enumerates supported <see cref="IQueryable{T}"/> methods.
   /// </summary>
-  [Serializable]
   public enum QueryableMethodKind
   {
 #pragma warning disable 1591

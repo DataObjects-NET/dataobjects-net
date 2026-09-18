@@ -15,7 +15,6 @@ using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Tests.Storage.Providers.Sql.BooleanHandlingTestModel
 {
-  [Serializable]
   [HierarchyRoot]
   public class MyEntity : Entity
   {

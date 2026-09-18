@@ -16,7 +16,6 @@ namespace Xtensive.Orm.Manual.Advanced.CustomSqlCompiler
 {
   #region Model
 
-  [Serializable]
   public class Address : Structure
   {
     [Field(Length = 200)]
@@ -36,7 +35,6 @@ namespace Xtensive.Orm.Manual.Advanced.CustomSqlCompiler
     {}
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class Person : Entity
   {

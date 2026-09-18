@@ -16,7 +16,6 @@ namespace Xtensive.Modelling.Comparison.Hints
   /// <summary>
   /// Hint for copy data operation.
   /// </summary>
-  [Serializable]
   public sealed class CopyDataHint : DataHint
   {
     /// <summary>
@@ -61,14 +60,11 @@ namespace Xtensive.Modelling.Comparison.Hints
     /// <summary>
     /// Initializes new instance of this type.
     /// </summary>
-    public CopyDataHint(string sourceTablePath,  IList<IdentityPair> identities, 
+    public CopyDataHint(string sourceTablePath, IList<IdentityPair> identities, 
       IList<Pair<string>> copiedColumns)
       : base(sourceTablePath, identities)
     {
-      ArgumentNullException.ThrowIfNull(copiedColumns);
-      CopiedColumns = new ReadOnlyCollection<Pair<string>>(copiedColumns);
+      CopiedColumns = new ReadOnlyCollection<Pair<string>>(copiedColumns ?? throw new ArgumentNullException(nameof(copiedColumns)));
     }
-
-    
   }
 }

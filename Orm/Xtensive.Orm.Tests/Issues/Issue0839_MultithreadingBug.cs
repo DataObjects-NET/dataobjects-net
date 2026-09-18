@@ -15,7 +15,6 @@ using Xtensive.Core;
 
 namespace Xtensive.Orm.Tests.Issues.Issue0839_MultithreadingBug_Model
 {
-  [Serializable]
   [HierarchyRoot]
   [Index("NextRun")]
   public class BaseEntity : Entity
@@ -27,7 +26,6 @@ namespace Xtensive.Orm.Tests.Issues.Issue0839_MultithreadingBug_Model
     public DateTime NextRun { get; set; }
   }
 
-  [Serializable]
   [Index("Text", Unique = true)]
   public class UniqueTextEntity : BaseEntity
   {

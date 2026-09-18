@@ -15,7 +15,6 @@ using Xtensive.Orm.Model;
 
 namespace Xtensive.Orm.Internals.Prefetch
 {
-  [Serializable]
   internal sealed class ReferencedEntityContainer : EntityContainer
   {
     private readonly Key ownerKey;
@@ -23,22 +22,21 @@ namespace Xtensive.Orm.Internals.Prefetch
     private readonly PrefetchFieldDescriptor referencingFieldDescriptor;
     private bool needToNotifyOwner;
 
-    public FieldInfo ReferencingField {get { return referencingFieldDescriptor.Field; } }
+    public FieldInfo ReferencingField => referencingFieldDescriptor.Field;
 
     public override EntityGroupTask GetTask()
     {
-      if (Key!=null && Task==null)
+      if (Key is not null && Task is null)
         return null;
 
-      if (Task!=null)
+      if (Task is not null)
         return Task;
 
-      EntityState ownerState;
-      var isStateCached = Manager.Owner.LookupState(ownerKey, out ownerState);
+      var isStateCached = Manager.Owner.LookupState(ownerKey, out var ownerState);
       if (isStateCached) {
-        if (ownerState == null)
+        if (ownerState is null)
           return null;
-        if (ownerState.Tuple == null)
+        if (ownerState.Tuple is null)
           return null;
         if (ownerState.PersistenceState == PersistenceState.Removed)
           return null;
@@ -51,7 +49,7 @@ namespace Xtensive.Orm.Internals.Prefetch
       if (!isOwnerTypeKnown && !ownerState.Key.TypeReference.Type.Fields.Contains(ReferencingField))
         return null;
       var foreignKeyTuple = ExtractForeignKeyTuple(ownerState);
-      if (foreignKeyTuple == null)
+      if (foreignKeyTuple is null)
         return null;
       var session = Manager.Owner.Session;
       Key = Key.Create(session.Domain, session.StorageNodeId, Type, TypeReferenceAccuracy.BaseType, foreignKeyTuple);
@@ -60,7 +58,7 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     public void NotifyOwnerAboutKeyWithUnknownType()
     {
-      if (needToNotifyOwner && Task != null)
+      if (needToNotifyOwner && Task is not null)
         referencingFieldDescriptor.NotifySubscriber(ownerKey, Key);
     }
 
@@ -69,7 +67,7 @@ namespace Xtensive.Orm.Internals.Prefetch
       var association = ReferencingField.Associations[^1];
       var result = association.ExtractForeignKey(ownerState.Type, ownerState.Tuple);
       var tupleState = result.GetFieldStateMap(TupleFieldState.Null);
-      for (int i = 0; i < result.Count; i++) {
+      for (int i = 0, count = result.Count; i < count; i++) {
         if (!result.GetFieldState(i).IsAvailable())
           if (isOwnerTypeKnown)
             throw Exceptions.InternalError(Strings.ExForeignKeyValueHaveNotBeenLoaded, OrmLog.Instance);
@@ -83,9 +81,8 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     private EntityGroupTask CreateTask()
     {
-      TypeInfo exactReferencedType;
-      var hasExactTypeBeenGotten = PrefetchHelper.TryGetExactKeyType(Key, Manager, out exactReferencedType);
-      if (hasExactTypeBeenGotten!=null) {
+      var hasExactTypeBeenGotten = PrefetchHelper.TryGetExactKeyType(Key, Manager, out var exactReferencedType);
+      if (hasExactTypeBeenGotten is not null) {
         if (hasExactTypeBeenGotten.Value) {
           Type = exactReferencedType;
           //FillColumnCollection();
@@ -107,9 +104,8 @@ namespace Xtensive.Orm.Internals.Prefetch
     {
       var descriptors = PrefetchHelper
         .GetCachedDescriptorsForFieldsLoadedByDefault(Manager.Owner.Session.Domain, Type);
-      SortedDictionary<int, ColumnInfo> columns;
-      List<int> columnsToBeLoaded;
-      Manager.GetCachedColumnIndexes(Type, descriptors, out columns, out columnsToBeLoaded);
+
+      Manager.GetCachedColumnIndexes(Type, descriptors, out var columns, out var columnsToBeLoaded);
       SetColumnCollections(columns, columnsToBeLoaded);
     }
 

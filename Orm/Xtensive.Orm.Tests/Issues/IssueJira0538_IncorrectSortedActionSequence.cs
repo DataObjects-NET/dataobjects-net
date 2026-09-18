@@ -23,8 +23,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0538_IncorrectSortedActionSequenceM
     {
     }
   }
-  
-  [Serializable]
+
   public class ExternalDataField : DataFieldBase
   {
     [Field(Nullable = false)]
@@ -69,7 +68,6 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0538_IncorrectSortedActionSequenceM
     }
 
     [HierarchyRoot]
-    [Serializable]
     public class TpVisibleEnable : TablePartBase<FormElement>
     {
       public TpVisibleEnable(Guid id, FormElement owner)

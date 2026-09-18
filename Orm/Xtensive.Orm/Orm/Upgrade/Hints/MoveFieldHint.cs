@@ -5,10 +5,8 @@
 // Created:    2009.10.14
 
 using System;
-using System.Diagnostics;
 using System.Linq.Expressions;
 using Xtensive.Core;
-
 using Xtensive.Reflection;
 
 namespace Xtensive.Orm.Upgrade
@@ -16,7 +14,6 @@ namespace Xtensive.Orm.Upgrade
   /// <summary>
   /// Move field hint.
   /// </summary>
-  [Serializable]
   public class MoveFieldHint : UpgradeHint,
     IEquatable<MoveFieldHint>
   {

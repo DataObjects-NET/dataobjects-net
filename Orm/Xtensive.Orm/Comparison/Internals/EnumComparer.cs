@@ -1,4 +1,4 @@
-// Copyright (C) 2008-2021 Xtensive LLC.
+// Copyright (C) 2008-2026 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alex Yakunin
@@ -6,15 +6,11 @@
 
 using System;
 using System.Collections.Generic;
-using System.Runtime.Serialization;
-using System.Security;
 using Xtensive.Core;
-
 using Xtensive.Reflection;
 
 namespace Xtensive.Comparison
 {
-  [Serializable]
   internal sealed class EnumComparer<TEnum, TSystem> : WrappingComparer<TEnum, TSystem>,
     ISystemComparer<TEnum>
     where TEnum: struct
@@ -99,18 +95,6 @@ namespace Xtensive.Comparison
       maxIndex = valueCount - 1;
       ValueRangeInfo = new ValueRangeInfo<TEnum>(
         true, values[0], 
-        true, values[valueCount - 1],
-        false, default(TEnum));
-    }
-
-    public EnumComparer(SerializationInfo info, StreamingContext context)
-      : base(info, context)
-    {
-      valueToIndex = new Dictionary<TEnum, int>();
-      values = BuildValues(out var valueCount);
-      maxIndex = valueCount - 1;
-      ValueRangeInfo = new ValueRangeInfo<TEnum>(
-        true, values[0],
         true, values[valueCount - 1],
         false, default(TEnum));
     }

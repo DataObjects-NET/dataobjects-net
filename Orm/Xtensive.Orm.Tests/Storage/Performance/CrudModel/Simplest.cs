@@ -10,7 +10,6 @@ using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Tests.Storage.Performance.CrudModel
 {
-  [Serializable]
   [HierarchyRoot]
   [Index("Value")]
   public class Simplest : Entity

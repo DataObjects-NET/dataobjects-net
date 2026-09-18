@@ -6,13 +6,11 @@
 
 using System;
 using NUnit.Framework;
-using Xtensive.Core;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Model.SelfContainedStructureModel;
 
 namespace Xtensive.Orm.Tests.Model.SelfContainedStructureModel
 {
-  [Serializable]
   public class SelfContained : Structure
   {
     [Field]
@@ -22,24 +20,27 @@ namespace Xtensive.Orm.Tests.Model.SelfContainedStructureModel
 
 namespace Xtensive.Orm.Tests.Model
 {
-  public class SelfContainedStructureTest : AutoBuildTest
+  public class SelfContainedStructureTest
   {
-    protected override DomainConfiguration BuildConfiguration()
+    [Test]
+    public void DomainBuildTest()
     {
-      var config = base.BuildConfiguration();
-      config.Types.RegisterCaching(typeof (SelfContained).Assembly, typeof (SelfContained).Namespace);
-      return config;
+      var configuration = BuildConfiguration();
+      _ = Assert.Throws<DomainBuilderException>(() => Domain.Build(configuration).Dispose());
     }
 
-    protected override Domain BuildDomain(DomainConfiguration configuration)
+    [Test]
+    public void DomainBuildAsyncTest()
     {
-      Domain domain = null;
-      try {
-        domain = Domain.Build(configuration);
-      }
-      catch (DomainBuilderException) {
-      }
-      return domain;
+      var configuration = BuildConfiguration();
+      _ = Assert.ThrowsAsync<DomainBuilderException>(async () => (await Domain.BuildAsync(configuration)).Dispose());
+    }
+
+    private static DomainConfiguration BuildConfiguration()
+    {
+      var config = DomainConfigurationFactory.Create();
+      config.Types.Register(typeof(SelfContained));
+      return config;
     }
   }
 }

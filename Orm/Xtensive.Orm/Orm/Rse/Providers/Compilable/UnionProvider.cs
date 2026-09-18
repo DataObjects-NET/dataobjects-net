@@ -16,7 +16,6 @@ namespace Xtensive.Orm.Rse.Providers
   /// Produces union between <see cref="BinaryProvider.Left"/> and 
   /// <see cref="BinaryProvider.Right"/> sources.
   /// </summary>
-  [Serializable]
   public sealed class UnionProvider : BinaryProvider
   {
     #region Header build

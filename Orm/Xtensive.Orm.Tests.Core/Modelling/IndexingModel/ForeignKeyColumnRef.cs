@@ -12,7 +12,6 @@ namespace Xtensive.Orm.Tests.Core.Modelling.IndexingModel
   /// <summary>
   /// References to foreign key column.
   /// </summary>
-  [Serializable]
   public sealed class ForeignKeyColumnRef : Ref<ColumnInfo, ForeignKeyInfo>
   {
     protected override Nesting CreateNesting()

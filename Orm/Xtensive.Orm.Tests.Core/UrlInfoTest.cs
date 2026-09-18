@@ -4,6 +4,9 @@
 // Created by: Alexander Ilyin
 // Created:    2007.07.18
 
+using System.Linq;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Json;
 using NUnit.Framework;
 
 namespace Xtensive.Orm.Tests.Core
@@ -11,13 +14,17 @@ namespace Xtensive.Orm.Tests.Core
   [TestFixture]
   public class UrlInfoTest
   {
+    private const string TestUrl1 = "tcp://user:password@someHost:1000/someUrl/someUrl?someParameter=someValue&someParameter2=someValue2";
+    private const string TestUrl2 = "tcp://user:password@someHost:1000/someUrl/someUrl?someParameter2=someValue2&someParameter=someValue";
+    private const string TestUrl3 = "tcp://user:password@someHost:1000/someUrl/someUrl";
+
     [Test]
     public void CombinedTest()
     {
-      UrlInfo a1 = UrlInfo.Parse("tcp://user:password@someHost:1000/someUrl/someUrl?someParameter=someValue&someParameter2=someValue2");
-      UrlInfo a2 = UrlInfo.Parse("tcp://user:password@someHost:1000/someUrl/someUrl?someParameter=someValue&someParameter2=someValue2");
-      UrlInfo aX = UrlInfo.Parse("tcp://user:password@someHost:1000/someUrl/someUrl?someParameter2=someValue2&someParameter=someValue");
-      UrlInfo b  = UrlInfo.Parse("tcp://user:password@someHost:1000/someUrl/someUrl");
+      UrlInfo a1 = UrlInfo.Parse(TestUrl1);
+      UrlInfo a2 = UrlInfo.Parse(TestUrl1);
+      UrlInfo aX = UrlInfo.Parse(TestUrl2);
+      UrlInfo b  = UrlInfo.Parse(TestUrl3);
 
       Assert.That(a1.GetHashCode()==a2.GetHashCode(), Is.True);
       Assert.That(a1.GetHashCode()!=aX.GetHashCode(), Is.True);

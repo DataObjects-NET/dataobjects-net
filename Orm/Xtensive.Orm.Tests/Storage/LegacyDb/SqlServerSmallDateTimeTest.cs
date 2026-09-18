@@ -12,7 +12,6 @@ using Xtensive.Orm.Tests.Storage.LegacyDb.CrazyColumns2005TestModel;
 
 namespace Xtensive.Orm.Tests.Storage.LegacyDb.CrazyColumns2005TestModel
 {
-  [Serializable]
   [HierarchyRoot]
   public class Crazy : Entity
   {

@@ -11,7 +11,6 @@ using Xtensive.Orm.Tests.Issues.Issue0188_ModelBuilderError_Model;
 
 namespace Xtensive.Orm.Tests.Issues.Issue0188_ModelBuilderError_Model
 {
-  [Serializable]
   [HierarchyRoot]
   public class A : Entity
   {
@@ -22,7 +21,6 @@ namespace Xtensive.Orm.Tests.Issues.Issue0188_ModelBuilderError_Model
     public B B { get; set; }
   }
 
-  [Serializable]
   public class B : A
   {
   }
@@ -30,27 +28,28 @@ namespace Xtensive.Orm.Tests.Issues.Issue0188_ModelBuilderError_Model
 
 namespace Xtensive.Orm.Tests.Issues
 {
-  public class Issue0188_ModelBuilderError : AutoBuildTest
+  public class Issue0188_ModelBuilderError
   {
-    protected override DomainConfiguration BuildConfiguration()
+    [Test]
+    public void DomainBuildTest()
     {
-      var config = base.BuildConfiguration();
-      config.Types.RegisterCaching(typeof (A).Assembly, typeof (A).Namespace);
-      return config;
+      var configuration = BuildConfiguration();
+      Assert.DoesNotThrow(() => Domain.Build(configuration).Dispose());
     }
 
     [Test]
-    public void MainTest()
+    public void DomainBuildAsyncTest()
     {
-      using (var session = Domain.OpenSession()) {
-        using (var t = session.OpenTransaction()) {
-          
+      var configuration = BuildConfiguration();
+      Assert.DoesNotThrowAsync(async () => (await Domain.BuildAsync(configuration)).Dispose());
+    }
 
-
-
-          // Rollback
-        }
-      }
+    private static DomainConfiguration BuildConfiguration()
+    {
+      var config = DomainConfigurationFactory.Create();
+      config.Types.Register(typeof (A));
+      config.Types.Register(typeof (B));
+      return config;
     }
   }
 }

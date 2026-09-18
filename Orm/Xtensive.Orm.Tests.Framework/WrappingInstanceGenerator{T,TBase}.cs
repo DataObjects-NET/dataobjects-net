@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2008-2026 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alex Yakunin
 // Created:    2008.01.21
 
@@ -13,25 +13,16 @@ namespace Xtensive.Orm.Tests
   /// </summary>
   /// <typeparam name="T">The type to generate random instances for.</typeparam>
   /// <typeparam name="TBase">Base (wrapped) type.</typeparam>
-  [Serializable]
-  public abstract class WrappingInstanceGenerator<T, TBase> : InstanceGeneratorBase<T>
+  /// <remarks>
+  /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+  /// </remarks>
+  /// <param name="provider">Instance generator provider this generator is bound to.</param>
+  public abstract class WrappingInstanceGenerator<T, TBase>(IInstanceGeneratorProvider provider)
+    : InstanceGeneratorBase<T>(provider)
   {
     /// <summary>
     /// Generator for base (wrapped) type.
     /// </summary>
-    protected readonly IInstanceGenerator<TBase> BaseGenerator;
-
-
-    // Constructors
-
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
-    /// </summary>
-    /// <param name="provider">Instance generator provider this generator is bound to.</param>
-    public WrappingInstanceGenerator(IInstanceGeneratorProvider provider)
-      : base(provider)
-    {
-      BaseGenerator = provider.GetInstanceGenerator<TBase>();
-    }
+    protected readonly IInstanceGenerator<TBase> BaseGenerator = provider.GetInstanceGenerator<TBase>();
   }
 }

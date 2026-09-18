@@ -8,11 +8,10 @@ using Xtensive.Sql.Dml;
 
 namespace Xtensive.Sql.Ddl
 {
-  [Serializable]
   public class SqlSetDefault : SqlAction
   {
-    public TableColumn Column { get; private set; }
-    public SqlExpression DefaultValue { get; private set; }
+    public TableColumn Column { get; }
+    public SqlExpression DefaultValue { get; }
 
     internal override SqlSetDefault Clone(SqlNodeCloneContext context) =>
       context.GetOrAdd(this, static (t, c) =>

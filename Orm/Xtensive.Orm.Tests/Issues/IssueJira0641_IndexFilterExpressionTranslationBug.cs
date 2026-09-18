@@ -72,10 +72,7 @@ namespace Xtensive.Orm.Tests.Issues
       configuration.Types.RegisterCaching(typeof (BandwidthCall).Assembly, typeof (BandwidthCall).Namespace);
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
 
-      Domain domain = null;
-      Assert.DoesNotThrow(() => domain = Domain.Build(configuration));
-      if (domain!=null)
-        domain.Dispose();
+      Assert.DoesNotThrow(() => Domain.Build(configuration).Dispose());
     }
 
     [Test]

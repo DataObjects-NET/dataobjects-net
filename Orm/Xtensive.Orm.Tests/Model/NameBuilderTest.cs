@@ -97,7 +97,7 @@ namespace Xtensive.Orm.Tests.Model.NameBuilderTestModel
 
 namespace Xtensive.Orm.Tests.Model
 {
-  [TestFixture]
+  [TestFixture, Category("Model")]
   public class NameBuilderTest : AutoBuildTest
   {
     protected override DomainConfiguration BuildConfiguration()

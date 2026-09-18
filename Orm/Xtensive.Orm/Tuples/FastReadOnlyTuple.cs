@@ -14,7 +14,6 @@ namespace Xtensive.Tuples
   /// <summary>
   /// Fast read-only <see cref="Tuple"/> implementation.
   /// </summary>
-  [Serializable]
   public sealed class FastReadOnlyTuple : Tuple
   {
     private readonly TupleDescriptor descriptor;

@@ -18,7 +18,6 @@ namespace Xtensive.Orm.Configuration
   /// <summary>
   /// The configuration of the <see cref="Domain"/>.
   /// </summary>
-  [Serializable]
   public class DomainConfiguration : ConfigurationBase
   {
     #region Defaults

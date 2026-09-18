@@ -7,50 +7,37 @@ using Xtensive.Core;
 
 namespace Xtensive.Sql.Dml
 {
-  [Serializable]
   public class SqlVariable : SqlExpression, ISqlCursorFetchTarget
   {
-    private string name;
-    private readonly SqlValueType type;
-
     /// <summary>
     /// Gets the name.
     /// </summary>
     /// <value>The name.</value>
-    public string Name 
-    {
-      get { return name;}
-    }
+    public string Name { get; private set; }
 
     /// <summary>
     /// Gets the type.
     /// </summary>
     /// <value>The type.</value>
-    public SqlValueType Type 
-    {
-      get { return type; }
-    }
+    public SqlValueType Type { get; }
 
-    public SqlDeclareVariable Declare()
-    {
-      return new SqlDeclareVariable(this);
-    }
+    public SqlDeclareVariable Declare() => new SqlDeclareVariable(this);
 
     public override void ReplaceWith(SqlExpression expression)
     {
       var replacingExpression = ArgumentValidator.EnsureArgumentIs<SqlVariable>(expression);
-      name = replacingExpression.Name;
+      Name = replacingExpression.Name;
     }
 
     internal override SqlVariable Clone(SqlNodeCloneContext context) =>
       context.GetOrAdd(this, static (t, c) =>
-        new SqlVariable(t.name, t.type));
+        new SqlVariable(t.Name, t.Type));
 
     internal SqlVariable(string name, SqlValueType type)
       : base(SqlNodeType.Variable)
     {
-      this.name = name;
-      this.type = type;
+      Name = name;
+      Type = type;
     }
 
     public override void AcceptVisitor(ISqlVisitor visitor)

@@ -7,26 +7,17 @@ using Xtensive.Sql.Model;
 
 namespace Xtensive.Sql.Ddl
 {
-  [Serializable]
   public class SqlAlterSequence : SqlStatement, ISqlCompileUnit
   {
-    private readonly Sequence sequence;
-    private readonly SequenceDescriptor sequenceDescriptor;
-    private SqlAlterIdentityInfoOptions infoOption = SqlAlterIdentityInfoOptions.All;
+    public Sequence Sequence { get; }
 
-    public Sequence Sequence => sequence;
+    public SequenceDescriptor SequenceDescriptor { get; }
 
-    public SequenceDescriptor SequenceDescriptor => sequenceDescriptor;
-
-    public SqlAlterIdentityInfoOptions InfoOption
-    {
-      get => infoOption;
-      set => infoOption = value;
-    }
+    public SqlAlterIdentityInfoOptions InfoOption { get; }
 
     internal override SqlAlterSequence Clone(SqlNodeCloneContext context) =>
       context.GetOrAdd(this, static (t, c) =>
-        new SqlAlterSequence(t.sequence, t.sequenceDescriptor.Clone(), t.infoOption));
+        new SqlAlterSequence(t.Sequence, (SequenceDescriptor)t.SequenceDescriptor.Clone(), t.InfoOption));
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {
@@ -36,9 +27,9 @@ namespace Xtensive.Sql.Ddl
     internal SqlAlterSequence(Sequence sequence, SequenceDescriptor sequenceDescriptor, SqlAlterIdentityInfoOptions infoOption)
       : base(SqlNodeType.Alter)
     {
-      this.sequence = sequence;
-      this.sequenceDescriptor = sequenceDescriptor;
-      this.infoOption = infoOption;
+      Sequence = sequence;
+      SequenceDescriptor = sequenceDescriptor;
+      InfoOption = infoOption;
     }
   }
 }

@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2003-2010 Xtensive LLC.
+// Copyright (C) 2003-2010 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Roman Churakov
@@ -9,7 +9,6 @@ using System.Globalization;
 
 namespace Xtensive.Conversion
 {
-  [Serializable]
   internal class UInt16AdvancedConverter :
     StrictAdvancedConverterBase<ushort>,
     IAdvancedConverter<ushort, byte>,
@@ -51,40 +50,19 @@ namespace Xtensive.Conversion
       }
     }
 
-    int IAdvancedConverter<ushort, int>.Convert(ushort value)
-    {
-      return value;
-    }
+    int IAdvancedConverter<ushort, int>.Convert(ushort value) => value;
 
-    uint IAdvancedConverter<ushort, uint>.Convert(ushort value)
-    {
-      return value;
-    }
+    uint IAdvancedConverter<ushort, uint>.Convert(ushort value) => value;
 
-    long IAdvancedConverter<ushort, long>.Convert(ushort value)
-    {
-      return value;
-    }
+    long IAdvancedConverter<ushort, long>.Convert(ushort value) => value;
 
-    ulong IAdvancedConverter<ushort, ulong>.Convert(ushort value)
-    {
-      return value;
-    }
+    ulong IAdvancedConverter<ushort, ulong>.Convert(ushort value) => value;
 
-    float IAdvancedConverter<ushort, float>.Convert(ushort value)
-    {
-      return System.Convert.ToSingle(value);
-    }
+    float IAdvancedConverter<ushort, float>.Convert(ushort value) => System.Convert.ToSingle(value);
 
-    double IAdvancedConverter<ushort, double>.Convert(ushort value)
-    {
-      return System.Convert.ToDouble(value);
-    }
+    double IAdvancedConverter<ushort, double>.Convert(ushort value) => System.Convert.ToDouble(value);
 
-    decimal IAdvancedConverter<ushort, decimal>.Convert(ushort value)
-    {
-      return System.Convert.ToDecimal(value);
-    }
+    decimal IAdvancedConverter<ushort, decimal>.Convert(ushort value) => System.Convert.ToDecimal(value);
 
     DateTime IAdvancedConverter<ushort, DateTime>.Convert(ushort value)
     {
@@ -100,15 +78,9 @@ namespace Xtensive.Conversion
       }
     }
 
-    string IAdvancedConverter<ushort, string>.Convert(ushort value)
-    {
-      return System.Convert.ToString(value, CultureInfo.InvariantCulture);
-    }
+    string IAdvancedConverter<ushort, string>.Convert(ushort value) => System.Convert.ToString(value, CultureInfo.InvariantCulture);
 
-    char IAdvancedConverter<ushort, char>.Convert(ushort value)
-    {
-      return System.Convert.ToChar(value);
-    }
+    char IAdvancedConverter<ushort, char>.Convert(ushort value) => System.Convert.ToChar(value);
 
 
     // Constructors

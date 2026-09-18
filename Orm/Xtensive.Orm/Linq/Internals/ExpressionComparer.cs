@@ -35,85 +35,85 @@ namespace Xtensive.Linq
     {
       if (ReferenceEquals(x, y))
         return true;
-      if (x==null || y==null)
+      if (x == null || y == null)
         return false;
-      if (x.NodeType!=y.NodeType)
+      if (x.NodeType != y.NodeType)
         return false;
-      if (x.Type!=y.Type)
+      if (x.Type != y.Type)
         return false;
 
       switch (x.NodeType) {
-      case ExpressionType.Negate:
-      case ExpressionType.NegateChecked:
-      case ExpressionType.Not:
-      case ExpressionType.Convert:
-      case ExpressionType.ConvertChecked:
-      case ExpressionType.ArrayLength:
-      case ExpressionType.Quote:
-      case ExpressionType.TypeAs:
-      case ExpressionType.Decrement:
-      case ExpressionType.Increment:
-      case ExpressionType.IsFalse:
-      case ExpressionType.IsTrue:
-      case ExpressionType.OnesComplement:
-        return VisitUnary((UnaryExpression) x, (UnaryExpression) y);
-      case ExpressionType.Add:
-      case ExpressionType.AddChecked:
-      case ExpressionType.Subtract:
-      case ExpressionType.SubtractChecked:
-      case ExpressionType.Multiply:
-      case ExpressionType.MultiplyChecked:
-      case ExpressionType.Divide:
-      case ExpressionType.Modulo:
-      case ExpressionType.And:
-      case ExpressionType.AndAlso:
-      case ExpressionType.Or:
-      case ExpressionType.OrElse:
-      case ExpressionType.LessThan:
-      case ExpressionType.LessThanOrEqual:
-      case ExpressionType.GreaterThan:
-      case ExpressionType.GreaterThanOrEqual:
-      case ExpressionType.Equal:
-      case ExpressionType.NotEqual:
-      case ExpressionType.Coalesce:
-      case ExpressionType.ArrayIndex:
-      case ExpressionType.RightShift:
-      case ExpressionType.LeftShift:
-      case ExpressionType.ExclusiveOr:
-      case ExpressionType.Power:
-      case ExpressionType.Assign:
-        return VisitBinary((BinaryExpression) x, (BinaryExpression) y);
-      case ExpressionType.TypeIs:
-        return VisitTypeIs((TypeBinaryExpression) x, (TypeBinaryExpression) y);
-      case ExpressionType.TypeEqual:
-        return VisitTypeEqual((TypeBinaryExpression) x, (TypeBinaryExpression) y);
-      case ExpressionType.Conditional:
-        return VisitConditional((ConditionalExpression) x, (ConditionalExpression) y);
-      case ExpressionType.Constant:
-        return VisitConstant((ConstantExpression) x, (ConstantExpression) y);
-      case ExpressionType.Default:
-        return true; // types and references are already compared
-      case ExpressionType.Parameter:
-        return VisitParameter((ParameterExpression) x, (ParameterExpression) y);
-      case ExpressionType.MemberAccess:
-        return VisitMemberAccess((MemberExpression) x, (MemberExpression) y);
-      case ExpressionType.Call:
-        return VisitMethodCall((MethodCallExpression) x, (MethodCallExpression) y);
-      case ExpressionType.Lambda:
-        return VisitLambda((LambdaExpression) x, (LambdaExpression) y);
-      case ExpressionType.New:
-        return VisitNew((NewExpression) x, (NewExpression) y);
-      case ExpressionType.NewArrayInit:
-      case ExpressionType.NewArrayBounds:
-        return VisitNewArray((NewArrayExpression) x, (NewArrayExpression) y);
-      case ExpressionType.Invoke:
-        return VisitInvocation((InvocationExpression) x, (InvocationExpression) y);
-      case ExpressionType.MemberInit:
-        return VisitMemberInit((MemberInitExpression) x, (MemberInitExpression) y);
-      case ExpressionType.ListInit:
-        return VisitListInit((ListInitExpression) x, (ListInitExpression) y);
-      default:
-        return x.Equals(y);
+        case ExpressionType.Negate:
+        case ExpressionType.NegateChecked:
+        case ExpressionType.Not:
+        case ExpressionType.Convert:
+        case ExpressionType.ConvertChecked:
+        case ExpressionType.ArrayLength:
+        case ExpressionType.Quote:
+        case ExpressionType.TypeAs:
+        case ExpressionType.Decrement:
+        case ExpressionType.Increment:
+        case ExpressionType.IsFalse:
+        case ExpressionType.IsTrue:
+        case ExpressionType.OnesComplement:
+          return VisitUnary((UnaryExpression) x, (UnaryExpression) y);
+        case ExpressionType.Add:
+        case ExpressionType.AddChecked:
+        case ExpressionType.Subtract:
+        case ExpressionType.SubtractChecked:
+        case ExpressionType.Multiply:
+        case ExpressionType.MultiplyChecked:
+        case ExpressionType.Divide:
+        case ExpressionType.Modulo:
+        case ExpressionType.And:
+        case ExpressionType.AndAlso:
+        case ExpressionType.Or:
+        case ExpressionType.OrElse:
+        case ExpressionType.LessThan:
+        case ExpressionType.LessThanOrEqual:
+        case ExpressionType.GreaterThan:
+        case ExpressionType.GreaterThanOrEqual:
+        case ExpressionType.Equal:
+        case ExpressionType.NotEqual:
+        case ExpressionType.Coalesce:
+        case ExpressionType.ArrayIndex:
+        case ExpressionType.RightShift:
+        case ExpressionType.LeftShift:
+        case ExpressionType.ExclusiveOr:
+        case ExpressionType.Power:
+        case ExpressionType.Assign:
+          return VisitBinary((BinaryExpression) x, (BinaryExpression) y);
+        case ExpressionType.TypeIs:
+          return VisitTypeIs((TypeBinaryExpression) x, (TypeBinaryExpression) y);
+        case ExpressionType.TypeEqual:
+          return VisitTypeEqual((TypeBinaryExpression) x, (TypeBinaryExpression) y);
+        case ExpressionType.Conditional:
+          return VisitConditional((ConditionalExpression) x, (ConditionalExpression) y);
+        case ExpressionType.Constant:
+          return VisitConstant((ConstantExpression) x, (ConstantExpression) y);
+        case ExpressionType.Default:
+          return VisitDefault((DefaultExpression) x, (DefaultExpression) y);
+        case ExpressionType.Parameter:
+          return VisitParameter((ParameterExpression) x, (ParameterExpression) y);
+        case ExpressionType.MemberAccess:
+          return VisitMemberAccess((MemberExpression) x, (MemberExpression) y);
+        case ExpressionType.Call:
+          return VisitMethodCall((MethodCallExpression) x, (MethodCallExpression) y);
+        case ExpressionType.Lambda:
+          return VisitLambda((LambdaExpression) x, (LambdaExpression) y);
+        case ExpressionType.New:
+          return VisitNew((NewExpression) x, (NewExpression) y);
+        case ExpressionType.NewArrayInit:
+        case ExpressionType.NewArrayBounds:
+          return VisitNewArray((NewArrayExpression) x, (NewArrayExpression) y);
+        case ExpressionType.Invoke:
+          return VisitInvocation((InvocationExpression) x, (InvocationExpression) y);
+        case ExpressionType.MemberInit:
+          return VisitMemberInit((MemberInitExpression) x, (MemberInitExpression) y);
+        case ExpressionType.ListInit:
+          return VisitListInit((ListInitExpression) x, (ListInitExpression) y);
+        default:
+          return x.Equals(y);
       }
     }
 
@@ -210,7 +210,9 @@ namespace Xtensive.Linq
     {
       leftParameters.AddRange(x.Parameters);
       rightParameters.AddRange(y.Parameters);
-      return CompareExpressionSequences(x.Parameters, y.Parameters) && Visit(x.Body, y.Body);
+      var areParametersEqual = CompareExpressionSequences(x.Parameters, y.Parameters);
+      var areBodiesEqual = Visit(x.Body, y.Body);
+      return areParametersEqual && areBodiesEqual;
     }
 
     private bool VisitMethodCall(MethodCallExpression x, MethodCallExpression y)
@@ -235,6 +237,15 @@ namespace Xtensive.Linq
       if (x.Value == null || y.Value == null)
         return false;
       return x.Value.Equals(y.Value);
+    }
+
+    private bool VisitDefault(DefaultExpression x, DefaultExpression y)
+    {
+      if (ReferenceEquals(x, y))
+        return true;
+      if (ReferenceEquals(x.Type, y.Type))
+        return true;
+      return false;
     }
 
     private bool VisitConditional(ConditionalExpression x, ConditionalExpression y)

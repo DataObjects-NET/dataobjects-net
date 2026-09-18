@@ -7,33 +7,20 @@ using Xtensive.Sql.Model;
 
 namespace Xtensive.Sql.Ddl
 {
-  [Serializable]
   public class SqlAlterPartitionFunction: SqlStatement,
     ISqlCompileUnit
   {
-    private PartitionFunction partitionFunction;
-    private string boundary;
     private SqlAlterPartitionFunctionOption option;
 
-    public PartitionFunction PartitionFunction
-    {
-      get { return partitionFunction; }
-    }
+    public PartitionFunction PartitionFunction { get; }
 
-    public string Boundary
-    {
-      get { return boundary; }
-    }
+    public string Boundary { get; }
 
-    public SqlAlterPartitionFunctionOption Option
-    {
-      get { return option; }
-      set { option = value; }
-    }
+    public SqlAlterPartitionFunctionOption Option { get; }
 
     internal override SqlAlterPartitionFunction Clone(SqlNodeCloneContext context) =>
       context.GetOrAdd(this, static (t, c) =>
-        new SqlAlterPartitionFunction(t.partitionFunction, t.boundary, t.option));
+        new SqlAlterPartitionFunction(t.PartitionFunction, t.Boundary, t.option));
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {
@@ -44,8 +31,8 @@ namespace Xtensive.Sql.Ddl
       PartitionFunction partitionFunction, string boundary, SqlAlterPartitionFunctionOption option)
       : base(SqlNodeType.Alter)
     {
-      this.partitionFunction = partitionFunction;
-      this.boundary = boundary;
+      PartitionFunction = partitionFunction;
+      Boundary = boundary;
       this.option = option;
     }
   }

@@ -13,7 +13,6 @@ namespace Xtensive.Orm.Upgrade.Model
   /// <summary>
   /// The collection of <see cref="StorageSequenceInfo"/> instances.
   /// </summary>
-  [Serializable]
   public sealed class SequenceInfoCollection : NodeCollectionBase<StorageSequenceInfo, StorageModel>,
     IUnorderedNodeCollection
   {

@@ -11,7 +11,6 @@ namespace Xtensive.Conversion
   /// <summary>
   /// Base class for any wrapping <see cref="IAdvancedConverter{TFrom,TTo}"/>s.
   /// </summary>
-  [Serializable]
   public abstract class WrappingAdvancedConverter<TFrom, TFromBase, TTo, TToBase> : AdvancedConverterBase,
     IAdvancedConverter<TFrom, TTo>
   {
@@ -20,6 +19,11 @@ namespace Xtensive.Conversion
     /// </summary>
     protected AdvancedConverterStruct<TFromBase, TToBase> BaseConverter;
 
+    /// <summary>
+    /// Gets <see langword="true"/> if converter is rough, otherwise gets <see langword="false"/>.
+    /// </summary>
+    public virtual bool IsRough => BaseConverter.IsRough;
+
     ///<summary>
     /// Converts specified value of <typeparamref name="TFrom"/> type
     /// to <typeparamref name="TTo"/> type.
@@ -27,14 +31,6 @@ namespace Xtensive.Conversion
     ///<param name="value">The value to convert.</param>
     ///<returns>Converted value.</returns>
     public abstract TTo Convert(TFrom value);
-
-    /// <summary>
-    /// Gets <see langword="true"/> if converter is rough, otherwise gets <see langword="false"/>.
-    /// </summary>
-    public virtual bool IsRough
-    {
-      get { return BaseConverter.IsRough; }
-    }
 
 
     // Constructors

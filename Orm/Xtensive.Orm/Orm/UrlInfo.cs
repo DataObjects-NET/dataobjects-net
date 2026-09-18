@@ -7,10 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Diagnostics;
-using System.Runtime.Serialization;
-using System.Security;
 using System.Text;
 using System.Text.RegularExpressions;
 using Xtensive.Core;
@@ -67,13 +64,10 @@ namespace Xtensive.Orm
   /// </pre>
   /// </para>
   /// </remarks>
-  [Serializable]
   [DebuggerDisplay("{url}")]
-  [TypeConverter(typeof(UrlInfoConverter))]
-  public class UrlInfo : 
+  public class UrlInfo :
     IEquatable<UrlInfo>,
-    IComparable<UrlInfo>,
-    ISerializable
+    IComparable<UrlInfo>
   {
     private static readonly Regex Pattern = new Regex(
           @"^(?'proto'[^:]*[^sS])(?'secure'[sS]?)://" +
@@ -95,6 +89,8 @@ namespace Xtensive.Orm
     private string password = string.Empty;
     private ReadOnlyDictionary<string, string> parameters;
 
+    private bool isReady = false;
+
     #region Properties: Url, Protocol, Host, etc...
 
     /// <summary>
@@ -103,7 +99,7 @@ namespace Xtensive.Orm
     public string Url
     {
       [DebuggerStepThrough]
-      get { return url; }
+      get => url;
     }
 
     /// <summary>
@@ -113,7 +109,12 @@ namespace Xtensive.Orm
     public string Protocol
     {
       [DebuggerStepThrough]
-      get { return protocol; }
+      get {
+        if (!isReady) {
+          Parse(url, this);
+        }
+        return protocol; 
+      }
     }
 
     /// <summary>
@@ -123,7 +124,12 @@ namespace Xtensive.Orm
     public bool Secure
     {
       [DebuggerStepThrough]
-      get => secure;
+      get {
+        if (!isReady) {
+          Parse(url, this);
+        }
+        return secure;
+      }
     }
 
     /// <summary>
@@ -133,7 +139,12 @@ namespace Xtensive.Orm
     public string Host
     {
       [DebuggerStepThrough]
-      get { return host; }
+      get {
+        if (!isReady) {
+          Parse(url, this);
+        }
+        return host;
+      }
     }
 
     /// <summary>
@@ -143,7 +154,12 @@ namespace Xtensive.Orm
     public int Port
     {
       [DebuggerStepThrough]
-      get { return port; }
+      get {
+        if (!isReady) {
+          Parse(url, this);
+        }
+        return port;
+      }
     }
 
     /// <summary>
@@ -153,7 +169,12 @@ namespace Xtensive.Orm
     public string Resource
     {
       [DebuggerStepThrough]
-      get { return resource; }
+      get {
+        if (!isReady) {
+          Parse(url, this);
+        }
+        return resource;
+      }
     }
 
     /// <summary>
@@ -163,7 +184,12 @@ namespace Xtensive.Orm
     public string User
     {
       [DebuggerStepThrough]
-      get { return user; }
+      get {
+        if (!isReady) {
+          Parse(url, this);
+        }
+        return user;
+      }
     }
 
     /// <summary>
@@ -173,7 +199,12 @@ namespace Xtensive.Orm
     public string Password
     {
       [DebuggerStepThrough]
-      get { return password; }
+      get {
+        if (!isReady) {
+          Parse(url, this);
+        }
+        return password;
+      }
     }
 
     /// <summary>
@@ -188,7 +219,12 @@ namespace Xtensive.Orm
     public IReadOnlyDictionary<string, string> Params
     {
       [DebuggerStepThrough]
-      get { return parameters; }
+      get {
+        if (!isReady) {
+          Parse(url, this);
+        }
+        return parameters;
+      }
     }
 
     #endregion
@@ -250,6 +286,7 @@ namespace Xtensive.Orm
         info.secure = !string.IsNullOrEmpty(result.Result("${secure}"));
         info.port = @port;
         info.parameters = new ReadOnlyDictionary<string, string>(@params);
+        info.isReady = true;
       }
       catch (Exception e) {
         if (e is ArgumentException || e is InvalidOperationException)
@@ -264,10 +301,10 @@ namespace Xtensive.Orm
     private class UrlDecoder
     {
       // Fields
-      private int m_bufferSize;
+      private readonly int m_bufferSize;
+      private readonly char[] m_charBuffer;
+      private readonly Encoding m_encoding;
       private byte[] m_byteBuffer;
-      private char[] m_charBuffer;
-      private Encoding m_encoding;
       private int m_numBytes;
       private int m_numChars;
 
@@ -441,35 +478,8 @@ namespace Xtensive.Orm
 
 
     // Constructors
-
     private UrlInfo()
     {
     }
-
-    #region ISerializable members, deserializing constructor
-
-    ///<summary>
-    /// Deserilizing constructor.
-    ///</summary>
-    /// <param name="context">The source (see <see cref="T:System.Runtime.Serialization.StreamingContext"></see>) for this deserialization. </param>
-    /// <param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo"></see> to populate the data from. </param>
-    protected UrlInfo(SerializationInfo info, StreamingContext context)
-    {
-      Parse(info.GetString("Url"), this);
-    }
-
-    /// <summary>
-    /// Populates a <see cref="T:System.Runtime.Serialization.SerializationInfo"></see> with the data needed to serialize the target object.
-    /// </summary>
-    /// <param name="context">The destination (see <see cref="T:System.Runtime.Serialization.StreamingContext"></see>) for this serialization. </param>
-    /// <param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo"></see> to populate with data. </param>
-    /// <exception cref="T:System.Security.SecurityException">The caller does not have the required permission. </exception>
-    [SecurityCritical]
-    public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
-    {
-      info.AddValue("Url", url);
-    }
-
-    #endregion
   }
 }

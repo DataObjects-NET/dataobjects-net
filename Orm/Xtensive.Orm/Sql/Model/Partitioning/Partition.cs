@@ -10,7 +10,6 @@ namespace Xtensive.Sql.Model
   /// <summary>
   /// Represents a single partition object.
   /// </summary>
-  [Serializable]
   public abstract class Partition : Node, IPairedNode<PartitionDescriptor>
   {
     private PartitionDescriptor partitionDescriptor;

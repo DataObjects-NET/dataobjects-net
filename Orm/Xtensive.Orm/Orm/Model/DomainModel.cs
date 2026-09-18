@@ -15,7 +15,6 @@ namespace Xtensive.Orm.Model
   /// <summary>
   /// A mapping model of storage.
   /// </summary>
-  [Serializable]
   public sealed class DomainModel : Node
   {
     /// <summary>

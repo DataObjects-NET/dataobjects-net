@@ -16,7 +16,6 @@ namespace Xtensive.Orm.Upgrade.Model
   /// </summary>
   /// <typeparam name="TTarget">The type of the target node.</typeparam>
   /// <typeparam name="TParent">The type of the parent node.</typeparam>
-  [Serializable]
   public abstract class Ref<TTarget, TParent> : NodeBase<TParent>,
     IUnnamedNode,
     INodeReference
@@ -32,11 +31,8 @@ namespace Xtensive.Orm.Upgrade.Model
     [Property(Priority = 0)]
     public TTarget Value
     {
-      get { return value; }
-      set
-      {
-//        if (this.value!=null)
-//          throw Exceptions.AlreadyInitialized("Value");
+      get => value;
+      set {
         EnsureIsEditable();
         using (var scope = LogPropertyChange("Value", value)) {
           this.value = value;
@@ -47,8 +43,8 @@ namespace Xtensive.Orm.Upgrade.Model
 
     Node INodeReference.Value
     {
-      get { return Value; }
-      set { Value = (TTarget)value; }
+      get => Value;
+      set => Value = (TTarget) value;
     }
 
 

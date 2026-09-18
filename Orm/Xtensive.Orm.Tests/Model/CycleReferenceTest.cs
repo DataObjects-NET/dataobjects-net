@@ -7,10 +7,11 @@
 using System;
 using System.Reflection;
 using NUnit.Framework;
+using Xtensive.Orm.Configuration;
+using Xtensive.Orm.Tests.Model.CycleReferenceTestModel;
 
 namespace Xtensive.Orm.Tests.Model.CycleReferenceTestModel
 {
-  [Serializable]
   [HierarchyRoot]
   public class Parent : Entity
   {
@@ -24,12 +25,10 @@ namespace Xtensive.Orm.Tests.Model.CycleReferenceTestModel
     public Neighbor Neighbor { get; set; }
   }
 
-  [Serializable]
   public class Child : Parent
   {
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class Neighbor : Entity
   {
@@ -43,21 +42,16 @@ namespace Xtensive.Orm.Tests.Model.CycleReferenceTestModel
 
 namespace Xtensive.Orm.Tests.Model
 {
-  [TestFixture]
-  public class CycleReferenceTest
+  [TestFixture, Category("Model")]
+  public class CycleReferenceTest : DomainBuildabilityTest
   {
-    [Test]
-    // [ExpectedException(typeof(InvalidOperationException))]
-    public void CombinedTest()
+    protected override DomainConfiguration BuildConfiguration()
     {
       var config = DomainConfigurationFactory.Create();
-      config.Types.RegisterCaching(Assembly.GetExecutingAssembly(), "Xtensive.Orm.Tests.Model.CycleReferenceTestModel");
-
-      using (var domain = Domain.Build(config))
-      using (var session = domain.OpenSession())
-      using (var t = session.OpenTransaction()) {
-        t.Complete();
-      }
+      config.Types.Register(typeof(Parent));
+      config.Types.Register(typeof(Child));
+      config.Types.Register(typeof(Neighbor));
+      return config;
     }
   }
 }

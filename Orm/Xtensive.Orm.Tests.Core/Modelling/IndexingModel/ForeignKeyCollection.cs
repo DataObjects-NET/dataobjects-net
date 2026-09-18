@@ -12,7 +12,6 @@ namespace Xtensive.Orm.Tests.Core.Modelling.IndexingModel
   /// <summary>
   /// Foreign key collection.
   /// </summary>
-  [Serializable]
   public sealed class ForeignKeyCollection : NodeCollectionBase<ForeignKeyInfo, TableInfo>, 
     IUnorderedNodeCollection
   {

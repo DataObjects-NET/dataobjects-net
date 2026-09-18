@@ -14,7 +14,6 @@ namespace Xtensive.Orm.Model
   /// <summary>
   /// A collection of indexes that belongs to a particular <see cref="TypeInfo"/>.
   /// </summary>
-  [Serializable]
   public sealed class TypeIndexInfoCollection : IndexInfoCollection
   {
     private IndexInfo primaryIndex;
@@ -27,7 +26,7 @@ namespace Xtensive.Orm.Model
     public IndexInfo PrimaryIndex
     {
       [DebuggerStepThrough]
-      get { return IsLocked ? primaryIndex : FindPrimaryIndex(); }
+      get => IsLocked ? primaryIndex : FindPrimaryIndex();
     }
 
     /// <summary>

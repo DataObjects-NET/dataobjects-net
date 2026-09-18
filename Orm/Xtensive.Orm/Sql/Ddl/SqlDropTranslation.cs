@@ -7,7 +7,6 @@ using Xtensive.Sql.Model;
 
 namespace Xtensive.Sql.Ddl
 {
-  [Serializable]
   public class SqlDropTranslation : SqlStatement, ISqlCompileUnit
   {
     public Translation Translation { get; }

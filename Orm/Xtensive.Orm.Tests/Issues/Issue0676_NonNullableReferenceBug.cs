@@ -16,7 +16,6 @@ using Xtensive.Core;
 
 namespace Xtensive.Orm.Tests.Issues.Issue0676.Model
 {
-  [Serializable]
   [HierarchyRoot]
   public class Animal : Entity
   {
@@ -48,7 +47,6 @@ namespace Xtensive.Orm.Tests.Issues.Issue0676.Model
     }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class Person : Entity,
     IHasNullEntity

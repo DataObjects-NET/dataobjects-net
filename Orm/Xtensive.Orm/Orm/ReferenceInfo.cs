@@ -13,23 +13,22 @@ namespace Xtensive.Orm
   /// <summary>
   /// Describes referential relationship between two particular entities.
   /// </summary>
-  [Serializable]
-  public struct ReferenceInfo
+  public readonly struct ReferenceInfo
   {
     /// <summary>
     /// Gets the referencing entity.
     /// </summary>
-    public Entity ReferencingEntity { get; private set; }
+    public readonly Entity ReferencingEntity;
 
     /// <summary>
     /// Gets the referenced entity.
     /// </summary>
-    public Entity ReferencedEntity { get; private set; }
+    public readonly Entity ReferencedEntity;
 
     /// <summary>
     /// Gets the <see cref="AssociationInfo"/> object describing the relationship.
     /// </summary>
-    public AssociationInfo Association { get; private set; }
+    public readonly AssociationInfo Association;
 
     
     // Constructors
@@ -41,7 +40,6 @@ namespace Xtensive.Orm
     /// <param name="referencedEntity">The referenced entity.</param>
     /// <param name="association">The association.</param>
     public ReferenceInfo(Entity referencingEntity, Entity referencedEntity, AssociationInfo association)
-      : this()
     {
       ReferencingEntity = referencingEntity;
       ReferencedEntity = referencedEntity;

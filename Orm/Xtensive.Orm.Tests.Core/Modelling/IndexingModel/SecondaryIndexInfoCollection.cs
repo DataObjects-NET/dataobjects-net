@@ -12,7 +12,6 @@ namespace Xtensive.Orm.Tests.Core.Modelling.IndexingModel
   /// <summary>
   /// A collection of secondary indexes.
   /// </summary>
-  [Serializable]
   public sealed class SecondaryIndexInfoCollection : NodeCollectionBase<SecondaryIndexInfo, TableInfo>,
     IUnorderedNodeCollection
   {

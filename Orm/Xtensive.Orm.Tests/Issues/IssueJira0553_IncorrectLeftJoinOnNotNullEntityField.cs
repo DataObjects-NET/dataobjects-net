@@ -12,7 +12,6 @@ using Xtensive.Orm.Tests.Issues.IssueJira0553_IncorrectLeftJoinOnNotNullEntityFi
 
 namespace Xtensive.Orm.Tests.Issues.IssueJira0553_IncorrectLeftJoinOnNotNullEntityFieldModel
 {
-  [Serializable]
   [HierarchyRoot]
   public class Employee : Entity
   {
@@ -21,14 +20,12 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0553_IncorrectLeftJoinOnNotNullEnti
     public Guid Id { get; private set; }
   }
 
-  [Serializable]
   public class EmployeeWithCar : Employee
   {
     [Field(Nullable = false)]
     public Car Car { get; set; }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class Car : Entity
   {
@@ -43,7 +40,6 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0553_IncorrectLeftJoinOnNotNullEnti
     public int Id { get; set; }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class Job : BaseClass
   {
@@ -51,7 +47,6 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0553_IncorrectLeftJoinOnNotNullEnti
     public Location Location { get; set; }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class Invoice : BaseClass
   {
@@ -62,7 +57,6 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0553_IncorrectLeftJoinOnNotNullEnti
     public Customer Customer { get; set; }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class Location : BaseClass
   {
@@ -70,7 +64,6 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0553_IncorrectLeftJoinOnNotNullEnti
     public Address Address { get; set; }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class Address : BaseClass
   {

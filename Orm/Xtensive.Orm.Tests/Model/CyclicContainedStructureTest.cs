@@ -8,28 +8,23 @@ using System;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
-using Xtensive.Core;
-using Xtensive.Orm.Configuration;
 
 namespace Xtensive.Orm.Tests.Model.ReferenceTestModel
 {
   #region Cyclic referenced structures
 
-  [Serializable]
   public class S1 : Structure
   {
     [Field]
     public S2 Value { get; set; }
   }
 
-  [Serializable]
   public class S2 : Structure
   {
     [Field]
     public S3 Value { get; set; }
   }
 
-  [Serializable]
   public class S3 : Structure
   {
     [Field]
@@ -40,14 +35,12 @@ namespace Xtensive.Orm.Tests.Model.ReferenceTestModel
 
   #region Cyclic contained structures with inheritance
 
-  [Serializable]
   public class Parent : Structure
   {
     [Field]
     public Child Value { get; set; }
   }
 
-  [Serializable]
   public class Child : Parent
   {
   }
@@ -57,7 +50,7 @@ namespace Xtensive.Orm.Tests.Model.ReferenceTestModel
 
 namespace Xtensive.Orm.Tests.Model
 {
-  [TestFixture]
+  [TestFixture, Category("Model")]
   public class CyclicContainedStructureTest
   {
     [Test]
@@ -66,7 +59,7 @@ namespace Xtensive.Orm.Tests.Model
       var config = DomainConfigurationFactory.Create();
       config.UpgradeMode = DomainUpgradeMode.Recreate;
       config.Types.RegisterCaching(Assembly.GetExecutingAssembly(), "Xtensive.Orm.Tests.Model.ReferenceTestModel");
-      var ex = Assert.Throws<DomainBuilderException>(() => Domain.Build(config));
+      var ex = Assert.Throws<DomainBuilderException>(() => Domain.Build(config).Dispose());
       Assert.That(ex.Message.StartsWith("At least one loop have been found"), Is.True);
     }
   }

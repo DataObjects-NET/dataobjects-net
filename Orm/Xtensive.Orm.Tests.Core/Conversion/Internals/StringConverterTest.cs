@@ -1,16 +1,15 @@
-﻿// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2008-2026 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Roman Churakov
 // Created:    2008.01.26
 
 using System;
 using NUnit.Framework;
-using Xtensive.Orm.Tests;
 
 namespace Xtensive.Orm.Tests.Core.Conversion
 {
-  [TestFixture]
+  [TestFixture(Category = "AdvancedTypeConverters")]
   public class StringConverterTest : ConverterTestBase
   {
     private readonly string[] numericConstants = {
@@ -23,7 +22,27 @@ namespace Xtensive.Orm.Tests.Core.Conversion
     };
     private readonly string[] guidConstants = { "12345678-9012-3456-78990-123456789022" };
     private readonly string[] booleanConstants = {"false", "FALSE", "true", "tRue"};
-    private readonly string[] dateTimeConstants = {};
+    private readonly string[] dateTimeOffsetConstants = {
+      "0001/01/01 12:00:00.0000000 AM -03:00",
+      "9999/12/31 11:59:59.9999999 PM +03:00",
+      "2026/09/04 12:00:00.0000000 AM +01:00 ",
+      "2026/09/08 07:06:05.0000000 AM +02:50",
+      "2026/09/08 07:06:05.4433221 AM -02:50"
+    };
+    private readonly string[] dateTimeConstants = {
+      "0001/01/01 12:00:00.0000000 AM  ",
+      "9999/12/31 11:59:59.9999999 PM  ",
+      "2026/09/04 12:00:00.0000000 AM Z ",
+      "2026/09/08 07:06:05.0000000 AM  ",
+      "2026/09/08 07:06:05.4433221 AM  " };
+    private readonly string[] dateOnlyConstants = { "0001/01/01", "9999/12/31", "2026/09/08" };
+    private readonly string[] timeOnlyConstants = {
+      "12:00:00.0000000 AM",
+      "11:59:59.9999999 PM",
+      "01:35:00.0000000 PM",
+      "01:35:28.0000000 PM",
+      "01:35:18.7630000 PM",
+      "01:35:15.7636578 PM",};
     private const int iterationCount = 100;
 
     [Test]
@@ -74,10 +93,31 @@ namespace Xtensive.Orm.Tests.Core.Conversion
     }
 
     [Test]
+    public void DateTimeOffsetTest()
+    {
+      foreach (string constant in dateTimeOffsetConstants)
+        OneValueTest<string, DateTimeOffset>(constant, iterationCount);
+    }
+
+    [Test]
     public void DateTimeTest()
     {
       foreach (string constant in dateTimeConstants)
         OneValueTest<string, DateTime>(constant, iterationCount);
+    }
+
+    [Test]
+    public void DateOnlyTest()
+    {
+      foreach (string constant in dateOnlyConstants)
+        OneValueTest<string, DateOnly>(constant, iterationCount);
+    }
+
+    [Test]
+    public void TimeOnlyTest()
+    {
+      foreach (string constant in timeOnlyConstants)
+        OneValueTest<string, TimeOnly>(constant, iterationCount);
     }
 
     [Test]

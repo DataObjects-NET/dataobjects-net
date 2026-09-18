@@ -12,7 +12,6 @@ namespace Xtensive.Orm.Upgrade.Model
   /// <summary>
   /// A collection of <see cref="ForeignKeyColumnRef"/> instances.
   /// </summary>
-  [Serializable]
   public sealed class ForeignKeyColumnCollection : NodeCollectionBase<ForeignKeyColumnRef, ForeignKeyInfo>
   {
     /// <summary>
@@ -24,7 +23,7 @@ namespace Xtensive.Orm.Upgrade.Model
     {
       Clear();
       foreach (var keyColumn in source.KeyColumns)
-        new ForeignKeyColumnRef(Parent, keyColumn.Value);
+        _ = new ForeignKeyColumnRef(Parent, keyColumn.Value);
     }
 
 

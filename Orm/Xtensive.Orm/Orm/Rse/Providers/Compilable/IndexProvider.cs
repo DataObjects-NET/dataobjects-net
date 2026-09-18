@@ -13,7 +13,6 @@ namespace Xtensive.Orm.Rse.Providers
   /// <summary>
   /// Gives access to the specified <see cref="Index"/>.
   /// </summary>
-  [Serializable]
   public sealed class IndexProvider : CompilableProvider
   {
     /// <summary>

@@ -13,11 +13,8 @@ namespace Xtensive.Orm.Rse
   /// <summary>
   /// Descriptor of the calculated column.
   /// </summary>
-  [Serializable]
   public class AggregateColumnDescriptor
   {
-    private const string ToStringFormat = "{0} = {1} on ({2})";
-
     /// <summary>
     /// Gets the column index.
     /// </summary>
@@ -40,10 +37,7 @@ namespace Xtensive.Orm.Rse
 
     /// <inheritdoc/>
     public override string ToString()
-    {
-      return string.Format(ToStringFormat,
-        base.ToString(), AggregateType, SourceIndex);
-    }
+      => $"{base.ToString()} = {AggregateType} on ({SourceIndex})";
 
 
     // Constructors

@@ -14,7 +14,6 @@ namespace Xtensive.Orm.Rse.Providers
   /// <summary>
   /// Base class for any compilable sorting providers (such as <see cref="SortProvider"/>).
   /// </summary>
-  [Serializable]
   public abstract class OrderProviderBase : UnaryProvider
   {
     /// <summary>

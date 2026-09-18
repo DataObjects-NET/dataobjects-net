@@ -13,7 +13,6 @@ namespace Xtensive.Sql.Model
   /// <summary>
   /// Represents a table object.
   /// </summary>
-  [Serializable]
   public class Table : DataTable,IConstrainable,IPartitionable
   {
     private readonly PairedNodeCollection<Table, TableColumn> columns;

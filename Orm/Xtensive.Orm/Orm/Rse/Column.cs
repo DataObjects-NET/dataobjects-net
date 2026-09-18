@@ -12,11 +12,8 @@ namespace Xtensive.Orm.Rse
   /// <summary>
   /// Base class for any column of the <see cref="RecordSetHeader"/>.
   /// </summary>
-  [Serializable]
   public abstract class Column : IEquatable<Column>
   {
-    private const string ToStringFormat = "{0} {1} ({2})";
-
     /// <summary>
     /// Gets origin <see cref="Column"/> for this instance.
     /// </summary>
@@ -91,9 +88,7 @@ namespace Xtensive.Orm.Rse
 
     /// <inheritdoc/>
     public override string ToString()
-    {
-      return string.Format(ToStringFormat, Type.Name, Name, Index);
-    }
+      => $"{Type.Name} {Name} ({Index})";
 
     /// <summary>
     /// Creates clone of the column, but with another <see cref="Index"/>.

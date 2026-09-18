@@ -9,7 +9,6 @@ using System.Diagnostics;
 
 namespace Xtensive.Orm.Tests.Upgrade.TypeIdUpgrade.Model
 {
-  [Serializable]
   [HierarchyRoot]
   public class Person : Entity
   {
@@ -23,7 +22,6 @@ namespace Xtensive.Orm.Tests.Upgrade.TypeIdUpgrade.Model
     public string LastName { get; set; }
   }
 
-  [Serializable]
   public class Employee : Person
   {
     [Field]

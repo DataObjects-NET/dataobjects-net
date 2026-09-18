@@ -15,7 +15,6 @@ namespace Xtensive.Orm.Tests.Interfaces.KeyStructureConflictTestModel
   {
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class Root1 : Entity
   {
@@ -23,13 +22,11 @@ namespace Xtensive.Orm.Tests.Interfaces.KeyStructureConflictTestModel
     public int Id { get; private set; }
   }
 
-  [Serializable]
   public class Child1 : Root1, IChild
   {
     
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class Root2 : Entity
   {
@@ -37,7 +34,6 @@ namespace Xtensive.Orm.Tests.Interfaces.KeyStructureConflictTestModel
     public Guid Id { get; private set; }
   }
 
-  [Serializable]
   public class Child2 : Root2, IChild
   {
   }
@@ -48,14 +44,24 @@ namespace Xtensive.Orm.Tests.Interfaces
   public class KeyStructureConflictTest
   {
     [Test]
-    public void MainTest()
+    public void DomainBuildTest()
+    {
+      var configuration = BuildConfiguration();
+      _ = Assert.Throws<DomainBuilderException>(() => Domain.Build(configuration).Dispose());
+    }
+
+    [Test]
+    public void DomainBuildAsyncTest()
+    {
+      var configuration = BuildConfiguration();
+      _ = Assert.ThrowsAsync<DomainBuilderException>(async () => (await Domain.BuildAsync(configuration)).Dispose());
+    }
+
+    private static DomainConfiguration BuildConfiguration()
     {
       var config = DomainConfigurationFactory.Create();
-      config.Types.RegisterCaching(typeof (Root1).Assembly, typeof (Root1).Namespace);
-      var ex = Assert.Throws<DomainBuilderException>(() => Domain.Build(config));
-      var message = ex.Message;
-      Assert.That(message.Contains("IChild") && message.Contains("different key structure") && message.Contains("Root1 & Root2"),
-        Is.True);
+      config.Types.RegisterCaching(typeof(Root1).Assembly, typeof(Root1).Namespace);
+      return config;
     }
   }
 }

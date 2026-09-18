@@ -25,12 +25,12 @@ namespace Xtensive.Orm.Tests.Storage.RefTest
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.RegisterCaching(typeof (Author).Assembly, typeof (Author).Namespace);
+      config.Types.Register(typeof (Author));
       return config;
     }
 
     [Test]
-    public void CombinedTest()
+    public void MainTest()
     {
       Key authorKey;
       Ref<Author> authorRef;
@@ -43,8 +43,6 @@ namespace Xtensive.Orm.Tests.Storage.RefTest
         tx.Complete();
       }
 
-      authorRef = Cloner.Clone(authorRef);
-
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
         Assert.That(authorRef.Key, Is.EqualTo(authorKey));
@@ -53,7 +51,6 @@ namespace Xtensive.Orm.Tests.Storage.RefTest
         Assert.That(author.Key, Is.EqualTo(authorRef.Key));
         tx.Complete();
       }
-
     }
   }
 }

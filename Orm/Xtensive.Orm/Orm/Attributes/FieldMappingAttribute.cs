@@ -12,7 +12,6 @@ namespace Xtensive.Orm
   /// <summary>
   /// Field mapping attribute.
   /// </summary>
-  [Serializable]
   [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = false)]
   public sealed class FieldMappingAttribute : StorageAttribute
   {

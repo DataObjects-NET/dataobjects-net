@@ -13,7 +13,6 @@ namespace Xtensive.Tuples.Transform.Internals
   /// <summary>
   /// A <see cref="MapTransform"/> result tuple mapping 1 source tuple to a single one (this).
   /// </summary>
-  [Serializable]
   internal sealed class MapTransformTuple : Tuple, ITransformedTuple
   {
     private readonly MapTransform transform;

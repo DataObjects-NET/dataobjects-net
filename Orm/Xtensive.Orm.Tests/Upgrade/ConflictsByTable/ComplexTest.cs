@@ -138,7 +138,7 @@ namespace Xtensive.Orm.Tests.Upgrade.ConflictsByTable
       RegisterTypes(domainConfig, inheritanceSchema, casePrefix);
       domainConfig.UpgradeMode = DomainUpgradeMode.PerformSafely;
 
-      var exception = Assert.Throws<SchemaSynchronizationException>(() => Domain.Build(domainConfig));
+      var exception = Assert.Throws<SchemaSynchronizationException>(() => Domain.Build(domainConfig).Dispose());
       switch (inheritanceSchema) {
         case InheritanceSchema.ClassTable: {
           var unsafeActions = exception.ComparisonResult.UnsafeActions;
@@ -258,7 +258,7 @@ namespace Xtensive.Orm.Tests.Upgrade.ConflictsByTable
       RegisterTypes(domainConfig, inheritanceSchema, casePrefix);
       domainConfig.UpgradeMode = DomainUpgradeMode.PerformSafely;
 
-      var exception = Assert.Throws<SchemaSynchronizationException>(() => Domain.Build(domainConfig));
+      var exception = Assert.Throws<SchemaSynchronizationException>(() => Domain.Build(domainConfig).Dispose());
       switch (inheritanceSchema) {
         case InheritanceSchema.ClassTable: {
           var unsafeActions = exception.ComparisonResult.UnsafeActions;
@@ -391,7 +391,7 @@ namespace Xtensive.Orm.Tests.Upgrade.ConflictsByTable
       RegisterTypes(domainConfig, inheritanceSchema, casePrefix);
       domainConfig.UpgradeMode = DomainUpgradeMode.PerformSafely;
 
-      var exception = Assert.Throws<SchemaSynchronizationException>(() => Domain.Build(domainConfig));
+      var exception = Assert.Throws<SchemaSynchronizationException>(() => Domain.Build(domainConfig).Dispose());
       switch (inheritanceSchema) {
         case InheritanceSchema.ClassTable: {
           var unsafeActions = exception.ComparisonResult.UnsafeActions;
@@ -541,7 +541,7 @@ namespace Xtensive.Orm.Tests.Upgrade.ConflictsByTable
       RegisterTypes(domainConfig, inheritanceSchema, casePrefix);
       domainConfig.UpgradeMode = DomainUpgradeMode.PerformSafely;
 
-      var exception = Assert.Throws<SchemaSynchronizationException>(() => Domain.Build(domainConfig));
+      var exception = Assert.Throws<SchemaSynchronizationException>(() => Domain.Build(domainConfig).Dispose());
       switch (inheritanceSchema) {
         case InheritanceSchema.ClassTable: {
           var unsafeActions = exception.ComparisonResult.UnsafeActions;
@@ -708,7 +708,7 @@ namespace Xtensive.Orm.Tests.Upgrade.ConflictsByTable
       RegisterTypes(domainConfig, inheritanceSchema, casePrefix);
       domainConfig.UpgradeMode = DomainUpgradeMode.PerformSafely;
 
-      var exception = Assert.Throws<SchemaSynchronizationException>(() => Domain.Build(domainConfig));
+      var exception = Assert.Throws<SchemaSynchronizationException>(() => Domain.Build(domainConfig).Dispose());
       switch (inheritanceSchema) {
         case InheritanceSchema.ClassTable: {
           var unsafeActions = exception.ComparisonResult.UnsafeActions;
@@ -887,7 +887,7 @@ namespace Xtensive.Orm.Tests.Upgrade.ConflictsByTable
       RegisterTypes(domainConfig, inheritanceSchema, casePrefix);
       domainConfig.UpgradeMode = DomainUpgradeMode.PerformSafely;
 
-      var exception = Assert.Throws<SchemaSynchronizationException>(() => Domain.Build(domainConfig));
+      var exception = Assert.Throws<SchemaSynchronizationException>(() => Domain.Build(domainConfig).Dispose());
       switch (inheritanceSchema) {
         case InheritanceSchema.ClassTable: {
           var unsafeActions = exception.ComparisonResult.UnsafeActions;
@@ -1078,7 +1078,7 @@ namespace Xtensive.Orm.Tests.Upgrade.ConflictsByTable
       RegisterTypes(domainConfig, inheritanceSchema, casePrefix);
       domainConfig.UpgradeMode = DomainUpgradeMode.PerformSafely;
 
-      var exception = Assert.Throws<SchemaSynchronizationException>(() => Domain.Build(domainConfig));
+      var exception = Assert.Throws<SchemaSynchronizationException>(() => Domain.Build(domainConfig).Dispose());
       switch (inheritanceSchema) {
         case InheritanceSchema.ClassTable: {
           var unsafeActions = exception.ComparisonResult.UnsafeActions;
@@ -1224,7 +1224,7 @@ namespace Xtensive.Orm.Tests.Upgrade.ConflictsByTable
       RegisterTypes(domainConfig, inheritanceSchema, casePrefix);
       domainConfig.UpgradeMode = DomainUpgradeMode.PerformSafely;
 
-      var exception = Assert.Throws<SchemaSynchronizationException>(() => Domain.Build(domainConfig));
+      var exception = Assert.Throws<SchemaSynchronizationException>(() => Domain.Build(domainConfig).Dispose());
       switch (inheritanceSchema) {
         case InheritanceSchema.ClassTable: {
           var unsafeActions = exception.ComparisonResult.UnsafeActions;

@@ -14,7 +14,6 @@ using M2 = Xtensive.Orm.Tests.Issues.Issue_0716_UpgradeFailsInValidateMode.Model
 
 namespace Xtensive.Orm.Tests.Issues.Issue_0716_UpgradeFailsInValidateMode
 {
-  [Serializable]
   public class Upgrader : UpgradeHandler
   {
     private static bool isEnabled = false;

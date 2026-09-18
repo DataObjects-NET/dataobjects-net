@@ -17,7 +17,6 @@ namespace Xtensive.Orm.Tests.Upgrade.Model.SimpleVersion2
   // Type of field Order.Number changed to int
   // Type of field BusinessContact.PassportNumber (old Person.PassportNumber) changed to int
 
-  [Serializable]
   public class Address : Structure
   {
     [Field(Length = 15)]
@@ -27,7 +26,6 @@ namespace Xtensive.Orm.Tests.Upgrade.Model.SimpleVersion2
     public string Country { get; set; }
   }
 
-  [Serializable]
   [Index("FirstName")]
   [HierarchyRoot]
   public class BusinessContact : Entity
@@ -51,7 +49,6 @@ namespace Xtensive.Orm.Tests.Upgrade.Model.SimpleVersion2
     public string FirstName { get; set; }
   }
 
-  [Serializable]
   [Index("CompanyName")]
   public class Person : BusinessContact
   {
@@ -62,7 +59,6 @@ namespace Xtensive.Orm.Tests.Upgrade.Model.SimpleVersion2
     public string ContactName { get; set; }
   }
 
-  [Serializable]
   [Index("HireDate")]
   public class Employee : BusinessContact
   {
@@ -84,7 +80,6 @@ namespace Xtensive.Orm.Tests.Upgrade.Model.SimpleVersion2
     public string FullName { get { return FirstName + " " + LastName; } }
   }
 
-  [Serializable]
   [Index("OrderDate")]
   [Index("Freight")]
   [HierarchyRoot]

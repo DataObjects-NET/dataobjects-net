@@ -17,7 +17,6 @@ namespace Xtensive.Orm.Rse.Providers
   /// <summary>
   /// Abstract base class for any query provider.
   /// </summary>
-  [Serializable]
   [DebuggerDisplay("{DebuggerDisplayName}, Source count = {Sources.Count}")]
   public abstract class Provider
   {

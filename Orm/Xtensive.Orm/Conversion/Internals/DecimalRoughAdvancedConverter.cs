@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2008-2026 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Gamzov
 // Created:    2008.02.08
 
@@ -8,7 +8,6 @@ using System;
 
 namespace Xtensive.Conversion
 {
-  [Serializable]
   internal class DecimalRoughAdvancedConverter :
     RoughAdvancedConverterBase,
     IAdvancedConverter<decimal, bool>,
@@ -22,96 +21,68 @@ namespace Xtensive.Conversion
     IAdvancedConverter<decimal, ulong>,
     IAdvancedConverter<decimal, float>,
     IAdvancedConverter<decimal, double>,
+    IAdvancedConverter<decimal, DateTimeOffset>,
     IAdvancedConverter<decimal, DateTime>,
+    IAdvancedConverter<decimal, DateOnly>,
+    IAdvancedConverter<decimal, TimeOnly>,
     IAdvancedConverter<decimal, TimeSpan>,
     IAdvancedConverter<decimal, char>
   {
     private readonly long baseDateTimeTicks;
 
     /// <inheritdoc/>
-    bool IAdvancedConverter<decimal, bool>.Convert(decimal value)
-    {
-      return Convert.ToBoolean(value);
-    }
+    bool IAdvancedConverter<decimal, bool>.Convert(decimal value) => Convert.ToBoolean(value);
 
     /// <inheritdoc/>
-    byte IAdvancedConverter<decimal, byte>.Convert(decimal value)
-    {
-      return Convert.ToByte(value);
-    }
+    byte IAdvancedConverter<decimal, byte>.Convert(decimal value) => Convert.ToByte(value);
 
     /// <inheritdoc/>
-    sbyte IAdvancedConverter<decimal, sbyte>.Convert(decimal value)
-    {
-      return Convert.ToSByte(value);
-    }
+    sbyte IAdvancedConverter<decimal, sbyte>.Convert(decimal value) => Convert.ToSByte(value);
 
     /// <inheritdoc/>
-    short IAdvancedConverter<decimal, short>.Convert(decimal value)
-    {
-      return Convert.ToInt16(value);
-    }
+    short IAdvancedConverter<decimal, short>.Convert(decimal value) => Convert.ToInt16(value);
 
     /// <inheritdoc/>
-    ushort IAdvancedConverter<decimal, ushort>.Convert(decimal value)
-    {
-      return Convert.ToUInt16(value);
-    }
+    ushort IAdvancedConverter<decimal, ushort>.Convert(decimal value) => Convert.ToUInt16(value);
 
     /// <inheritdoc/>
-    int IAdvancedConverter<decimal, int>.Convert(decimal value)
-    {
-      return Convert.ToInt32(value);
-    }
+    int IAdvancedConverter<decimal, int>.Convert(decimal value) => Convert.ToInt32(value);
 
     /// <inheritdoc/>
-    uint IAdvancedConverter<decimal, uint>.Convert(decimal value)
-    {
-      return Convert.ToUInt32(value);
-    }
+    uint IAdvancedConverter<decimal, uint>.Convert(decimal value) => Convert.ToUInt32(value);
 
     /// <inheritdoc/>
-    long IAdvancedConverter<decimal, long>.Convert(decimal value)
-    {
-      return Convert.ToInt64(value);
-    }
+    long IAdvancedConverter<decimal, long>.Convert(decimal value) => Convert.ToInt64(value);
 
     /// <inheritdoc/>
-    ulong IAdvancedConverter<decimal, ulong>.Convert(decimal value)
-    {
-      return Convert.ToUInt64(value);
-    }
+    ulong IAdvancedConverter<decimal, ulong>.Convert(decimal value) => Convert.ToUInt64(value);
 
     /// <inheritdoc/>
-    float IAdvancedConverter<decimal, float>.Convert(decimal value)
-    {
-      return Convert.ToSingle(value);
-    }
+    float IAdvancedConverter<decimal, float>.Convert(decimal value) => Convert.ToSingle(value);
 
     /// <inheritdoc/>
-    double IAdvancedConverter<decimal, double>.Convert(decimal value)
-    {
-      return Convert.ToDouble(value);
-    }
+    double IAdvancedConverter<decimal, double>.Convert(decimal value) => Convert.ToDouble(value);
 
+    /// <inheritdoc/>
+    DateTimeOffset IAdvancedConverter<decimal, DateTimeOffset>.Convert(decimal value)
+      => new DateTimeOffset(Convert.ToInt64(value), TimeSpan.Zero);
     /// <inheritdoc/>
     DateTime IAdvancedConverter<decimal, DateTime>.Convert(decimal value)
-    {
-      return new DateTime(Convert.ToInt64(value) + baseDateTimeTicks, DateTimeKind.Utc);
-    }
+      => new DateTime(Convert.ToInt64(value) + baseDateTimeTicks, DateTimeKind.Utc);
 
     /// <inheritdoc/>
-    TimeSpan IAdvancedConverter<decimal, TimeSpan>.Convert(decimal value)
-    {
-      return new TimeSpan(Convert.ToInt64(value));
-    }
-
+    DateOnly IAdvancedConverter<decimal, DateOnly>.Convert(decimal value)
+      => DateOnly.FromDayNumber(Convert.ToInt32(value));
 
     /// <inheritdoc/>
-    char IAdvancedConverter<decimal, char>.Convert(decimal value)
-    {
-      return Convert.ToChar(Convert.ToInt64(value));
-    }
+    TimeOnly IAdvancedConverter<decimal, TimeOnly>.Convert(decimal value)
+      => new TimeOnly(Convert.ToInt64(value));
+
+    /// <inheritdoc/>
+    TimeSpan IAdvancedConverter<decimal, TimeSpan>.Convert(decimal value) => new TimeSpan(Convert.ToInt64(value));
+
+    /// <inheritdoc/>
+    char IAdvancedConverter<decimal, char>.Convert(decimal value) => Convert.ToChar(Convert.ToInt64(value));
 
 
     // Constructors

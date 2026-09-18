@@ -1,16 +1,14 @@
-﻿// Copyright (C) 2003-2010 Xtensive LLC.
+// Copyright (C) 2003-2010 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alex Kofman
 // Created:    2009.10.27
 
 using System;
-using Xtensive.Orm.Tests._Manual.Validation;
 using Xtensive.Orm.Validation;
 
 namespace Xtensive.Orm.Tests._Manual.Validation
 {
-  [Serializable]
   [HierarchyRoot]
   public class Person : Entity
   {

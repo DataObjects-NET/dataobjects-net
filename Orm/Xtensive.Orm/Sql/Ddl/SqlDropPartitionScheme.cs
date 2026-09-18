@@ -7,7 +7,6 @@ using Xtensive.Sql.Model;
 
 namespace Xtensive.Sql.Ddl
 {
-  [Serializable]
   public class SqlDropPartitionScheme : SqlStatement, ISqlCompileUnit
   {
     public PartitionSchema PartitionSchema { get; }

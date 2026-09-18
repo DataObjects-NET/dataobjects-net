@@ -13,7 +13,6 @@ namespace Xtensive.Collections.Graphs
   /// A connection between two graph <see cref="Node"/>s with value.
   /// </summary>
   /// <typeparam name="TValue">Edge value.</typeparam>
-  [Serializable]
   public class Edge<TValue> : Edge
   {
     /// <summary>
@@ -24,7 +23,7 @@ namespace Xtensive.Collections.Graphs
     /// <summary>
     /// Gets node value.
     /// </summary>
-    public override object UntypedValue { get { return Value; } }
+    public override object UntypedValue => Value;
 
 
     // Constructors

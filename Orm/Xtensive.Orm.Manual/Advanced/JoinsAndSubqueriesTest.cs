@@ -13,7 +13,6 @@ namespace Xtensive.Orm.Manual.Advanced.JoinsAndSubqueriesTest
 {
   #region Model
 
-  [Serializable]
   [HierarchyRoot]
   public class Person : Entity
   {
@@ -28,7 +27,6 @@ namespace Xtensive.Orm.Manual.Advanced.JoinsAndSubqueriesTest
     {}
   }
 
-  [Serializable]
   public class Employee : Person
   {
     [Field]

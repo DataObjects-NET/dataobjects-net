@@ -8,15 +8,11 @@ using System;
 
 namespace Xtensive.Conversion
 {
-  [Serializable]
   internal class NullableReverseAdvancedConverter<TFrom, TTo> : WrappingAdvancedConverter<TFrom, TFrom, TTo?, TTo>
     where TTo : struct
   {
     /// <inheritdoc/>
-    public override TTo? Convert(TFrom value)
-    {
-      return BaseConverter.Convert(value);
-    }
+    public override TTo? Convert(TFrom value) => BaseConverter.Convert(value);
 
 
     // Constructors

@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2008-2026 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Gamzov
 // Created:    2008.02.08
 
@@ -8,7 +8,6 @@ using System;
 
 namespace Xtensive.Conversion
 {
-  [Serializable]
   internal class DoubleRoughAdvancedConverter :
     RoughAdvancedConverterBase,
     IAdvancedConverter<double, bool>,
@@ -23,45 +22,27 @@ namespace Xtensive.Conversion
     IAdvancedConverter<double, float>,
     IAdvancedConverter<double, decimal>,
     IAdvancedConverter<double, DateTime>,
+    IAdvancedConverter<double, DateOnly>,
+    IAdvancedConverter<double, TimeOnly>,
     IAdvancedConverter<double, TimeSpan>,
     IAdvancedConverter<double, char>
   {
     private readonly long baseDateTimeTicks;
+    private readonly long ticksPerDay;
 
-    bool IAdvancedConverter<double, bool>.Convert(double value)
-    {
-      return Convert.ToBoolean(value);
-    }
+    bool IAdvancedConverter<double, bool>.Convert(double value) => Convert.ToBoolean(value);
 
-    byte IAdvancedConverter<double, byte>.Convert(double value)
-    {
-      return Convert.ToByte(value);
-    }
+    byte IAdvancedConverter<double, byte>.Convert(double value) => Convert.ToByte(value);
 
-    sbyte IAdvancedConverter<double, sbyte>.Convert(double value)
-    {
-      return Convert.ToSByte(value);
-    }
+    sbyte IAdvancedConverter<double, sbyte>.Convert(double value) => Convert.ToSByte(value);
 
-    short IAdvancedConverter<double, short>.Convert(double value)
-    {
-      return Convert.ToInt16(value);
-    }
+    short IAdvancedConverter<double, short>.Convert(double value) => Convert.ToInt16(value);
 
-    ushort IAdvancedConverter<double, ushort>.Convert(double value)
-    {
-      return Convert.ToUInt16(value);
-    }
+    ushort IAdvancedConverter<double, ushort>.Convert(double value) => Convert.ToUInt16(value);
 
-    int IAdvancedConverter<double, int>.Convert(double value)
-    {
-      return Convert.ToInt32(value);
-    }
+    int IAdvancedConverter<double, int>.Convert(double value) => Convert.ToInt32(value);
 
-    uint IAdvancedConverter<double, uint>.Convert(double value)
-    {
-      return Convert.ToUInt32(value);
-    }
+    uint IAdvancedConverter<double, uint>.Convert(double value) => Convert.ToUInt32(value);
 
     long IAdvancedConverter<double, long>.Convert(double value)
     {
@@ -84,15 +65,26 @@ namespace Xtensive.Conversion
       return Convert.ToSingle(value);
     }
 
-    decimal IAdvancedConverter<double, decimal>.Convert(double value)
-    {
-      return Convert.ToDecimal(value);
-    }
+    decimal IAdvancedConverter<double, decimal>.Convert(double value) => Convert.ToDecimal(value);
 
     DateTime IAdvancedConverter<double, DateTime>.Convert(double value)
     {
       checked {
         return new DateTime((long) Math.Round(value) + baseDateTimeTicks, DateTimeKind.Utc);
+      }
+    }
+
+    DateOnly IAdvancedConverter<double, DateOnly>.Convert(double value)
+    {
+      checked {
+        return DateOnly.FromDayNumber(Convert.ToInt32(Math.Round(value)));
+      }
+    }
+
+    TimeOnly IAdvancedConverter<double, TimeOnly>.Convert(double value)
+    {
+      checked {
+        return new TimeOnly((long) Math.Round(value));
       }
     }
 
@@ -117,6 +109,7 @@ namespace Xtensive.Conversion
       : base(provider)
     {
       baseDateTimeTicks = provider.BaseTime.Ticks;
+      ticksPerDay = TimeSpan.FromDays(1).Ticks;
     }
   }
 }

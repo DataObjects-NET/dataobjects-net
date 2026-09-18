@@ -8,7 +8,6 @@ using System;
 
 namespace Xtensive.Orm.Tests.Issues.Issue_0716_UpgradeFailsInValidateMode.Model.Version1
 {
-  [Serializable]
   [HierarchyRoot]
   public class Article : Entity
   {

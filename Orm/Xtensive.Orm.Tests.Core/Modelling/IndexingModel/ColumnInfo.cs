@@ -14,7 +14,6 @@ namespace Xtensive.Orm.Tests.Core.Modelling.IndexingModel
   /// <summary>
   /// Column.
   /// </summary>
-  [Serializable]
   public sealed class ColumnInfo: NodeBase<TableInfo>
   {
     private TypeInfo type;

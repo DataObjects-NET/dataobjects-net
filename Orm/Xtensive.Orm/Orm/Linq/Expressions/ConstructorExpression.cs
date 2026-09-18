@@ -15,7 +15,6 @@ using System.Linq;
 
 namespace Xtensive.Orm.Linq
 {
-  [Serializable]
   internal class ConstructorExpression : ParameterizedExpression,
     IMappedExpression
   {
@@ -61,9 +60,10 @@ namespace Xtensive.Orm.Linq
     public Expression Remap(int offset, Dictionary<Expression, Expression> processedExpressions)
     {
       Func<IMappedExpression, Expression> remapper = delegate(IMappedExpression mapped) {
-        var parametrizedExpression = mapped as ParameterizedExpression;
-        if (parametrizedExpression!=null && (parametrizedExpression.OuterParameter==OuterParameter || OuterParameter==null))
+        if (mapped is ParameterizedExpression paramExpression
+            && (paramExpression.OuterParameter == OuterParameter || OuterParameter is null)) {
           return mapped.Remap(offset, new Dictionary<Expression, Expression>());
+        }
         return (Expression) mapped;
       };
 
@@ -84,8 +84,7 @@ namespace Xtensive.Orm.Linq
     public Expression Remap(IReadOnlyList<int> map, Dictionary<Expression, Expression> processedExpressions)
     {
       Func<IMappedExpression, Expression> remapper = delegate(IMappedExpression mapped) {
-        var parametrizedExpression = mapped as ParameterizedExpression;
-        if (parametrizedExpression!=null && (parametrizedExpression.OuterParameter==OuterParameter || OuterParameter==null))
+        if (mapped is ParameterizedExpression paramExpression && (paramExpression.OuterParameter == OuterParameter || OuterParameter is null))
           return mapped.Remap(map, new Dictionary<Expression, Expression>());
         return (Expression) mapped;
       };

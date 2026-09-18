@@ -5,16 +5,12 @@
 // Created:    2008.10.16
 
 using System;
-using System.Reflection;
 using NUnit.Framework;
-using Xtensive.Core;
-using Xtensive.Orm.Tests;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Issues.Issue0003_Model;
 
 namespace Xtensive.Orm.Tests.Issues.Issue0003_Model
 {
-  [Serializable]
   [HierarchyRoot]
   public class X : Entity
   {
@@ -26,20 +22,27 @@ namespace Xtensive.Orm.Tests.Issues.Issue0003_Model
 namespace Xtensive.Orm.Tests.Issues
 {
   [TestFixture]
-  public class Issue0003_NullablePrimaryKey : AutoBuildTest
+  public class Issue0003_NullablePrimaryKey
   {
-    protected override DomainConfiguration BuildConfiguration()
+    [Test]
+    public void DomainBuildTest()
     {
-      var config = base.BuildConfiguration();
-      config.Types.RegisterCaching(Assembly.GetExecutingAssembly(), typeof(X).Namespace);
-      return config;
+      var configuration = BuildConfiguration();
+      _ = Assert.Throws<DomainBuilderException>(() => Domain.Build(configuration).Dispose());
     }
 
-    protected override Domain BuildDomain(DomainConfiguration configuration)
+    [Test]
+    public void DomainBuildAsyncTest()
     {
-      Domain domain = null;
-      AssertEx.Throws<DomainBuilderException>(() => domain = base.BuildDomain(configuration));
-      return domain;
+      var configuration = BuildConfiguration();
+      _ = Assert.ThrowsAsync<DomainBuilderException>(async () => (await Domain.BuildAsync(configuration)).Dispose());
+    }
+
+    private static DomainConfiguration BuildConfiguration()
+    {
+      var config = DomainConfigurationFactory.Create();
+      config.Types.Register(typeof(X));
+      return config;
     }
   }
 }

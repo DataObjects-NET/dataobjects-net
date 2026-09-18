@@ -9,7 +9,6 @@ using Xtensive.Orm.Upgrade;
 
 namespace Xtensive.Orm.Manual.Upgrade.Model_4
 {
-  [Serializable]
   [HierarchyRoot]
   public class Order : Entity
   {
@@ -35,7 +34,6 @@ namespace Xtensive.Orm.Manual.Upgrade.Model_4
     {}
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class Product : Entity
   {
@@ -50,7 +48,6 @@ namespace Xtensive.Orm.Manual.Upgrade.Model_4
     {}
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class Person : Entity
   {

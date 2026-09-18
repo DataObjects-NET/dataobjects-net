@@ -9,10 +9,8 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Runtime.Serialization;
 using System.Text;
 using Xtensive.Core;
-using Xtensive.Linq.SerializableExpressions.Internals;
 using Xtensive.Reflection;
 using Xtensive.Tuples.Packed;
 
@@ -22,18 +20,15 @@ namespace Xtensive.Tuples
   /// Tuple descriptor.
   /// Provides information about <see cref="Tuple"/> structure.
   /// </summary>
-  [Serializable]
-  public readonly struct TupleDescriptor : IEquatable<TupleDescriptor>, IReadOnlyList<Type>, ISerializable
+  public readonly struct TupleDescriptor : IEquatable<TupleDescriptor>, IReadOnlyList<Type>
   {
     public static readonly TupleDescriptor Empty = new TupleDescriptor(Array.Empty<Type>());
 
     internal readonly int ValuesLength;
     internal readonly int ObjectsLength;
 
-    [NonSerialized]
     internal readonly PackedFieldDescriptor[] FieldDescriptors;
 
-    [NonSerialized]
     private readonly Type[] fieldTypes;
 
     #region IReadOnlyList members
@@ -176,19 +171,6 @@ namespace Xtensive.Tuples
 
     #endregion
 
-    public void GetObjectData(SerializationInfo info, StreamingContext context)
-    {
-      info.AddValue(nameof(ValuesLength), ValuesLength);
-      info.AddValue(nameof(ObjectsLength), ObjectsLength);
-
-      var typeNames = new string[fieldTypes.Length];
-      for (var i = 0; i < typeNames.Length; i++)
-        typeNames[i] = fieldTypes[i].ToSerializableForm();
-
-      info.AddValue(nameof(fieldTypes), typeNames);
-      info.AddValue(nameof(FieldDescriptors), FieldDescriptors);
-    }
-
     /// <inheritdoc/>
     public override string ToString()
     {
@@ -309,22 +291,6 @@ namespace Xtensive.Tuples
         default:
           TupleLayout.Configure(this.fieldTypes, FieldDescriptors, out ValuesLength, out ObjectsLength);
           break;
-      }
-    }
-
-    public TupleDescriptor(SerializationInfo info, StreamingContext context)
-    {
-      ValuesLength = info.GetInt32(nameof(ValuesLength));
-      ObjectsLength = info.GetInt32(nameof(ObjectsLength));
-
-      var typeNames = (string[]) info.GetValue(nameof(fieldTypes), typeof(string[]));
-      FieldDescriptors = (PackedFieldDescriptor[])info.GetValue(
-        nameof(FieldDescriptors), typeof(PackedFieldDescriptor[]));
-
-      fieldTypes = new Type[typeNames.Length];
-      for (var i = 0; i < typeNames.Length; i++) {
-        fieldTypes[i] = typeNames[i].GetTypeFromSerializableForm();
-        TupleLayout.ConfigureFieldAccessor(ref FieldDescriptors[i], fieldTypes[i]);
       }
     }
   }

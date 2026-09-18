@@ -8,7 +8,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using Xtensive.Core;
-
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 
@@ -17,7 +16,6 @@ namespace Xtensive.Orm.Rse.Providers
   /// <summary>
   /// Enumerates specified array of <see cref="Tuple"/> instances.
   /// </summary>
-  [Serializable]
   public sealed class RawProvider : CompilableProvider
   {
     private Func<ParameterContext, IEnumerable<Tuple>> compiledSource;

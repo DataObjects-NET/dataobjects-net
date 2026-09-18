@@ -12,20 +12,13 @@ namespace Xtensive.Orm.Rse
   /// <summary>
   /// System column of the <see cref="RecordSetHeader"/>.
   /// </summary>
-  [Serializable]
   public class SystemColumn : Column
   {
     /// <inheritdoc/>
-    public override SystemColumn Clone(int newIndex)
-    {
-      return new SystemColumn(this, newIndex);
-    }
+    public override SystemColumn Clone(int newIndex) => new SystemColumn(this, newIndex);
 
     /// <inheritdoc/>
-    public override SystemColumn Clone(string newName)
-    {
-      return new SystemColumn(this, newName);
-    }
+    public override SystemColumn Clone(string newName) => new SystemColumn(this, newName);
 
     /// <summary>
     /// Initializes a new instance of this class.

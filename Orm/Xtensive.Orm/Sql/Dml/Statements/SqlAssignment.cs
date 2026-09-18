@@ -6,39 +6,28 @@ using System;
 
 namespace Xtensive.Sql.Dml
 {
-  [Serializable]
   public class SqlAssignment : SqlStatement
   {
-    private readonly ISqlLValue left;
-    private readonly SqlExpression right;
 
     /// <summary>
     /// Gets the left operand of the assign statement.
     /// </summary>
-    public ISqlLValue Left {
-      get {
-        return left;
-      }
-    }
+    public ISqlLValue Left { get; }
 
     /// <summary>
     /// Gets the right operand of the assign statement.
     /// </summary>
-    public SqlExpression Right {
-      get {
-        return right;
-      }
-    }
+    public SqlExpression Right { get; }
 
     internal override SqlAssignment Clone(SqlNodeCloneContext context) =>
       context.GetOrAdd(this, static (t, c) =>
-        new SqlAssignment((ISqlLValue)t.left.Clone(), t.right.Clone(c)));
+        new SqlAssignment((ISqlLValue)t.Left.Clone(), t.Right.Clone(c)));
 
     internal SqlAssignment(ISqlLValue left, SqlExpression right)
       : base(SqlNodeType.Assign)
     {
-      this.right = right;
-      this.left = left;
+      Right = right;
+      Left = left;
     }
 
     public override void AcceptVisitor(ISqlVisitor visitor)

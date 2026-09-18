@@ -7,7 +7,6 @@ using Xtensive.Sql.Model;
 
 namespace Xtensive.Sql.Ddl
 {
-  [Serializable]
   public class SqlCreateSchema : SqlStatement, ISqlCompileUnit
   {
     public Schema Schema { get; }

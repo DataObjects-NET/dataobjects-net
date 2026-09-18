@@ -83,7 +83,7 @@ namespace Xtensive.Orm.Tests.Linq
     }
   }
 
-  [Serializable]
+  [Category("Linq")]
   public class SelectDtoTest : AutoBuildTest
   {
     protected override DomainConfiguration BuildConfiguration()

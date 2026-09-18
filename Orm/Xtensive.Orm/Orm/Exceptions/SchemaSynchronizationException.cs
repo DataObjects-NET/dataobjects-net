@@ -5,8 +5,6 @@
 // Created:    2007.09.18
 
 using System;
-using System.Runtime.Serialization;
-using Xtensive.Core;
 
 using Xtensive.Orm.Upgrade;
 
@@ -16,13 +14,12 @@ namespace Xtensive.Orm
   /// Describes schema synchronization errors 
   /// detected during <see cref="Domain"/>.<see cref="Domain.Build"/> execution.
   /// </summary>
-  [Serializable]
   public sealed class SchemaSynchronizationException : StorageException
   {
     /// <summary>
     /// Gets or sets the schema comparison result.
     /// </summary>
-    public SchemaComparisonResult ComparisonResult { get; private set; }
+    public SchemaComparisonResult ComparisonResult { get; }
 
     // Constructors
 
@@ -52,23 +49,6 @@ namespace Xtensive.Orm
     /// <param name="innerException">The inner exception.</param>
     public SchemaSynchronizationException(string message, Exception innerException)
       : base(message, innerException)
-    {
-    }
-
-    // Serialization
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="SchemaSynchronizationException"/> class.
-    /// </summary>
-    /// <param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo"/> that holds the serialized object data about the exception being thrown.</param>
-    /// <param name="context">The <see cref="T:System.Runtime.Serialization.StreamingContext"/> that contains contextual information about the source or destination.</param>
-    /// <exception cref="T:System.ArgumentNullException">The <paramref name="info"/> parameter is null. </exception>
-    /// <exception cref="T:System.Runtime.Serialization.SerializationException">The class name is null or <see cref="P:System.Exception.HResult"/> is zero (0). </exception>
-#if NET8_0_OR_GREATER
-    [Obsolete(DiagnosticId = "SYSLIB0051")]
-#endif
-    private SchemaSynchronizationException(SerializationInfo info, StreamingContext context)
-      : base(info, context)
     {
     }
   }

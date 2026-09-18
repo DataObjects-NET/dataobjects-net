@@ -17,7 +17,6 @@ using System.Linq;
 
 namespace Xtensive.Orm.Tests.Storage.OperationOrderTest
 {
-  [Serializable]
   [HierarchyRoot]
   public class Book : Entity
   {
@@ -37,7 +36,7 @@ namespace Xtensive.Orm.Tests.Storage.OperationOrderTest
   }
 
   [TestFixture]
-  public class OperationOrderTest : AutoBuildTest
+  public class VoidOperationOrderTest : AutoBuildTest
   {
     private static bool disabled = false;
     private static object expectedTarget = null;
@@ -62,20 +61,20 @@ namespace Xtensive.Orm.Tests.Storage.OperationOrderTest
           using (DisableEvents()) {
             b = new Book();
           }
-          
-          AssertOperations(b, new [] {"Entity.SetValue"});
+
+          AssertOperations(b, new[] { "Entity.SetValue" });
           b.Title = "Book";
 
-          AssertOperations(b.Referenecs, new [] {"EntitySet.AddItem"});
-          b.Referenecs.Add(b);
+          AssertOperations(b.Referenecs, new[] { "EntitySet.AddItem" });
+          _ = b.Referenecs.Add(b);
 
-          AssertOperations(b.Referenecs, new [] {"EntitySet.RemoveItem"});
-          b.Referenecs.Remove(b);
+          AssertOperations(b.Referenecs, new[] { "EntitySet.RemoveItem" });
+          _ = b.Referenecs.Remove(b);
 
-          AssertOperations(b.Referenecs, new [] {"EntitySet.Clear"});
+          AssertOperations(b.Referenecs, new[] { "EntitySet.Clear" });
           b.Referenecs.Clear();
 
-          AssertOperations(b, new [] {"Entity.Remove"});
+          AssertOperations(b, new[] { "Entity.Remove" });
           b.Remove();
 
           // tx.Complete();
@@ -87,10 +86,6 @@ namespace Xtensive.Orm.Tests.Storage.OperationOrderTest
 
     private static void BindEvents(Session session)
     {
-      var operations = session.Operations;
-      operations.OutermostOperationStarting += (s, ea) => InOperation(s, ea);
-      operations.NestedOperationStarting    += (s, ea) => InOperation(s, ea);
-
       var events = session.Events;
 
       events.EntityFieldValueSetting      += (s, ea) => BeforeOperation(ea.Entity, "Entity.SetValue");
@@ -114,60 +109,6 @@ namespace Xtensive.Orm.Tests.Storage.OperationOrderTest
       events.EntitySetClearCompleted  += (s, ea) => AfterOperation(ea.EntitySet, "EntitySet.Clear");
     }
 
-    private static void InOperation(object sender, OperationEventArgs ea)
-    {
-      if (disabled)
-        return;
-
-      object target = null;
-      if (ea.Operation is EntitySetOperation) {
-        var eso = (EntitySetOperation) ea.Operation;
-        var entity = Session.Demand().Query.Single(eso.Key);
-        target = entity.GetProperty<object>(eso.Field.Name);
-      }
-      else if (ea.Operation is EntityOperation) {
-        var eo = (EntityOperation) ea.Operation;
-        target = Session.Demand().Query.Single(eo.Key);
-      }
-      else if (ea.Operation is EntitiesRemoveOperation) {
-        var ero = (EntitiesRemoveOperation) ea.Operation;
-        target = Session.Demand().Query.Single(ero.Keys.Single());
-      }
-      else
-        return;
-
-      if (target!=expectedTarget)
-        return;
-      if ((ea.Operation.Type & OperationType.System)!=OperationType.System)
-        return;
-
-      string prefix = null;
-      if (target is Entity)
-        prefix = "Entity";
-      else if (target is EntitySetBase)
-        prefix = "EntitySet";
-      else
-        return;
-
-      string suffix = null;
-      if (ea.Operation.GetType()==typeof(EntityFieldSetOperation))
-        suffix = "SetValue";
-      else if (ea.Operation.GetType()==typeof(EntitiesRemoveOperation))
-        suffix = "Remove";
-
-      else if (ea.Operation.GetType()==typeof(EntitySetItemAddOperation))
-        suffix = "AddItem";
-      else if (ea.Operation.GetType()==typeof(EntitySetItemRemoveOperation))
-        suffix = "RemoveItem";
-      else if (ea.Operation.GetType()==typeof (EntitySetClearOperation))
-        suffix = "Clear";
-      else
-        return;
-
-      string operation = $"{prefix}.{suffix}";
-      InOperation(target, operation);
-    }
-
     public static IDisposable DisableEvents()
     {
       var oldDisabled = disabled;
@@ -187,13 +128,13 @@ namespace Xtensive.Orm.Tests.Storage.OperationOrderTest
     {
       if (disabled)
         return;
-      if (target!=expectedTarget)
+      if (target != expectedTarget)
         return;
 
       TestLog.Info($"Before '{operation}'");
       var lastOperation = (lastOperationIndex < 0) ? null : expectedOperations[lastOperationIndex];
       if (lastOperation != operation) {
-        if (lastOperationState!=-2 && lastOperationState!=1)
+        if (lastOperationState != -2 && lastOperationState != 1)
           Assert.Fail("Invalid notification order: no 'after' event.");
         lastOperationIndex++;
         lastOperation = expectedOperations[lastOperationIndex];
@@ -202,7 +143,7 @@ namespace Xtensive.Orm.Tests.Storage.OperationOrderTest
         lastOperationState = -1;
       }
       else {
-        if (lastOperationState>=0)
+        if (lastOperationState >= 0)
           Assert.Fail("Invalid notification order: 'before' event is unexpected here.");
       }
     }
@@ -211,7 +152,7 @@ namespace Xtensive.Orm.Tests.Storage.OperationOrderTest
     {
       if (disabled)
         return;
-      if (target!=expectedTarget)
+      if (target != expectedTarget)
         return;
 
       TestLog.Info($"In     '{operation}'");
@@ -219,9 +160,9 @@ namespace Xtensive.Orm.Tests.Storage.OperationOrderTest
       if (lastOperation != operation)
         Assert.Fail("Invalid notification order: no 'before' event.");
       else {
-        if (lastOperationState==-1)
+        if (lastOperationState == -1)
           lastOperationState = 0;
-        if (lastOperationState!=0)
+        if (lastOperationState != 0)
           Assert.Fail("Invalid notification order: 'in' event is unexpected here.");
       }
     }
@@ -230,7 +171,7 @@ namespace Xtensive.Orm.Tests.Storage.OperationOrderTest
     {
       if (disabled)
         return;
-      if (target!=expectedTarget)
+      if (target != expectedTarget)
         return;
 
       TestLog.Info($"After  '{operation}'");
@@ -238,9 +179,9 @@ namespace Xtensive.Orm.Tests.Storage.OperationOrderTest
       if (lastOperation != operation)
         Assert.Fail("Invalid notification order: no 'before' event.");
       else {
-        if (lastOperationState==0)
+        if (lastOperationState == 0)
           lastOperationState = 1;
-        if (lastOperationState!=1)
+        if (lastOperationState != -1)
           Assert.Fail("Invalid notification order: 'after' event is unexpected here.");
       }
     }

@@ -18,30 +18,24 @@ namespace Xtensive.Collections
   /// Normally used to describe "order by" clauses.
   ///</summary>
   /// <typeparam name="T">The type of collection item to associate with direction.</typeparam>
-  [Serializable]
   [DebuggerDisplay("Count = {Count}")]
   public sealed class DirectionCollection<T>: FlagCollection<T, Direction>
   {
     private static readonly Biconverter<Direction, bool> DirectionToBoolBiconverter = 
-      new Biconverter<Direction, bool>(
-        value => value == Direction.None
-          ? throw Exceptions.InvalidArgument(value, nameof(value))
-          : value == Direction.Positive,
-        value => value ? Direction.Positive : Direction.Negative);
+      new(value => value == Direction.None
+            ? throw Exceptions.InvalidArgument(value, nameof(value))
+           : value == Direction.Positive,
+          value => value ? Direction.Positive : Direction.Negative);
 
     /// <inheritdoc/>
-    public override void Add(T key)
-    {
-      Add(key, Direction.Positive);
-    }
+    public override void Add(T key) => Add(key, Direction.Positive);
 
     /// <summary>
     /// Initializes a new instance of this type.
     /// </summary>
     /// <param name="enumerable">Initial content of collection.</param>
     public DirectionCollection(IEnumerable<KeyValuePair<T, Direction>> enumerable)
-      : base(DirectionToBoolBiconverter,
-      enumerable)
+      : base(DirectionToBoolBiconverter, enumerable)
     {
     }
 

@@ -14,13 +14,12 @@ namespace Xtensive.Collections
   /// Singly-linked immutable list.
   /// </summary>
   /// <typeparam name="T">The type of elements.</typeparam>
-  [Serializable]
   public sealed class SinglyLinkedList<T> : IEnumerable<T>
   {
     /// <summary>
     /// Gets the empty <see cref="SinglyLinkedList{T}"/>.
     /// </summary>
-    public static SinglyLinkedList<T> Empty { get; private set; }
+    public static readonly SinglyLinkedList<T> Empty = new();
 
     private readonly T head;
 
@@ -40,10 +39,10 @@ namespace Xtensive.Collections
     /// <summary>
     /// Gets the tail of the current insttance.
     /// </summary>
-    public SinglyLinkedList<T> Tail { get; private set; }
+    public SinglyLinkedList<T> Tail { get; }
 
     /// <inheritdoc/>
-    public long Count { get; private set; }
+    public long Count { get; }
 
 
     /// <summary>
@@ -125,14 +124,6 @@ namespace Xtensive.Collections
       this.head = head;
       Tail = tail;
       Count = Tail.Count + 1;
-    }
-
-    /// <summary>
-    /// Initializes this type.
-    /// </summary>
-    static SinglyLinkedList()
-    {
-      Empty = new SinglyLinkedList<T>();
     }
   }
 }

@@ -13,7 +13,6 @@ namespace Xtensive.Orm
   /// <summary>
   /// Arguments for <see cref="Key"/>-related events.
   /// </summary>
-  [Serializable]
   public readonly struct KeyEventArgs
   {
     /// <summary>

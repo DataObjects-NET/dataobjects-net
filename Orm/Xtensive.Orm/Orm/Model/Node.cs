@@ -14,7 +14,6 @@ namespace Xtensive.Orm.Model
   /// <summary>
   ///An abstract base class for model node.
   /// </summary>
-  [Serializable]
   public abstract class Node
     : LockableBase,
       IChangeNotifier,

@@ -8,16 +8,12 @@ using System;
 
 namespace Xtensive.Conversion
 {
-  [Serializable]
   internal abstract class RoughAdvancedConverterBase: AdvancedConverterBase
   {
     /// <summary>
     /// Gets <see langword="true"/> if converter is rough, otherwise gets <see langword="false"/>.
     /// </summary>
-    public bool IsRough
-    {
-      get { return true; }
-    }
+    public bool IsRough => true;
 
 
     // Constructors

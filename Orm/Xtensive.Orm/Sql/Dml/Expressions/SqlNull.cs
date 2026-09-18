@@ -7,7 +7,6 @@ using Xtensive.Core;
 
 namespace Xtensive.Sql.Dml
 {
-  [Serializable]
   public class SqlNull : SqlExpression
   {
     public override void ReplaceWith(SqlExpression expression)

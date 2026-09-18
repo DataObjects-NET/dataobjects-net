@@ -12,7 +12,6 @@ namespace Xtensive.IoC
   /// <summary>
   /// An attribute tagging default service constructor to use.
   /// </summary>
-  [Serializable]
   [AttributeUsage(AttributeTargets.Constructor, AllowMultiple = false, Inherited = false)]
   public sealed class ServiceConstructorAttribute : Attribute
   {

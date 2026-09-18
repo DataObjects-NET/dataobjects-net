@@ -13,7 +13,6 @@ namespace Xtensive.Orm.Rse.Providers
   /// <summary>
   /// Injects SQL comment for query identification
   /// </summary>
-  [Serializable]
   public sealed class TagProvider : UnaryProvider
   {
     public readonly string Tag;

@@ -14,7 +14,6 @@ namespace Xtensive.Orm.Upgrade
   /// <summary>
   /// Remove type hint.
   /// </summary>
-  [Serializable]
   public class RemoveTypeHint : UpgradeHint,
     IEquatable<RemoveTypeHint>
   {

@@ -13,7 +13,6 @@ namespace Xtensive.Orm.Upgrade.Model
   /// <summary>
   /// A collection of <see cref="TableInfo"/> instances.
   /// </summary>
-  [Serializable]
   public sealed class TableInfoCollection : NodeCollectionBase<TableInfo, StorageModel>,
     IUnorderedNodeCollection
   {

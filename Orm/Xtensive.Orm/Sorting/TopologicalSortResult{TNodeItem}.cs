@@ -14,7 +14,6 @@ namespace Xtensive.Sorting
   /// Base type for <see cref="TopologicalSortResult{NodeItem,TConnectionItem}"/>.
   /// </summary>
   /// <typeparam name="TNodeItem">The type of the node item.</typeparam>
-  [Serializable]
   public class TopologicalSortResult<TNodeItem>
   {
     /// <summary>

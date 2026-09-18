@@ -16,7 +16,6 @@ using Xtensive.Orm.Tests.Upgrade.Sample3.Model.Version2;
 
 namespace Xtensive.Orm.Tests.Upgrade.Sample3
 {
-  [Serializable]
   public class Upgrader : UpgradeHandler
   {
     private static bool isEnabled = false;

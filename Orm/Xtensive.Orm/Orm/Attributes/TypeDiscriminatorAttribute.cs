@@ -12,7 +12,6 @@ namespace Xtensive.Orm
   /// <summary>
   /// Marks persistent property as type discriminator.
   /// </summary>
-  [Serializable]
   [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = false)]
   public sealed class TypeDiscriminatorAttribute : StorageAttribute
   {

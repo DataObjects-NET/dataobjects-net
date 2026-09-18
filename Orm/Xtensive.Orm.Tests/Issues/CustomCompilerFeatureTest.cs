@@ -33,7 +33,6 @@ namespace Xtensive.Orm.Tests.Issues
       }
     }
 
-    [Serializable]
     [HierarchyRoot]
     public class Person : Entity, IHasVirtualFields
     {
@@ -79,7 +78,6 @@ namespace Xtensive.Orm.Tests.Issues
       }
     }
 
-    [Serializable]
     [HierarchyRoot]
     public class Company : Entity, IHasVirtualFields
     {
@@ -117,7 +115,6 @@ namespace Xtensive.Orm.Tests.Issues
       #endregion
     }
 
-    [Serializable]
     [HierarchyRoot]
     public class Address : Structure
     {
@@ -125,7 +122,6 @@ namespace Xtensive.Orm.Tests.Issues
       public Region Region { get; set; }
     }
 
-    [Serializable]
     [HierarchyRoot]
     public class Region : Entity
     {
@@ -239,7 +235,6 @@ namespace Xtensive.Orm.Tests.Issues
       }
     }
 
-    [Serializable]
     [HierarchyRoot]
     public class BusinessAddress : Structure
     {
@@ -247,7 +242,6 @@ namespace Xtensive.Orm.Tests.Issues
       public Area Area { get; set; }
     }
 
-    [Serializable]
     [HierarchyRoot]
     public class Area : Entity
     {
@@ -264,7 +258,6 @@ namespace Xtensive.Orm.Tests.Issues
     }
   }
 
-  [Serializable]
   public class CustomCompilerFeatureTest : AutoBuildTest
   {
     protected override DomainConfiguration BuildConfiguration()

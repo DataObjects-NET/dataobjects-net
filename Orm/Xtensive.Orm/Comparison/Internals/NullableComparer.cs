@@ -1,26 +1,20 @@
-// Copyright (C) 2008-2021 Xtensive LLC.
+// Copyright (C) 2008-2026 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: 
 // Created:    2008.01.23
 
 using System;
-using System.Runtime.Serialization;
-using System.Security;
 using Xtensive.Core;
 
 namespace Xtensive.Comparison
 {
-  [Serializable]
   internal sealed class NullableComparer<T>: WrappingComparer<T?, T>
     where T: struct
   {
-    [NonSerialized]
-    private Func<T, T, int>  currentBaseCompare;
-    [NonSerialized]
-    private Predicate<T, T>  currentBaseEquals;
-    [NonSerialized]
-    private Func<T, int>     currentBaseGetHashCode;
+    private readonly Func<T, T, int>  currentBaseCompare;
+    private readonly Predicate<T, T>  currentBaseEquals;
+    private readonly Func<T, int>     currentBaseGetHashCode;
 
 
     protected override NullableComparer<T> CreateNew(ComparisonRules rules) => new(Provider, ComparisonRules.Combine(rules));
@@ -67,7 +61,10 @@ namespace Xtensive.Comparison
       return BaseComparer.GetNearestValue(value.GetValueOrDefault(), direction);
     }
 
-    private void Initialize()
+    // Constructors
+
+    public NullableComparer(IComparerProvider provider, ComparisonRules comparisonRules)
+      : base(provider, comparisonRules)
     {
       var baseValueRangeInfo = BaseComparer.ValueRangeInfo;
       ValueRangeInfo =
@@ -78,29 +75,9 @@ namespace Xtensive.Comparison
           baseValueRangeInfo.HasDeltaValue,
           baseValueRangeInfo.HasDeltaValue ? baseValueRangeInfo.DeltaValue : default(T));
 
-      currentBaseCompare     = BaseComparer.Compare;
-      currentBaseEquals      = BaseComparer.Equals;
+      currentBaseCompare = BaseComparer.Compare;
+      currentBaseEquals = BaseComparer.Equals;
       currentBaseGetHashCode = BaseComparer.GetHashCode;
-    }
-
-
-    // Constructors
-
-    public NullableComparer(IComparerProvider provider, ComparisonRules comparisonRules)
-      : base(provider, comparisonRules)
-    {
-      Initialize();
-    }
-
-    public NullableComparer(SerializationInfo info, StreamingContext context)
-      : base(info, context)
-    {
-    }
-
-    public override void OnDeserialization(object sender)
-    {
-      base.OnDeserialization(sender);
-      Initialize();
     }
   }
 }

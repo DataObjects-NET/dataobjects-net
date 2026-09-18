@@ -5,11 +5,7 @@
 // Created:    2011.05.13
 
 using System;
-using System.Data;
 using System.Data.Common;
-using System.Diagnostics;
-using System.IO;
-using System.Runtime.Serialization.Formatters.Binary;
 using NUnit.Framework;
 using Xtensive.Sql;
 using Xtensive.Sql.Compiler;
@@ -117,20 +113,12 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
     }
 
     [Test]
-    public void ArrayTest() //TODO: Find reason why this pattern is structured like this.(Malisa)
+    public void ArrayTest()
     {
       SqlArray<int> i = SqlDml.Array(new int[] { 1, 2 });
       i.Values[0] = 10;
       SqlSelect select = SqlDml.Select();
       select.Where = SqlDml.In(1, i);
-
-      using (var mStream = new MemoryStream()) {
-        var formatter = new BinaryFormatter();
-        formatter.Serialize(mStream, select);
-
-        _ = mStream.Seek(0, SeekOrigin.Begin);
-        select = (SqlSelect) formatter.Deserialize(mStream);
-      }
 
       Console.WriteLine(sqlDriver.Compile(select).GetCommandText());
     }

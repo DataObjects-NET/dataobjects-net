@@ -5,7 +5,6 @@
 // Created:    2009.09.03
 
 using System;
-using System.Runtime.Serialization;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Model;
@@ -13,7 +12,6 @@ using Xtensive.Orm.Tests.Issues.Issue0370_EntitiSetIsNotHandledProperly_Model;
 
 namespace Xtensive.Orm.Tests.Issues.Issue0370_EntitiSetIsNotHandledProperly_Model
 {
-  [Serializable]
   [HierarchyRoot]
   public class Container : Entity
   {
@@ -24,7 +22,6 @@ namespace Xtensive.Orm.Tests.Issues.Issue0370_EntitiSetIsNotHandledProperly_Mode
     public ContainerItemSet Items { get; private set; }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class ContainerItem : Entity
   {
@@ -36,10 +33,6 @@ namespace Xtensive.Orm.Tests.Issues.Issue0370_EntitiSetIsNotHandledProperly_Mode
   {
     protected ContainerItemSet(Entity owner, FieldInfo field)
       : base(owner, field)
-    {}
-
-    protected ContainerItemSet(SerializationInfo info, StreamingContext context)
-      : base(info, context)
     {}
   }
 }
@@ -58,14 +51,13 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void MainTest()
     {
-      using (var session = Domain.OpenSession()) {
-        using (var t = session.OpenTransaction()) {
-          
-          var c = new Container();
-          c.Items.Add(new ContainerItem());
+      using (var session = Domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
 
-          // Rollback
-        }
+        var c = new Container();
+        _ = c.Items.Add(new ContainerItem());
+
+        // Rollback
       }
     }
   }

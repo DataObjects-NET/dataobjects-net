@@ -9,7 +9,6 @@ namespace Xtensive.Sql.Model
   /// <summary>
   /// Enumeration of possible partitioning methods.
   /// </summary>
-  [Serializable]
   public enum PartitionMethod
   {
     /// <summary>

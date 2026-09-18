@@ -18,7 +18,6 @@ using model3 = Xtensive.Orm.Tests.Issues.IssueJira0566_BuildingUnderlyingIndexFo
 namespace Xtensive.Orm.Tests.Issues.IssueJira0566_BuildingUnderlyingIndexForForeignKeyBugModel1
 {
   [Index("Entity", Clustered = true, Name = "Clustered")]
-  [Serializable]
   public abstract class BaseEntity : Entity
   {
     [Key]
@@ -39,7 +38,6 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0566_BuildingUnderlyingIndexForFore
   }
 
   [HierarchyRoot]
-  [Serializable]
   public class WithEntitySet : Entity
   {
     [Key]
@@ -58,7 +56,6 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0566_BuildingUnderlyingIndexForFore
 namespace Xtensive.Orm.Tests.Issues.IssueJira0566_BuildingUnderlyingIndexForForeignKeyBugModel2
 {
   [Index("Entity", Clustered = true, Name = "Clustered")]
-  [Serializable]
   public abstract class BaseEntity : Entity
   {
     [Key]
@@ -85,7 +82,6 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0566_BuildingUnderlyingIndexForFore
   }
 
   [HierarchyRoot]
-  [Serializable]
   public class WithEntitySet : Entity
   {
     [Key]
@@ -104,7 +100,6 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0566_BuildingUnderlyingIndexForFore
 namespace Xtensive.Orm.Tests.Issues.IssueJira0566_BuildingUnderlyingIndexForForeignKeyBugModel3
 {
   [Index("Entity", Clustered = true, Name = "Clustered")]
-  [Serializable]
   public abstract class BaseEntity : Entity
   {
     [Key]
@@ -131,7 +126,6 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0566_BuildingUnderlyingIndexForFore
   }
 
   [HierarchyRoot]
-  [Serializable]
   public class WithEntitySet : Entity
   {
     [Key]

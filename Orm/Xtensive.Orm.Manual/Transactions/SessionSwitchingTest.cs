@@ -14,7 +14,6 @@ namespace Xtensive.Orm.Manual.Transactions.SessionSwitching
 {
   #region Model
 
-  [Serializable]
   [HierarchyRoot]
   public class Person : Entity
   {

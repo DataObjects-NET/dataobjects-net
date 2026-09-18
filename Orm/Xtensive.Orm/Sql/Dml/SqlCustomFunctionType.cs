@@ -15,7 +15,6 @@ namespace Xtensive.Sql.Dml
   /// supported by majority of providers. Such functions should be
   /// handleded by the provider within which they are declared.
   /// </summary>
-  [Serializable]
   public sealed class SqlCustomFunctionType : IEquatable<SqlCustomFunctionType>
   {
     public string Name { get; private set; }

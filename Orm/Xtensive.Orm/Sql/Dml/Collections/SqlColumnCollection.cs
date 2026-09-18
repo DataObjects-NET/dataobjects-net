@@ -13,7 +13,6 @@ namespace Xtensive.Sql.Dml
   /// <summary>
   /// Represents collection of <see cref="SqlColumn"/>s.
   /// </summary>
-  [Serializable]
   public class SqlColumnCollection : ICollection<SqlColumn>, IReadOnlyList<SqlColumn>
   {
     private static readonly StringComparer Comparer = StringComparer.OrdinalIgnoreCase;

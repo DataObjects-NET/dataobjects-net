@@ -17,7 +17,7 @@ using Xtensive.Orm.Tests.ObjectModel.ChinookDO;
 namespace Xtensive.Orm.Tests.Linq
 {
   [TestFixture]
-  [Serializable]
+  [Category("Linq")]
   public class MiscTest : ChinookDOModelTest
   {
     [Test]

@@ -7,7 +7,6 @@ using Xtensive.Sql.Model;
 
 namespace Xtensive.Sql.Ddl
 {
-  [Serializable]
   public class SqlDropCollation : SqlStatement, ISqlCompileUnit
   {
     public Collation Collation { get; }

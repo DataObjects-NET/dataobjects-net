@@ -4,13 +4,11 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using Xtensive.Core;
 
 namespace Xtensive.Sql.Dml
 {
-  [Serializable]
   public class SqlUserFunctionCall : SqlFunctionCall
   {
     /// <summary>

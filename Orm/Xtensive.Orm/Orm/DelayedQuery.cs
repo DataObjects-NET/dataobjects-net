@@ -17,7 +17,6 @@ namespace Xtensive.Orm.Internals
   /// <summary>
   /// Abstract base for both sequence and scalar delayed queries.
   /// </summary>
-  [Serializable]
   public abstract class DelayedQuery
   {
     private readonly ParameterContext parameterContext;
@@ -51,8 +50,8 @@ namespace Xtensive.Orm.Internals
         throw new InvalidOperationException(Strings.ExThisInstanceIsExpiredDueToTransactionBoundaries);
       }
 
-      if (Task.Result==null) {
-        Session.ExecuteUserDefinedDelayedQueries(false);
+      if (Task.Result is null) {
+        _ = Session.ExecuteUserDefinedDelayedQueries(false);
       }
 
       return materializer.Invoke<T>(RecordSetReader.Create(Task.Result), Session, parameterContext);
@@ -72,8 +71,8 @@ namespace Xtensive.Orm.Internals
         throw new InvalidOperationException(Strings.ExThisInstanceIsExpiredDueToTransactionBoundaries);
       }
 
-      if (Task.Result==null) {
-        await Session.ExecuteUserDefinedDelayedQueriesAsync(false, token).ConfigureAwait(false);
+      if (Task.Result is null) {
+        _ = await Session.ExecuteUserDefinedDelayedQueriesAsync(false, token).ConfigureAwait(false);
       }
 
       return materializer.Invoke<T>(RecordSetReader.Create(Task.Result), Session, parameterContext);

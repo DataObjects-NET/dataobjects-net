@@ -5,12 +5,10 @@
 // Created:    2009.07.09
 
 using System;
-using Xtensive.Orm.Providers;
 
 namespace Xtensive.Orm.Internals
 {
-  [Serializable]
-  internal struct PersistAction
+  internal readonly struct PersistAction
   {
     public readonly StorageNode Node;
     public readonly EntityState EntityState;

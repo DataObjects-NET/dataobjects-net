@@ -16,7 +16,6 @@ namespace Xtensive.Orm.Manual.Advanced.CustomLinqCompiler
 {
   #region Model
 
-  [Serializable]
   [HierarchyRoot]
   public class Person : Entity
   {

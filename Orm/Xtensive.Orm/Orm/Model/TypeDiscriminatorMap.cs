@@ -15,43 +15,33 @@ namespace Xtensive.Orm.Model
   /// <summary>
   /// Type discriminator map.
   /// </summary>
-  [Serializable]
   public sealed class TypeDiscriminatorMap : Node, 
     IEnumerable<Pair<object, TypeInfo>>
   {
+    private readonly Dictionary<object, TypeInfo> map = new();
+    private readonly Dictionary<TypeInfo, object> reversedMap = new();
     private TypeInfo @default;
-    private readonly Dictionary<object, TypeInfo> map = new Dictionary<object, TypeInfo>();
-    private readonly Dictionary<TypeInfo, object> reversedMap = new Dictionary<TypeInfo, object>();
     private FieldInfo @field;
 
     public FieldInfo Field
     {
-      get { return @field; }
-      set
-      {
+      get => @field;
+      set {
         EnsureNotLocked();
-        if (@field != null)
+        if (@field is not null)
           throw new InvalidOperationException(Strings.ExTypeDiscriminatorFieldIsAlreadySet);
         @field = value;
       }
     }
 
-    public ColumnInfo Column
-    {
-      get { return Field.Column; }
-    }
+    public ColumnInfo Column => Field.Column;
 
-    public TypeInfo Default
-    {
-      get { return @default; }
-    }
+    public TypeInfo Default => @default;
 
     public TypeInfo this[object typeDiscriminatorValue]
     {
-      get
-      {
-        TypeInfo result;
-        if (map.TryGetValue(typeDiscriminatorValue, out result))
+      get {
+        if (map.TryGetValue(typeDiscriminatorValue, out var result))
           return result;
         return @default;
       }
@@ -59,10 +49,8 @@ namespace Xtensive.Orm.Model
 
     public object this[TypeInfo typeInfo]
     {
-      get
-      {
-        object result;
-        if (reversedMap.TryGetValue(typeInfo, out result))
+      get {
+        if (reversedMap.TryGetValue(typeInfo, out var result))
           return result;
         return null;
       }
@@ -80,17 +68,14 @@ namespace Xtensive.Orm.Model
     public void RegisterDefaultType(TypeInfo type)
     {
       EnsureNotLocked();
-      if (@default != null)
+      if (@default is not null)
         throw new InvalidOperationException(Strings.ExDefaultTypeIsAlreadyRegistered);
 
       @default = type;
     }
 
     /// <inheritdoc/>
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-      return GetEnumerator();
-    }
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     /// <inheritdoc/>
     public IEnumerator<Pair<object, TypeInfo>> GetEnumerator()

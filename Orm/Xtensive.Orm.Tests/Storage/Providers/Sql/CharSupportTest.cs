@@ -15,7 +15,6 @@ using Xtensive.Orm.Tests.Storage.Providers.Sql.CharSupportTestModel;
 
 namespace Xtensive.Orm.Tests.Storage.Providers.Sql.CharSupportTestModel
 {
-  [Serializable]
   [HierarchyRoot]
   class MyEntity : Entity
   {

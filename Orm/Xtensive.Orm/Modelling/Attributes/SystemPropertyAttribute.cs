@@ -14,7 +14,6 @@ namespace Xtensive.Modelling.Attributes
   /// System property marker.
   /// </summary>
   [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = false)]
-  [Serializable]
   internal sealed class SystemPropertyAttribute : Attribute
   {
     /// <summary>

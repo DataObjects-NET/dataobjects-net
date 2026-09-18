@@ -8,22 +8,20 @@ using System;
 
 namespace Xtensive.Conversion
 {
-  [Serializable]
   internal class TimeSpanRoughAdvancedConverter :
     RoughAdvancedConverterBase,
     IAdvancedConverter<TimeSpan, float>,
-    IAdvancedConverter<TimeSpan, double>
+    IAdvancedConverter<TimeSpan, double>,
+    IAdvancedConverter<TimeSpan, DateOnly>,
+    IAdvancedConverter<TimeSpan, DateTimeOffset>
   {
-    float IAdvancedConverter<TimeSpan, float>.Convert(TimeSpan value)
-    {
-      return Convert.ToSingle(value.Ticks);
-    }
+    float IAdvancedConverter<TimeSpan, float>.Convert(TimeSpan value) => Convert.ToSingle(value.Ticks);
 
-    double IAdvancedConverter<TimeSpan, double>.Convert(TimeSpan value)
-    {
-      return Convert.ToDouble(value.Ticks);
-    }
+    double IAdvancedConverter<TimeSpan, double>.Convert(TimeSpan value) => Convert.ToDouble(value.Ticks);
 
+    DateOnly IAdvancedConverter<TimeSpan, DateOnly>.Convert(TimeSpan value) => DateOnly.FromDayNumber((int) Math.Round(value.TotalDays));
+
+    DateTimeOffset IAdvancedConverter<TimeSpan, DateTimeOffset>.Convert(TimeSpan value) => new DateTimeOffset(value.Ticks, TimeSpan.Zero);
 
     // Constructors
 

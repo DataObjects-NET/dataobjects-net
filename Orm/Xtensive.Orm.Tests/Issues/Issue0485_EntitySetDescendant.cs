@@ -5,7 +5,6 @@
 // Created:    2009.11.26
 
 using System;
-using System.Runtime.Serialization;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Model;
@@ -15,7 +14,6 @@ using System.Linq;
 
 namespace Xtensive.Orm.Tests.Issues.Issue0485_EntitySetDescendant_Model
 {
-  [Serializable]
   [HierarchyRoot]
   public class Company : Entity
   {
@@ -29,7 +27,6 @@ namespace Xtensive.Orm.Tests.Issues.Issue0485_EntitySetDescendant_Model
     public EntitySetDescendant<Employee> Employees{ get; private set;}
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class Employee : Entity
   {
@@ -46,11 +43,6 @@ namespace Xtensive.Orm.Tests.Issues.Issue0485_EntitySetDescendant_Model
   {
     protected EntitySetDescendant(Entity owner, FieldInfo field)
       : base(owner, field)
-    {
-    }
-
-    protected EntitySetDescendant(SerializationInfo info, StreamingContext context)
-      : base(info, context)
     {
     }
   }
@@ -76,18 +68,17 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void MainTest()
     {
-      using (var session = Domain.OpenSession()) {
-        using (var t = session.OpenTransaction()) {
-          var company = new Company();
-          var employee1 = new Employee();
-          var employee2 = new Employee();
-          var employee3 = new Employee();
-          company.Employees.Add(employee1);
-          company.Employees.Add(employee2);
-          company.Employees.Add(employee3);
-          Assert.That(company.Employees.ElementAt(0), Is.Not.Null);
-          // Rollback
-        }
+      using (var session = Domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var company = new Company();
+        var employee1 = new Employee();
+        var employee2 = new Employee();
+        var employee3 = new Employee();
+        _ = company.Employees.Add(employee1);
+        _ = company.Employees.Add(employee2);
+        _ = company.Employees.Add(employee3);
+        Assert.That(company.Employees.ElementAt(0), Is.Not.Null);
+        // Rollback
       }
     }
   }

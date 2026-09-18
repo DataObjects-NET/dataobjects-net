@@ -17,22 +17,21 @@ namespace Xtensive.Conversion
   /// Default <see cref="IAdvancedConverter{TFrom,TTo}"/> provider. 
   /// Provides default converter for specified types.
   /// </summary>
-  [Serializable]
   public class AdvancedConverterProvider : AssociateProvider, IAdvancedConverterProvider
   {
     /// <summary>
     /// Zero time point (for conversion of <see cref="DateTime"/> to e.g. <see cref="int"/>).
     /// </summary>
-    public  static readonly DateTime ZeroTime = new DateTime(2000, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
-    private static readonly AdvancedConverterProvider @default = new AdvancedConverterProvider();
+    public  static readonly DateTime ZeroTime = new(2000, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
+    private static readonly AdvancedConverterProvider @default = new();
 
-    private static readonly AsyncLocal<Dictionary<Pair<Type>, bool>> inProgressAsync = new AsyncLocal<Dictionary<Pair<Type>, bool>>();
+    private static readonly AsyncLocal<Dictionary<Pair<Type>, bool>> inProgressAsync = new();
 
     private static Dictionary<Pair<Type>, bool> InProgress
     {
       get {
         var returnedValue = inProgressAsync.Value;
-        if (returnedValue==null)
+        if (returnedValue is null)
           inProgressAsync.Value = returnedValue = new Dictionary<Pair<Type>, bool>();
         return returnedValue;
       }
@@ -44,20 +43,18 @@ namespace Xtensive.Conversion
     public static IAdvancedConverterProvider Default
     {
       [DebuggerStepThrough]
-      get { return @default; }
+      get => @default;
     }
 
     /// <inheritdoc/>
     public virtual AdvancedConverter<TFrom, TTo> GetConverter<TFrom, TTo>()
-    {
-      return GetAssociate<TFrom, TTo, IAdvancedConverter<TFrom, TTo>, AdvancedConverter<TFrom, TTo>>();
-    }
+      => GetAssociate<TFrom, TTo, IAdvancedConverter<TFrom, TTo>, AdvancedConverter<TFrom, TTo>>();
 
     /// <inheritdoc/>
     public virtual DateTime BaseTime
     {
       [DebuggerStepThrough]
-      get { return ZeroTime; }
+      get => ZeroTime;
     }
 
     /// <inheritdoc/>
@@ -82,24 +79,24 @@ namespace Xtensive.Conversion
       }
       try {
         TAssociate associate = base.CreateCustomAssociate<TKey1, TKey2, TAssociate>();
-        if (associate!=null)
+        if (associate is not null)
           return associate;
         IAdvancedConverterFactory<TKey1> f1 = base.GetAssociate<TKey1, IAdvancedConverterFactory<TKey1>, IAdvancedConverterFactory<TKey1>>();
-        if (f1!=null) {
+        if (f1 is not null) {
           associate = f1.CreateForwardConverter<TKey2>() as TAssociate;
-          if (associate!=null)
+          if (associate is not null)
             return associate;
         }
         IAdvancedConverterFactory<TKey2> f2 = base.GetAssociate<TKey2, IAdvancedConverterFactory<TKey2>, IAdvancedConverterFactory<TKey2>>();
-        if (f2!=null) {
+        if (f2 is not null) {
           associate = f2.CreateBackwardConverter<TKey1>() as TAssociate;
-          if (associate!=null)
+          if (associate is not null)
             return associate;
         }
         return null;
       }
       finally {
-        InProgress.Remove(keyTypePair);
+        _ = InProgress.Remove(keyTypePair);
       }
     }
 
@@ -120,7 +117,7 @@ namespace Xtensive.Conversion
     /// </summary>
     protected AdvancedConverterProvider()
     {
-      TypeSuffixes = new string[] {"AdvancedConverter", "RoughAdvancedConverter", "AdvancedConverterFactory"};
+      TypeSuffixes = ["AdvancedConverter", "RoughAdvancedConverter", "AdvancedConverterFactory"];
       Type t = typeof (AdvancedConverterProvider);
       AddHighPriorityLocation(t.Assembly, t.Namespace);
     }

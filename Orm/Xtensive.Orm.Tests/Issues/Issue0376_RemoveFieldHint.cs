@@ -13,12 +13,14 @@ using Xtensive.Orm.Providers;
 using Xtensive.Orm.Upgrade;
 using System.Reflection;
 using System.Linq;
+using M1 = Xtensive.Orm.Tests.Issues.Issue0376.Model1;
+using M2 = Xtensive.Orm.Tests.Issues.Issue0376.Model2;
+using M3 = Xtensive.Orm.Tests.Issues.Issue0376.Model3;
 
 #region Models
 
 namespace Xtensive.Orm.Tests.Issues.Issue0376.Model1
 {
-  [Serializable]
   [HierarchyRoot]
   public class Father : Entity
   {
@@ -29,7 +31,6 @@ namespace Xtensive.Orm.Tests.Issues.Issue0376.Model1
     public string LastName { get; set; }
   }
 
-  [Serializable]
   public class Son : Father
   {
     [Field]
@@ -42,7 +43,6 @@ namespace Xtensive.Orm.Tests.Issues.Issue0376.Model1
 
 namespace Xtensive.Orm.Tests.Issues.Issue0376.Model2
 {
-  [Serializable]
   [HierarchyRoot]
   public class Father : Entity
   {
@@ -56,7 +56,6 @@ namespace Xtensive.Orm.Tests.Issues.Issue0376.Model2
     public string FirstName { get; set; }
   }
 
-  [Serializable]
   public class Son : Father
   {
     [Field]
@@ -78,18 +77,14 @@ namespace Xtensive.Orm.Tests.Issues.Issue0376.Model2
       });
     }
 
-    public override bool IsEnabled {
-      get {
-        return isEnabled;
-      }
-    }
+    public override bool IsEnabled => isEnabled;
 
     protected override void AddUpgradeHints(ISet<UpgradeHint> hints)
     {
       var oldNamespace = "Xtensive.Orm.Tests.Issues.Issue0376.Model1";
-      hints.Add(new RenameTypeHint(oldNamespace + ".Father", typeof (Father)));
-      hints.Add(new RenameTypeHint(oldNamespace + ".Son", typeof (Son)));
-      hints.Add(new MoveFieldHint(oldNamespace + ".Son", "FirstName", typeof (Father)));
+      _ = hints.Add(new RenameTypeHint(oldNamespace + ".Father", typeof (Father)));
+      _ = hints.Add(new RenameTypeHint(oldNamespace + ".Son", typeof (Son)));
+      _ = hints.Add(new MoveFieldHint(oldNamespace + ".Son", "FirstName", typeof (Father)));
 //      hintSet.Add(new CopyFieldHint(oldNamescpace + ".Son", "FirstName", typeof (Father)));
 //      hintSet.Add(new RemoveFieldHint(oldNamescpace + ".Son", "FirstName"));
     }
@@ -98,7 +93,6 @@ namespace Xtensive.Orm.Tests.Issues.Issue0376.Model2
 
 namespace Xtensive.Orm.Tests.Issues.Issue0376.Model3
 {
-  [Serializable]
   [HierarchyRoot]
   public class Father : Entity
   {
@@ -136,8 +130,8 @@ namespace Xtensive.Orm.Tests.Issues.Issue0376.Model3
     protected override void AddUpgradeHints(ISet<UpgradeHint> hints)
     {
       var oldNamespace = "Xtensive.Orm.Tests.Issues.Issue0376.Model2";
-      hints.Add(new RenameTypeHint(oldNamespace + ".Father", typeof (Father)));
-      hints.Add(new RemoveTypeHint(oldNamespace + ".Son"));
+      _ = hints.Add(new RenameTypeHint(oldNamespace + ".Father", typeof (Father)));
+      _ = hints.Add(new RemoveTypeHint(oldNamespace + ".Son"));
     }
   }
 }
@@ -147,67 +141,56 @@ namespace Xtensive.Orm.Tests.Issues.Issue0376.Model3
 
 namespace Xtensive.Orm.Tests.Issues
 {
-  using M1 = Issue0376.Model1;
-  using M2 = Issue0376.Model2;
-  using M3 = Issue0376.Model3;
-  
   [TestFixture]
-  public class Issue0376_RemoveFieldHint : AutoBuildTest
+  public class Issue0376_RemoveFieldHint
   {
-    protected override DomainConfiguration BuildConfiguration()
-    {
-      var config = base.BuildConfiguration();
-      config.Types.RegisterCaching(Assembly.GetExecutingAssembly(), "Xtensive.Orm.Tests.Issues.Issue0376.Model1");
-      config.UpgradeMode = DomainUpgradeMode.Recreate;
-      return config;
-    }
-
-    protected override Domain BuildDomain(DomainConfiguration configuration)
-    {
-      var domain = base.BuildDomain(configuration);
-      using (var session = domain.OpenSession()) {
-        using (var transactionScope = session.OpenTransaction()) {
-          var son = new M1.Son {FirstName = "FirstName", LastName = "LastName", NickName = "NickName"};
-          transactionScope.Complete();
-        }
-      }
-      return domain;
-    }
-
     [Test]
-    public void BaseTest()
+    public void MainTest()
     {
       Require.AllFeaturesSupported(ProviderFeatures.UpdateFrom);
-      // Test MoveFieldHint (RemoveFieldHint)
-      var config = base.BuildConfiguration();
-      config.Types.RegisterCaching(Assembly.GetExecutingAssembly(), "Xtensive.Orm.Tests.Issues.Issue0376.Model2");
-      config.UpgradeMode = DomainUpgradeMode.PerformSafely;
+
+      var config = DomainConfigurationFactory.Create();
+      config.Types.RegisterCaching(Assembly.GetExecutingAssembly(), typeof(M1.Son).Namespace);
+      config.UpgradeMode = DomainUpgradeMode.Recreate;
+
       Domain domain;
+      using (domain = Domain.Build(config))
+      using (var session = domain.OpenSession())
+      using (var transactionScope = session.OpenTransaction()) {
+        var son = new M1.Son { FirstName = "FirstName", LastName = "LastName", NickName = "NickName" };
+        transactionScope.Complete();
+      }
+
+      // Test MoveFieldHint (RemoveFieldHint)
+      config = DomainConfigurationFactory.Create();
+      config.Types.RegisterCaching(Assembly.GetExecutingAssembly(), typeof(M2.Son).Namespace);
+      config.UpgradeMode = DomainUpgradeMode.PerformSafely;
+
       using (M2.Upgrader.Enable()) {
         domain = Domain.Build(config);
       }
-      using (var session = domain.OpenSession()) {
-        using (var transactionScope = session.OpenTransaction()) {
-          var son = session.Query.All<M2.Son>().Single();
-          Assert.That(son.FirstName, Is.EqualTo("FirstName"));
-          Assert.That(son.LastName, Is.EqualTo("LastName"));
-          Assert.That(son.NickName, Is.EqualTo("NickName"));
-          transactionScope.Complete();
-        }
+      using (domain)
+      using (var session = domain.OpenSession())
+      using (var transactionScope = session.OpenTransaction()) {
+        var son = session.Query.All<M2.Son>().Single();
+        Assert.That(son.FirstName, Is.EqualTo("FirstName"));
+        Assert.That(son.LastName, Is.EqualTo("LastName"));
+        Assert.That(son.NickName, Is.EqualTo("NickName"));
+        transactionScope.Complete();
       }
       
       // Test RemoveTypeHint
-      config = base.BuildConfiguration();
-      config.Types.RegisterCaching(Assembly.GetExecutingAssembly(), "Xtensive.Orm.Tests.Issues.Issue0376.Model3");
+      config = DomainConfigurationFactory.Create();
+      config.Types.RegisterCaching(Assembly.GetExecutingAssembly(), typeof(M3.Father).Namespace);
       config.UpgradeMode = DomainUpgradeMode.PerformSafely;
       using (M3.Upgrader.Enable()) {
         domain = Domain.Build(config);
       }
-      using (var session = domain.OpenSession()) {
-        using (var transactionScope = session.OpenTransaction()) {
-          Assert.That(session.Query.All<M3.Father>().Count()==0, Is.True);
-          transactionScope.Complete();
-        }
+      using (domain)
+      using (var session = domain.OpenSession())
+      using (var transactionScope = session.OpenTransaction()) {
+        Assert.That(session.Query.All<M3.Father>().Count() == 0, Is.True);
+        transactionScope.Complete();
       }
     }
   }

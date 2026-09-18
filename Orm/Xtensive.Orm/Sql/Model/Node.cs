@@ -11,7 +11,6 @@ namespace Xtensive.Sql.Model
   /// <summary>
   /// Represents base lockable named node.
   /// </summary>
-  [Serializable]
   [DebuggerDisplay("Name = {Name}")]
   public abstract class Node: LockableBase
   {

@@ -13,7 +13,6 @@ namespace Xtensive.Orm.Metadata
   /// Persistent descriptor of an assembly with registered persistent types.
   /// Used for schema upgrade purposes.
   /// </summary>
-  [Serializable]
   [SystemType(2)]
   [HierarchyRoot]
   [KeyGenerator(KeyGeneratorKind.None)]

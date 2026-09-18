@@ -1,4 +1,4 @@
-// Copyright (C) 2008-2021 Xtensive LLC.
+// Copyright (C) 2008-2026 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alex Yakunin
@@ -6,12 +6,10 @@
 
 using System;
 using System.Collections.Generic;
-using System.Runtime.Serialization;
 using Xtensive.Core;
 
 namespace Xtensive.Comparison
 {
-  [Serializable]
   internal sealed class KeyValuePairComparer<T1, T2>: WrappingComparer<KeyValuePair<T1, T2>, T1, T2>,
     ISystemComparer<KeyValuePair<T1, T2>>
   {
@@ -58,11 +56,6 @@ namespace Xtensive.Comparison
         hasDeltaValue = true;
       }
       ValueRangeInfo = new ValueRangeInfo<KeyValuePair<T1, T2>>(hasMinValue, minValue, hasMaxValue, maxValue, hasDeltaValue, deltaValue);
-    }
-
-    public KeyValuePairComparer(SerializationInfo info, StreamingContext context)
-      : base(info, context)
-    {
     }
   }
 }

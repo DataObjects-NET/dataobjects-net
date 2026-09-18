@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2008-2026 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Elena Vakhtina
 // Created:    2008.11.11
 
@@ -8,7 +8,6 @@ using System;
 
 namespace Xtensive.Conversion
 {
-  [Serializable]
   internal class TimeSpanAdvancedConverter :
     StrictAdvancedConverterBase<TimeSpan>,
     IAdvancedConverter<TimeSpan, byte>,
@@ -20,6 +19,7 @@ namespace Xtensive.Conversion
     IAdvancedConverter<TimeSpan, long>,
     IAdvancedConverter<TimeSpan, ulong>,
     IAdvancedConverter<TimeSpan, decimal>,
+    IAdvancedConverter<TimeSpan, TimeOnly>,
     IAdvancedConverter<TimeSpan, TimeSpan>,
     IAdvancedConverter<TimeSpan, string>
   {
@@ -79,20 +79,13 @@ namespace Xtensive.Conversion
       }
     }
 
-    decimal IAdvancedConverter<TimeSpan, decimal>.Convert(TimeSpan value)
-    {
-      return System.Convert.ToDecimal(value.Ticks);
-    }
+    decimal IAdvancedConverter<TimeSpan, decimal>.Convert(TimeSpan value) => System.Convert.ToDecimal(value.Ticks);
 
-    TimeSpan IAdvancedConverter<TimeSpan, TimeSpan>.Convert(TimeSpan value)
-    {
-      return value;
-    }
+    TimeSpan IAdvancedConverter<TimeSpan, TimeSpan>.Convert(TimeSpan value) => value;
 
-    string IAdvancedConverter<TimeSpan, string>.Convert(TimeSpan value)
-    {
-      return value.ToString();
-    }
+    TimeOnly IAdvancedConverter<TimeSpan, TimeOnly>.Convert(TimeSpan value) => TimeOnly.FromTimeSpan(value);
+
+    string IAdvancedConverter<TimeSpan, string>.Convert(TimeSpan value) => value.ToString();
 
 
     // Constructors

@@ -9,7 +9,6 @@ using System.Globalization;
 
 namespace Xtensive.Conversion
 {
-  [Serializable]
   internal class DateTimeAdvancedConverter :
     StrictAdvancedConverterBase<DateTime>,
     IAdvancedConverter<DateTime, byte>,
@@ -83,25 +82,14 @@ namespace Xtensive.Conversion
       }
     }
 
-    decimal IAdvancedConverter<DateTime, decimal>.Convert(DateTime value)
-    {
-      return System.Convert.ToDecimal(value.Ticks - baseDateTimeTicks);
-    }
+    decimal IAdvancedConverter<DateTime, decimal>.Convert(DateTime value) => System.Convert.ToDecimal(value.Ticks - baseDateTimeTicks);
 
-    DateTime IAdvancedConverter<DateTime, DateTime>.Convert(DateTime value)
-    {
-      return value;
-    }
+    DateTime IAdvancedConverter<DateTime, DateTime>.Convert(DateTime value) => value;
 
-    TimeSpan IAdvancedConverter<DateTime, TimeSpan>.Convert(DateTime value)
-    {
-      return new TimeSpan(value.Ticks - baseDateTimeTicks);
-    }
+    TimeSpan IAdvancedConverter<DateTime, TimeSpan>.Convert(DateTime value) => new TimeSpan(value.Ticks - baseDateTimeTicks);
 
     string IAdvancedConverter<DateTime, string>.Convert(DateTime value)
-    {
-      return value.ToString("yyyy/MM/dd hh:mm:ss.fffffff tt K ", CultureInfo.InvariantCulture);
-    }
+      => value.ToString("yyyy/MM/dd hh:mm:ss.fffffff tt K ", CultureInfo.InvariantCulture);
 
 
     // Constructors

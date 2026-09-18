@@ -14,7 +14,6 @@ using Xtensive.Orm.Upgrade.Model;
 
 namespace Xtensive.Orm.Tests.Issues.Issue_0769_ByteArrayColumnUpgrade
 {
-  [Serializable]
   public class Upgrader : UpgradeHandler
   {
     private static bool isEnabled = false;

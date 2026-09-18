@@ -15,7 +15,6 @@ namespace Xtensive.Orm.Tests.Issues.Issue0715.Model
 {
   public static class Forest
   {
-    [Serializable]
     [HierarchyRoot]
     public class Animal : Entity
     {
@@ -32,7 +31,6 @@ namespace Xtensive.Orm.Tests.Issues.Issue0715.Model
     }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class Animal : Entity
   {
@@ -68,8 +66,8 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        new Forest.Animal {Name = "Forest Animal"};
-        new Animal {Name = "Animal"};
+        _ = new Forest.Animal {Name = "Forest Animal"};
+        _ = new Animal {Name = "Animal"};
       }
     }
   }

@@ -14,7 +14,6 @@ using Xtensive.Orm.Tests.Issues.Issue0422_GetStructureFieldsForComplexStructures
 
 namespace Xtensive.Orm.Tests.Issues.Issue0422_GetStructureFieldsForComplexStructures_Model
 {
-  [Serializable]
   public class EntityStructure : Structure
   {
     [Field]
@@ -28,7 +27,6 @@ namespace Xtensive.Orm.Tests.Issues.Issue0422_GetStructureFieldsForComplexStruct
     public DateTime StructureAge { get; set; }
   }
 
-  [Serializable]
   public class ComplexStructure : Structure
   {
     [Field]
@@ -42,7 +40,6 @@ namespace Xtensive.Orm.Tests.Issues.Issue0422_GetStructureFieldsForComplexStruct
     public EntityStructure EntityStructure { get; set; }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class EntityB : Entity
   {
@@ -83,39 +80,38 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void MainTest()
     {
-      using (var session = Domain.OpenSession()) {
-        using (var t = session.OpenTransaction()) {
-          // Fill
-          IEnumerable<EntityB> entitiesB = Enumerable
-            .Range(0, 100)
-            .Select(i => new EntityB {
-              Name = "NameB_" + i,
-              ComplexStructure = new ComplexStructure {
+      using (var session = Domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        // Fill
+        IEnumerable<EntityB> entitiesB = Enumerable
+          .Range(0, 100)
+          .Select(i => new EntityB {
+            Name = "NameB_" + i,
+            ComplexStructure = new ComplexStructure {
+              EntityB = new EntityB {
+                Name = "NameB_1_" + i
+              },
+              ComplexStructureName = "StructureName_1_" + i,
+              EntityStructure = new EntityStructure {
                 EntityB = new EntityB {
-                  Name = "NameB_1_" + i
+                  Name = "NameB_2_" + i
                 },
-                ComplexStructureName = "StructureName_1_" + i,
-                EntityStructure = new EntityStructure {
-                  EntityB = new EntityB {
-                    Name = "NameB_2_" + i
-                  },
-                  StructureAge = new DateTime(2000 + i, 10, 10),
-                  StructureName = "StructureName_2_" + i,
-                }
+                StructureAge = new DateTime(2000 + i, 10, 10),
+                StructureName = "StructureName_2_" + i,
               }
-            })
-            .ToList();
+            }
+          })
+          .ToList();
 
-          // Query
-          session.SaveChanges();
-          var structures = session.Query.All<EntityB>().Select(b => b.ComplexStructure).Skip(83).Take(1);
-          var str = structures.Single();
-          var testEntities = session.Query.All<EntityB>().Where(b => b.ComplexStructure==str).ToArray();
-          var actualEntities = session.Query.All<EntityB>().AsEnumerable().Where(b => b.ComplexStructure==str).ToArray();
-          Assert.That(actualEntities.Except(testEntities).Count(), Is.EqualTo(0));
+        // Query
+        session.SaveChanges();
+        var structures = session.Query.All<EntityB>().Select(b => b.ComplexStructure).Skip(83).Take(1);
+        var str = structures.Single();
+        var testEntities = session.Query.All<EntityB>().Where(b => b.ComplexStructure == str).ToArray();
+        var actualEntities = session.Query.All<EntityB>().AsEnumerable().Where(b => b.ComplexStructure == str).ToArray();
+        Assert.That(actualEntities.Except(testEntities).Count(), Is.EqualTo(0));
 
-          // Rollback
-        }
+        // Rollback
       }
     }
   }

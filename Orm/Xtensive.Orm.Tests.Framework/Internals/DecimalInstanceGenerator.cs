@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2008-2026 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Gamzov
 // Created:    2008.01.24
 
@@ -8,8 +8,8 @@ using System;
 
 namespace Xtensive.Orm.Tests
 {
-  [Serializable]
-  internal class DecimalInstanceGenerator : InstanceGeneratorBase<decimal>
+  internal sealed class DecimalInstanceGenerator(IInstanceGeneratorProvider provider)
+    : InstanceGeneratorBase<decimal>(provider)
   {
     public override decimal GetInstance(Random random)
     {
@@ -17,14 +17,6 @@ namespace Xtensive.Orm.Tests
         return new decimal(random.Next(), random.Next(), random.Next(),
            (random.Next() % 2 == 0), (byte)(random.Next() % 29));
       }
-    }
-
-
-    // Constructors
-
-    public DecimalInstanceGenerator(IInstanceGeneratorProvider provider)
-      : base(provider)
-    {
     }
   }
 }

@@ -163,7 +163,7 @@ namespace Xtensive.Orm.Tests.Issues
       foreach (var type in types)
         configuration.Types.Register(type);
       configuration.Types.Register(typeof (Helper));
-      AssertEx.Throws<DomainBuilderException>(() => Domain.Build(configuration));
+      AssertEx.Throws<DomainBuilderException>(() => Domain.Build(configuration).Dispose());
     }
   
   }

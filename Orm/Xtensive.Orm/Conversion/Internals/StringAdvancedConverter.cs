@@ -8,7 +8,6 @@ using System;
 
 namespace Xtensive.Conversion
 {
-  [Serializable]
   internal class StringAdvancedConverter :
     StrictAdvancedConverterBase<string>
   {

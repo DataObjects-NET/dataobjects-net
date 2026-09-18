@@ -22,7 +22,6 @@ namespace Xtensive.Orm.Building.Definitions
   /// Defines a single persistent type.
   /// </summary>
   [DebuggerDisplay("{UnderlyingType}")]
-  [Serializable]
   public sealed class TypeDef : SchemaMappedNode
   {
     private readonly ModelDefBuilder builder;

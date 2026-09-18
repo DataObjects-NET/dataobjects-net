@@ -15,21 +15,20 @@ namespace Xtensive.Orm.Model
   /// <summary>
   /// A collection of <see cref="FullTextIndexInfo"/> objects.
   /// </summary>
-  [Serializable]
   public sealed class FullTextIndexInfoCollection : LockableBase,
     IEnumerable<FullTextIndexInfo>
   {
-    private readonly HashSet<FullTextIndexInfo> container = new HashSet<FullTextIndexInfo>();
-    private readonly Dictionary<TypeInfo,FullTextIndexInfo> indexMap = new Dictionary<TypeInfo, FullTextIndexInfo>();
+    private readonly HashSet<FullTextIndexInfo> container = new();
+    private readonly Dictionary<TypeInfo,FullTextIndexInfo> indexMap = new();
 
     /// <summary>
     /// Gets the <see cref="FullTextIndexInfo"/> by the specified type.
     /// </summary>
     /// <exception cref="KeyNotFoundException">Index is not found.</exception>
-    public FullTextIndexInfo this[TypeInfo type] {
+    public FullTextIndexInfo this[TypeInfo type]
+    {
       get {
-        FullTextIndexInfo fulltextIndex;
-        if (!TryGetValue(type, out fulltextIndex))
+        if (!TryGetValue(type, out var fulltextIndex))
           throw new KeyNotFoundException();
         return fulltextIndex;
       }
@@ -42,9 +41,7 @@ namespace Xtensive.Orm.Model
     /// <param name="fullTextIndexInfo">The full text index info.</param>
     /// <returns><see langword="true" /> when the full-text index is found; otherwise <see langword="false" />.</returns>
     public bool TryGetValue(TypeInfo typeInfo, out FullTextIndexInfo fullTextIndexInfo)
-    {
-      return indexMap.TryGetValue(typeInfo, out fullTextIndexInfo);
-    }
+      => indexMap.TryGetValue(typeInfo, out fullTextIndexInfo);
 
     /// <summary>
     /// Registers specified full-text index by type key.
@@ -54,23 +51,17 @@ namespace Xtensive.Orm.Model
     public void Add(TypeInfo typeInfo, FullTextIndexInfo fullTextIndexInfo)
     {
       EnsureNotLocked();
-      container.Add(fullTextIndexInfo);
+      _ = container.Add(fullTextIndexInfo);
       indexMap.Add(typeInfo, fullTextIndexInfo);
     }
 
     #region IEnumerable<...> members
 
     /// <inheritdoc/>
-    public IEnumerator<FullTextIndexInfo> GetEnumerator()
-    {
-      return container.ToList().GetEnumerator();
-    }
+    public IEnumerator<FullTextIndexInfo> GetEnumerator() => container.ToList().GetEnumerator();
 
     /// <inheritdoc/>
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-      return GetEnumerator();
-    }
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     #endregion
   }

@@ -14,7 +14,6 @@ namespace Xtensive.Orm
   /// Marks persistent property as a part of primary key and 
   /// specifies <see cref="Position"/> and <see cref="Direction"/> of the field in key.
   /// </summary>
-  [Serializable]
   [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = false)]
   public sealed class KeyAttribute : StorageAttribute
   {

@@ -11,7 +11,6 @@ using Xtensive.Orm.Tests.Storage.IoC.Model;
 
 namespace Xtensive.Orm.Tests.Storage.IoC.Model
 {
-  [Serializable]
   [HierarchyRoot]
   public class MyEntity : Entity
   {

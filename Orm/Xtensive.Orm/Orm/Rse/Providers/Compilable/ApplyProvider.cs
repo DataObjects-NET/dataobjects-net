@@ -5,11 +5,6 @@
 // Created:    2009.02.16
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using Xtensive.Collections;
-using Xtensive.Core;
-
 
 namespace Xtensive.Orm.Rse.Providers
 {
@@ -17,7 +12,6 @@ namespace Xtensive.Orm.Rse.Providers
   /// Compilable provider that iterates over <see cref="BinaryProvider.Right"/> 
   /// provider result for each item from the <see cref="BinaryProvider.Left"/> provider.
   /// </summary>
-  [Serializable]
   public sealed class ApplyProvider : BinaryProvider,
     IInlinableProvider
   {

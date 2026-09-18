@@ -14,7 +14,6 @@ namespace Xtensive.Tuples.Transform
   /// <summary>
   /// This class is used for concatenation of two <see cref="Tuple"/>s.
   /// </summary>
-  [Serializable]
   public sealed class ConcatTransform
   {
     private readonly (int first, int second) sourceParts;

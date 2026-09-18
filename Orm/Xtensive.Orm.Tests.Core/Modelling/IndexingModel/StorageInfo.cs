@@ -14,7 +14,6 @@ namespace Xtensive.Orm.Tests.Core.Modelling.IndexingModel
   /// <summary>
   /// Indexing storage.
   /// </summary>
-  [Serializable]
   public sealed class StorageInfo : NodeBase<StorageInfo>,
     IModel
   {

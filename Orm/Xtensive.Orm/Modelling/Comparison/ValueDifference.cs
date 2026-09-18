@@ -15,19 +15,13 @@ namespace Xtensive.Modelling.Comparison
   /// <summary>
   /// Simple value comparison result.
   /// </summary>
-  [Serializable]
   public class ValueDifference : Difference
   {
     /// <inheritdoc/>
-    public override bool HasChanges {
-      get { return true; }
-    }
+    public override bool HasChanges => true;
 
     /// <inheritdoc/>
-    protected override string ParametersToString()
-    {
-      return "values differ";
-    }
+    protected override string ParametersToString() => "values differ";
 
 
     // Constructors

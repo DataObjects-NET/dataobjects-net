@@ -23,7 +23,6 @@ namespace Xtensive.Orm.Tests.Issues
     }
   }
 
-  [Serializable]
   public class Issue0648_MultiThreadNullReference : AutoBuildTest
   {
     protected override DomainConfiguration BuildConfiguration()
@@ -42,20 +41,20 @@ namespace Xtensive.Orm.Tests.Issues
 
       using (var session = Domain.OpenSession()) {
         using (var transactionScope = session.OpenTransaction()) {
-          new Simple();
-          new Simple();
-          new Simple();
-          new Simple();
-          new Simple();
+          _ = new Simple();
+          _ = new Simple();
+          _ = new Simple();
+          _ = new Simple();
+          _ = new Simple();
 
           for (int i = 0; i < threadCount; i++) {
             var completionEvent = completionEvents[i] = new ManualResetEvent(false);
-            ThreadPool.QueueUserWorkItem(state => {
+            _ = ThreadPool.QueueUserWorkItem(state => {
               using (var session2 = Domain.OpenSession())
               using (var t = session2.OpenTransaction()) {
                 var count = session2.Query.All<Simple>().Count();
               }
-              completionEvent.Set();
+              _ = completionEvent.Set();
             });
           }
 
@@ -64,7 +63,7 @@ namespace Xtensive.Orm.Tests.Issues
         }
       }
 
-      WaitHandle.WaitAll(completionEvents);
+      _ = WaitHandle.WaitAll(completionEvents);
 
       foreach (var item in completionEvents)
         item.Close();

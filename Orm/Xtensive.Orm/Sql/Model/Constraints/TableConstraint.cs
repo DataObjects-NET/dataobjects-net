@@ -10,7 +10,6 @@ namespace Xtensive.Sql.Model
   /// <summary>
   /// Represents a base <see cref="Table"/> constraint object.
   /// </summary>
-  [Serializable]
   public abstract class TableConstraint
     : Constraint<Table>
   {

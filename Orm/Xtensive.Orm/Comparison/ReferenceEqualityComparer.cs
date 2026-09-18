@@ -16,24 +16,17 @@ namespace Xtensive.Comparison
   /// Compares two objects by their reference values.
   /// </summary>
   /// <typeparam name="T">Type of the object to compare.</typeparam>
-  [Serializable]
   public sealed class ReferenceEqualityComparer<T> : IEqualityComparer<T>
   {
     /// <summary>
     /// Gets the only instance of this type.
     /// </summary>
-    public static ReferenceEqualityComparer<T> Instance = new ReferenceEqualityComparer<T>();
+    public readonly static ReferenceEqualityComparer<T> Instance = new();
 
     /// <inheritdoc/>
-    public bool Equals(T x, T y)
-    {
-      return ReferenceEquals(x, y);
-    }
+    public bool Equals(T x, T y) => ReferenceEquals(x, y);
 
     /// <inheritdoc/>
-    public int GetHashCode(T obj)
-    {
-      return RuntimeHelpers.GetHashCode(obj);
-    }
+    public int GetHashCode(T obj) => RuntimeHelpers.GetHashCode(obj);
   }
 }

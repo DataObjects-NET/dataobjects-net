@@ -11,7 +11,6 @@ namespace Xtensive.Sql.Model
   /// <summary>
   /// Represents a <see cref="Catalog"/> bound object.
   /// </summary>
-  [Serializable]
   public abstract class CatalogNode : Node, IPairedNode<Catalog>
   {
     private Catalog catalog;

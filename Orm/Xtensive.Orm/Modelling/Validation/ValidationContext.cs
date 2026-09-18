@@ -15,7 +15,6 @@ namespace Xtensive.Modelling.Validation
   /// <summary>
   /// Model validation context.
   /// </summary>
-  [Serializable]
   internal class ValidationContext : IContext<ValidationScope>
   {
     private readonly HashSet<object> validated = new HashSet<object>();

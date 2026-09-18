@@ -22,6 +22,7 @@ namespace Xtensive.Orm.Tests.Upgrade.TypeIdUpgrade
       configuration.Types.Register(typeof(Model.Employee));
       var domain = Domain.Build(configuration);
 
+      using (domain)
       using (var session = domain.OpenSession())
       using (var t = session.OpenTransaction()) {
         _ = new Model.Person() {
@@ -46,6 +47,7 @@ namespace Xtensive.Orm.Tests.Upgrade.TypeIdUpgrade
       using (Upgrader.Enable())
         domain = Domain.Build(configuration);
 
+      using (domain)
       using (var session = domain.OpenSession())
       using (var t = session.OpenTransaction()) {
         var count = session.Query.All<Model.Person>().Count();

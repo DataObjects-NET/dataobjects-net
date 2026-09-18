@@ -11,7 +11,6 @@ using Xtensive.Orm.Tests.Issues.Issue0351_NameBuilderProblem_Model;
 
 namespace Xtensive.Orm.Tests.Issues.Issue0351_NameBuilderProblem_Model
 {
-  [Serializable]
   [HierarchyRoot]
   public class Master : Entity
   {
@@ -22,7 +21,6 @@ namespace Xtensive.Orm.Tests.Issues.Issue0351_NameBuilderProblem_Model
     public EntitySet<Slave> Slaves { get; private set; }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class Slave : Entity
   {
@@ -33,26 +31,29 @@ namespace Xtensive.Orm.Tests.Issues.Issue0351_NameBuilderProblem_Model
 
 namespace Xtensive.Orm.Tests.Issues
 {
-  public class Issue0351_NameBuilderProblem : AutoBuildTest
+  public class Issue0351_NameBuilderProblem
   {
-    protected override DomainConfiguration BuildConfiguration()
+    [Test]
+    public void DomainBuildTest()
     {
-      var config = base.BuildConfiguration();
-      config.Types.RegisterCaching(typeof (Master).Assembly, typeof (Master).Namespace);
-      config.NamingConvention.NamespacePolicy = NamespacePolicy.AsIs;
-      return config;
+      var configuration = BuildConfiguration();
+      Assert.DoesNotThrow(() => Domain.Build(configuration).Dispose());
     }
 
     [Test]
-    public void MainTest()
+    public void DomainBuildAsyncTest()
     {
-      using (var session = Domain.OpenSession()) {
-        using (var t = session.OpenTransaction()) {
-          
+      var configuration = BuildConfiguration();
+      Assert.DoesNotThrowAsync(async () => (await Domain.BuildAsync(configuration)).Dispose());
+    }
 
-          // Rollback
-        }
-      }
+    private static DomainConfiguration BuildConfiguration()
+    {
+      var config = DomainConfigurationFactory.Create();
+      config.Types.Register(typeof(Master));
+      config.Types.Register(typeof(Slave));
+      config.NamingConvention.NamespacePolicy = NamespacePolicy.AsIs;
+      return config;
     }
   }
 }

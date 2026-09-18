@@ -17,7 +17,6 @@ namespace Xtensive.Collections
   /// Native type-based classifier.
   /// </summary>
   /// <typeparam name="TItem">The type of the item.</typeparam>
-  [Serializable]
   public class NativeTypeClassifier<TItem> : ClassifiedCollection<Type, TItem>
   {
     /// <summary>
@@ -28,24 +27,16 @@ namespace Xtensive.Collections
     /// A sequence of items of the specified class.
     /// </returns>
     public IEnumerable<TClass> GetItems<TClass>()
-    {
-      return GetItems(typeof(TClass)).Cast<TClass>();
-    }
+      => GetItems(typeof(TClass)).Cast<TClass>();
 
     public int GetItemCount<TClass>()
-    {
-      return GetItemCount(typeof(TClass));
-    }
+      => GetItemCount(typeof(TClass));
 
     private static Func<TItem, Type[]> GetClassifier(bool exactType)
-    {
-      if (exactType)
-        return item => new[] {item.GetType()};
-      else
-        return item => item.GetType().GetCompatibles();
-    }
+      => exactType
+        ? (item => [item.GetType()])
+        : (item => item.GetType().GetCompatibles());
 
-  
     // Constructors
 
     /// <summary>

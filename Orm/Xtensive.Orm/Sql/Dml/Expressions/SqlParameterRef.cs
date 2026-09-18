@@ -10,7 +10,6 @@ namespace Xtensive.Sql.Dml
   /// <summary>
   /// Represents a Sql parameter.
   /// </summary>
-  [Serializable]
   public class SqlParameterRef : SqlExpression, ISqlCursorFetchTarget
   {
     public object Parameter { get; private set; }

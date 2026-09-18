@@ -53,7 +53,6 @@ namespace Xtensive.Orm.Tests.Storage
     }
   }
 
-  [Serializable]
   public class IntermediateQueryTest : AutoBuildTest
   {
     protected override DomainConfiguration BuildConfiguration()

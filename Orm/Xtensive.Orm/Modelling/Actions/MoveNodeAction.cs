@@ -17,7 +17,6 @@ namespace Xtensive.Modelling.Actions
   /// <summary>
   /// Any kinds of node movement (parent changed, name changed or index changed).
   /// </summary>
-  [Serializable]
   public class MoveNodeAction : NodeAction
   {
     private string parent;
@@ -76,7 +75,7 @@ namespace Xtensive.Modelling.Actions
     {
       ArgumentNullException.ThrowIfNull(item);
       var node = (Node) item;
-      var newParent = parent==null ? node.Parent : (Node) model.Resolve(parent, true);
+      var newParent = parent is null ? node.Parent : (Node) model.Resolve(parent, true);
       if ((node is IModel) && (newParent is IModel))
         newParent = null;
       var newName = name ?? node.Name;
@@ -88,9 +87,9 @@ namespace Xtensive.Modelling.Actions
     protected override void GetParameters(List<Pair<string>> parameters)
     {
       base.GetParameters(parameters);
-      if (parent!=null)
+      if (parent is not null)
         parameters.Add(new Pair<string>("Parent", parent));
-      if (name!=null)
+      if (name is not null)
         parameters.Add(new Pair<string>("Name", name));
       if (index.HasValue)
         parameters.Add(new Pair<string>("Index", index.ToString()));

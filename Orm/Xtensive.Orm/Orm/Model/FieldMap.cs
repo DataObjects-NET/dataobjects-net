@@ -15,43 +15,32 @@ namespace Xtensive.Orm.Model
   /// <summary>
   /// Maps type fields to interface fields and vice versa.
   /// </summary>
-  [Serializable]
   public sealed class FieldMap: LockableBase, IEnumerable<KeyValuePair<FieldInfo, FieldInfo>>
   {
     internal static readonly FieldMap Empty;
 
-    private readonly Dictionary<FieldInfo, FieldInfo> map = new Dictionary<FieldInfo, FieldInfo>();
-    private readonly Dictionary<FieldInfo, HashSet<FieldInfo>> reversedMap = new Dictionary<FieldInfo, HashSet<FieldInfo>>();
+    private readonly Dictionary<FieldInfo, FieldInfo> map = new();
+    private readonly Dictionary<FieldInfo, HashSet<FieldInfo>> reversedMap = new();
 
-    public FieldInfo this[FieldInfo interfaceField]
-    {
-      get { return map[interfaceField]; }
-    }
+    public FieldInfo this[FieldInfo interfaceField] => map[interfaceField];
 
     public IEnumerable<FieldInfo> GetImplementedInterfaceFields(FieldInfo typeField)
     {
-      HashSet<FieldInfo> value;
-      if (!reversedMap.TryGetValue(typeField, out value))
+      if (!reversedMap.TryGetValue(typeField, out var value))
         return Enumerable.Empty<FieldInfo>();
       return value;
     }
 
-    public int Count
-    {
-      get { return map.Count; }
-    }
+    public int Count => map.Count;
 
-    public bool ContainsKey(FieldInfo interfaceField)
-    {
-      return map.ContainsKey(interfaceField);
-    }
+    public bool ContainsKey(FieldInfo interfaceField) => map.ContainsKey(interfaceField);
 
     public void Add(FieldInfo interfaceField, FieldInfo typeField)
     {
       EnsureNotLocked();
       map.Add(interfaceField, typeField);
       if (reversedMap.TryGetValue(typeField, out var interfaceFields)) {
-        interfaceFields.Add(interfaceField);
+        _ = interfaceFields.Add(interfaceField);
       }
       else
         reversedMap.Add(typeField, new HashSet<FieldInfo> { interfaceField });
@@ -63,24 +52,17 @@ namespace Xtensive.Orm.Model
       var oldTypeField = map[interfaceField];
       var interfaceFields = reversedMap[oldTypeField];
       map[interfaceField] = typeField;
-      reversedMap.Remove(oldTypeField);
+      _ = reversedMap.Remove(oldTypeField);
       reversedMap.Add(typeField, interfaceFields);
     }
 
     public bool TryGetValue(FieldInfo interfaceField, out FieldInfo typeField)
-    {
-      return map.TryGetValue(interfaceField, out typeField);
-    }
+      => map.TryGetValue(interfaceField, out typeField);
 
     IEnumerator<KeyValuePair<FieldInfo, FieldInfo>> IEnumerable<KeyValuePair<FieldInfo, FieldInfo>>.GetEnumerator()
-    {
-      return map.GetEnumerator();
-    }
+      => map.GetEnumerator();
 
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-      return ((IEnumerable<KeyValuePair<FieldInfo, FieldInfo>>) this).GetEnumerator();
-    }
+    IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable<KeyValuePair<FieldInfo, FieldInfo>>) this).GetEnumerator();
 
 
     // Constructors

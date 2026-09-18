@@ -10,7 +10,6 @@ namespace Xtensive.Sql.Dml
   /// <summary>
   /// Represents Trim function call.
   /// </summary>
-  [Serializable]
   public class SqlTrim : SqlExpression
   {
     private SqlExpression expression;

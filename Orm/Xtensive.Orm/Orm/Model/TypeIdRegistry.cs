@@ -13,7 +13,6 @@ namespace Xtensive.Orm.Model
   /// <summary>
   /// Dual-mapping between type identifiers and <see cref="TypeInfo"/>.
   /// </summary>
-  [Serializable]
   public sealed class TypeIdRegistry : LockableBase
   {
     private readonly Dictionary<TypeInfo, int> mapping = new();

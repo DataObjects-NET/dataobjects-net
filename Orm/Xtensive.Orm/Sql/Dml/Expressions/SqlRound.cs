@@ -9,7 +9,6 @@ using Xtensive.Core;
 
 namespace Xtensive.Sql.Dml
 {
-  [Serializable]
   public sealed class SqlRound : SqlExpression
   {
     public SqlExpression Argument { get; private set; }

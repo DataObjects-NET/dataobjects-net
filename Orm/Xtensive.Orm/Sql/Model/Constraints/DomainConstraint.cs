@@ -10,7 +10,6 @@ namespace Xtensive.Sql.Model
   /// <summary>
   /// Represents a <see cref="Domain"/> constraint object.
   /// </summary>
-  [Serializable]
   public class DomainConstraint : Constraint<Domain>
   {
     /// <summary>

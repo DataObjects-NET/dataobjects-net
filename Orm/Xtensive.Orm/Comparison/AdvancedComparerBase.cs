@@ -8,10 +8,7 @@ using System;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Diagnostics;
-using System.Runtime.Serialization;
-using System.Security;
 using Xtensive.Arithmetic;
-using Xtensive.Collections;
 using Xtensive.Core;
 
 
@@ -21,17 +18,15 @@ namespace Xtensive.Comparison
   /// Base class for <see cref="IAdvancedComparer{T}"/> implementations.
   /// </summary>
   /// <typeparam name="T">The type to compare.</typeparam>
-  [Serializable]
-  public abstract class AdvancedComparerBase<T>: IAdvancedComparer<T>,
-    ISerializable,
-    IDeserializationCallback
+  public abstract class AdvancedComparerBase<T>: IAdvancedComparer<T>
   {
     private static Arithmetic<T> cachedArithmetic;
-    [NonSerialized]
+
+    private readonly IComparerProvider provider;
+
     private ConcurrentDictionary<(ComparisonRules, AdvancedComparerBase<T>), AdvancedComparer<T>> cachedComparers = 
       new ConcurrentDictionary<(ComparisonRules, AdvancedComparerBase<T>), AdvancedComparer<T>>();
 
-    private IComparerProvider provider;
     private ValueRangeInfo<T> valueRangeInfo;
 
     /// <summary>
@@ -161,41 +156,6 @@ namespace Xtensive.Comparison
       this.provider = provider ?? throw new ArgumentNullException(nameof(provider));
       ComparisonRules = comparisonRules;
       DefaultDirectionMultiplier = comparisonRules.Value.Direction == Direction.Negative ? -1 : 1;
-    }
-
-    public AdvancedComparerBase(SerializationInfo info, StreamingContext context)
-    {
-      provider = (IComparerProvider) info.GetValue(nameof(provider), typeof(IComparerProvider));
-      valueRangeInfo = (ValueRangeInfo<T>) info.GetValue(nameof(valueRangeInfo), typeof(ValueRangeInfo<T>));
-      ComparisonRules = (ComparisonRules) info.GetValue(nameof(ComparisonRules), typeof(ComparisonRules));
-      DefaultDirectionMultiplier = info.GetInt32(nameof(DefaultDirectionMultiplier));
-    }
-
-    /// <summary>
-    /// Performs post-deserialization actions.
-    /// </summary>
-    /// <param name="sender"></param>
-    public virtual void OnDeserialization(object sender)
-    {
-      if (provider == null) {
-        provider = ComparerProvider.Default;
-      }
-      else if (provider.GetType() == typeof(ComparerProvider)) {
-        provider = ComparerProvider.Default;
-      }
-      else if (provider is SystemComparerProvider) {
-        provider = ComparerProvider.System;
-      }
-      cachedComparers = new ConcurrentDictionary<(ComparisonRules, AdvancedComparerBase<T>), AdvancedComparer<T>>();
-    }
-
-    [SecurityCritical]
-    public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
-    {
-      info.AddValue(nameof(provider), provider, provider.GetType());
-      info.AddValue(nameof(valueRangeInfo), valueRangeInfo, valueRangeInfo.GetType());
-      info.AddValue(nameof(ComparisonRules), ComparisonRules, ComparisonRules.GetType());
-      info.AddValue(nameof(DefaultDirectionMultiplier), DefaultDirectionMultiplier);
     }
   }
 }

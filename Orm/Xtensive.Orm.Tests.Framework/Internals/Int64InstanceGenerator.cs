@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2008-2026 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Roman Churakov
 // Created:    2008.01.18
 
@@ -9,26 +9,9 @@ using System;
 
 namespace Xtensive.Orm.Tests
 {
-  [Serializable]
-  internal class Int64InstanceGenerator : InstanceGeneratorBase<long>
+  internal sealed class Int64InstanceGenerator(IInstanceGeneratorProvider provider)
+    : InstanceGeneratorBase<long>(provider)
   {
-    public override long GetInstance(Random random)
-    {
-      byte[] byteBuffer = new byte[8];
-      random.NextBytes(byteBuffer);
-      long result = 0;
-      for (int i = 0; i < 8; i++) {
-        result = (result << 8) | byteBuffer[i];
-      }
-      return result;
-    }
-
-
-    // Constructors
-
-    public Int64InstanceGenerator(IInstanceGeneratorProvider provider)
-      : base(provider)
-    {
-    }
+    public override long GetInstance(Random random) => random.NextInt64();
   }
 }

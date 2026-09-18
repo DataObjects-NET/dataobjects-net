@@ -13,7 +13,6 @@ namespace Xtensive.Collections.Graphs
   /// Graph node with value. 
   /// </summary>
   /// <typeparam name="TValue">Node value.</typeparam>
-  [Serializable]
   public class Node<TValue> : Node
   {
     /// <summary>
@@ -24,7 +23,7 @@ namespace Xtensive.Collections.Graphs
     /// <summary>
     /// Gets node value.
     /// </summary>
-    public override object UntypedValue { get { return Value; } }
+    public override object UntypedValue => Value;
 
 
     // Constructors

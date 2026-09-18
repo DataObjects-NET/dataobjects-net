@@ -15,7 +15,6 @@ namespace Xtensive.Orm.Model
   /// <summary>
   /// Describes a group of columns that belongs to the specified <see cref="TypeInfoRef"/>.
   /// </summary>
-  [Serializable]
   [DebuggerDisplay("Type = {TypeInfoRef}, Keys = {Keys}, Columns = {Columns}")]
   public readonly struct ColumnGroup
   {
@@ -23,17 +22,17 @@ namespace Xtensive.Orm.Model
     /// Gets the <see cref="Model.TypeInfoRef"/> pointing to <see cref="TypeInfo"/>
     /// this column group belongs to.
     /// </summary>
-    public TypeInfoRef TypeInfoRef { get; }
+    public readonly TypeInfoRef TypeInfoRef;
 
     /// <summary>
     /// Gets the indexes of key columns.
     /// </summary>
-    public IReadOnlyList<int> Keys { get; }
+    public readonly IReadOnlyList<int> Keys;
 
     /// <summary>
     /// Gets the indexes of all columns.
     /// </summary>
-    public IReadOnlyList<int> Columns { get; }
+    public readonly IReadOnlyList<int> Columns;
 
 
     // Constructors

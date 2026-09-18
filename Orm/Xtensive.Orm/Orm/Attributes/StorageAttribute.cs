@@ -11,7 +11,6 @@ namespace Xtensive.Orm
   /// <summary>
   /// Base class for all storage-related attributes.
   /// </summary>
-  [Serializable]
   public abstract class StorageAttribute: Attribute
   {
   }

@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2018 Xtensive LLC.
+// Copyright (C) 2018 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alexey Kulakov
@@ -19,7 +19,7 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (var domain = Domain.Build(BuildInitialConfiguration())) { }
 
-      var exception = Assert.Throws<SchemaSynchronizationException>(() => Domain.Build(BuildUpgradeConfiguration()));
+      var exception = Assert.Throws<SchemaSynchronizationException>(() => Domain.Build(BuildUpgradeConfiguration()).Dispose());
       Assert.That(exception.ComparisonResult, Is.Null);
     }
 

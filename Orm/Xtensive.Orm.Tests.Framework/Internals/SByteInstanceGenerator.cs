@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2008-2026 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Roman Churakov
 // Created:    2008.01.18
 
@@ -9,25 +9,16 @@ using System;
 
 namespace Xtensive.Orm.Tests
 {
-  [Serializable]
-  internal class SByteInstanceGenerator : InstanceGeneratorBase<sbyte>
+  internal sealed class SByteInstanceGenerator(IInstanceGeneratorProvider provider)
+    : InstanceGeneratorBase<sbyte>(provider)
   {
-    private readonly IInstanceGenerator<byte> byteItemGenerator;
+    private readonly IInstanceGenerator<byte> byteItemGenerator = provider.GetInstanceGenerator<byte>();
 
     public override sbyte GetInstance(Random random)
     {
       unchecked {
         return (sbyte)byteItemGenerator.GetInstance(random);
       }
-    }
-
-
-    // Constructors
-
-    public SByteInstanceGenerator(IInstanceGeneratorProvider provider)
-      : base(provider)
-    {
-      byteItemGenerator = provider.GetInstanceGenerator<byte>();
     }
   }
 }

@@ -13,7 +13,6 @@ using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Internals.Prefetch
 {
-  [Serializable]
   internal abstract class EntityContainer
   {
     private SortedDictionary<int, ColumnInfo> columns;

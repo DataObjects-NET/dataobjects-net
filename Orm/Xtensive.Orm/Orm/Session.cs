@@ -140,7 +140,7 @@ namespace Xtensive.Orm
     /// <summary>
     /// Gets the operations registry of this <see cref="Session"/>.
     /// </summary>
-    public OperationRegistry Operations { get; private set; }
+    public IOperationRegistry Operations { get; }
 
     /// <summary>
     /// Gets or sets timeout for all <see cref="IDbCommand"/>s that
@@ -570,7 +570,7 @@ namespace Xtensive.Orm
       PairSyncManager = new SyncManager(this);
       RemovalProcessor = new RemovalProcessor(this);
       pinner = new Pinner(this);
-      Operations = new OperationRegistry(this);
+
       NonPairedReferencesRegistry = new NonPairedReferenceChangesRegistry(this);
       CommandProcessorContextProvider = new CommandProcessorContextProvider(this);
 
@@ -581,6 +581,11 @@ namespace Xtensive.Orm
 
       // Creating Services
       Services = CreateServices();
+
+      // If there is no service registered we use null object
+      Operations = !Domain.Configuration.Types.ServiceRegistrations.Any(static r => r.Type == WellKnownOrmInterfaces.OperationRegistry)
+        ?  new VoidOperationRegistry(this)
+        : Services.Get<IOperationRegistry>();
 
       disposableSet = new DisposableSet();
       remapper = new KeyRemapper(this);

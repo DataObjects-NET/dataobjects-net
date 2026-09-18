@@ -10,7 +10,6 @@ using Xtensive.Orm;
 
 namespace Modules.Model
 {
-  [Serializable]
   [HierarchyRoot]
   public class Simple0 : Entity
   {

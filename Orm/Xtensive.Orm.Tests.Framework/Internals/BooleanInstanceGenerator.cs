@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2008-2026 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Roman Churakov
 // Created:    2008.01.18
 
@@ -9,8 +9,8 @@ using System;
 
 namespace Xtensive.Orm.Tests
 {
-  [Serializable]
-  internal class BooleanInstanceGenerator : InstanceGeneratorBase<bool>
+  internal class BooleanInstanceGenerator(IInstanceGeneratorProvider provider)
+    : InstanceGeneratorBase<bool>(provider)
   {
     public override bool GetInstance(Random random)
     {
@@ -19,14 +19,6 @@ namespace Xtensive.Orm.Tests
 
         return BitConverter.ToBoolean(randomByte, 0);
       }
-    }
-
-
-    // Constructors
-
-    public BooleanInstanceGenerator(IInstanceGeneratorProvider provider)
-      : base(provider)
-    {
     }
   }
 }

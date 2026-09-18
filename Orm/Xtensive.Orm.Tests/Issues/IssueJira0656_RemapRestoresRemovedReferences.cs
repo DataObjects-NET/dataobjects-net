@@ -12,7 +12,6 @@ using Xtensive.Tuples;
 
 namespace Xtensive.Orm.Tests.Issues.IssueJira0656_RemapRestoresRemovedReferencesModel
 {
-  [Serializable]
   [HierarchyRoot]
   public class TestA : Entity
   {
@@ -26,7 +25,6 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0656_RemapRestoresRemovedReferences
     public TestB TestB { get; set; }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class TestB : Entity
   {
@@ -37,7 +35,6 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0656_RemapRestoresRemovedReferences
     public string Text { get; set; }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class TestBase : Entity
   {
@@ -48,15 +45,12 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0656_RemapRestoresRemovedReferences
     public string Text { get; set; }
   }
 
-  [Serializable]
   public class TestC : TestBase
   {
     [Field, Association(PairTo = "TestC", OnOwnerRemove = OnRemoveAction.Cascade, OnTargetRemove = OnRemoveAction.Clear)]
     public EntitySet<TestD> TestDs { get; private set; }
   }
 
-
-  [Serializable]
   [HierarchyRoot]
   public class TestD : Entity
   {

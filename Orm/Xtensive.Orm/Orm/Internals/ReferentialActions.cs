@@ -12,7 +12,6 @@ using Xtensive.Orm.ReferentialIntegrity;
 
 namespace Xtensive.Orm.Internals
 {
-  [Serializable]
   internal static class ReferentialActions
   {
     public static readonly Func<AssociationInfo, IEntity, IEntity> GetReference = OnGetReference;
@@ -34,9 +33,11 @@ namespace Xtensive.Orm.Internals
 
     private static void OnClearReference(AssociationInfo association, IEntity owner, IEntity target, SyncContext syncContext, RemovalContext removalContext)
     {
-      var nullIsEntity = owner as IHasNullEntity;
-      var nullValue = nullIsEntity == null ? null : nullIsEntity.NullEntity;
-      if (nullValue != null || association.OwnerField.IsNullable || removalContext?.Contains((Entity) owner) == true)
+      var nullValue = owner is IHasNullEntity nullIsEntity
+        ? nullIsEntity.NullEntity
+        : null;
+
+      if (nullValue is not null || association.OwnerField.IsNullable || removalContext?.Contains((Entity) owner) == true)
         // If field is non-nullable & null value is real null, we should avoid assigning it,
         // since this will lead to an error on persist in almost any case;
         // but if we won't assign it, it will either fail with ref. constraint violation later,
@@ -51,12 +52,14 @@ namespace Xtensive.Orm.Internals
 
     private static void OnAddReference(AssociationInfo association, IEntity owner, IEntity target, SyncContext syncContext, RemovalContext removalContext)
     {
-      ((EntitySetBase) ((Entity) owner).GetFieldValue(association.OwnerField)).Add((Entity) target, syncContext, removalContext);
+      _ = ((EntitySetBase) ((Entity) owner).GetFieldValue(association.OwnerField))
+        .Add((Entity) target, syncContext, removalContext);
     }
 
     private static void OnRemoveReference(AssociationInfo association, IEntity owner, IEntity target, SyncContext syncContext, RemovalContext removalContext)
     {
-      ((EntitySetBase) ((Entity) owner).GetFieldValue(association.OwnerField)).Remove((Entity) target, syncContext, removalContext);
+      _ = ((EntitySetBase) ((Entity) owner).GetFieldValue(association.OwnerField))
+        .Remove((Entity) target, syncContext, removalContext);
     }
 
     #endregion

@@ -7,10 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Runtime.Serialization;
-using System.Security;
 using Xtensive.Core;
-using Xtensive.Reflection;
 
 namespace Xtensive.Comparison
 {
@@ -18,33 +15,28 @@ namespace Xtensive.Comparison
   /// Provides delegates allowing to call comparison methods faster.
   /// </summary>
   /// <typeparam name="T">The type of <see cref="IAdvancedComparer{T}"/> generic argument.</typeparam>
-  [Serializable]
   public sealed class AdvancedComparer<T>: MethodCacheBase<IAdvancedComparer<T>>
   {
-    private static readonly Lazy<AdvancedComparer<T>> SystemCached =
-      new Lazy<AdvancedComparer<T>>(() => ComparerProvider.System.GetComparer<T>());
-
-    private static readonly Lazy<AdvancedComparer<T>> DefaultCached =
-      new Lazy<AdvancedComparer<T>>(() => ComparerProvider.Default.GetComparer<T>());
+    private static readonly Lazy<AdvancedComparer<T>> SystemCached = new(ComparerProvider.System.GetComparer<T>());
+    private static readonly Lazy<AdvancedComparer<T>> DefaultCached = new(ComparerProvider.Default.GetComparer<T>());
 
     /// <summary>
     /// Gets default advanced comparer for type <typeparamref name="T"/>
     /// (uses <see cref="ComparerProvider.Default"/> <see cref="ComparerProvider"/>).
     /// </summary>
-    public static AdvancedComparer<T> Default {
+    public static AdvancedComparer<T> Default
+    {
       [DebuggerStepThrough]
-      get {
-        return DefaultCached.Value;
-      }
+      get => DefaultCached.Value;
     }
 
     /// <summary>
     /// Gets system comparers exposed as <see cref="AdvancedComparer{T}"/> for type <typeparamref name="T"/>.
     /// </summary>
-    public static AdvancedComparer<T> System {
-      get {
-        return SystemCached.Value;
-      }
+    public static AdvancedComparer<T> System
+    {
+      [DebuggerStepThrough]
+      get => SystemCached.Value;
     }
 
     /// <summary>
@@ -209,68 +201,6 @@ namespace Xtensive.Comparison
           GetHashCode = EqualityComparerImplementation.GetHashCode;
         }
       }
-    }
-
-    /// <summary>
-    /// Deserializes the instance of this class.
-    /// </summary>
-    /// <param name="info">Serialization info.</param>
-    /// <param name="context">Streaming context.</param>
-    private AdvancedComparer(SerializationInfo info, StreamingContext context)
-      : base(info, context)
-    {
-      ComparerImplementation = (IComparer<T>)info.GetValue("ComparerImplementation", WellKnownTypes.Object);
-      EqualityComparerImplementation = (IEqualityComparer<T>)info.GetValue("EqualityComparerImplementation", WellKnownTypes.Object);
-      // Below code is the same between both primary constructors
-      if (Implementation!=null) {
-        Provider = Implementation.Provider;
-        ComparisonRules = Implementation.ComparisonRules;
-        ValueTypeComparerBase<T> vtc = Implementation as ValueTypeComparerBase<T>;
-        SystemComparer<T> sc = Implementation as SystemComparer<T>;
-        // Trying to get faster delegates
-        if (sc!=null) {
-          if (ComparisonRules.Value.Direction==Direction.Positive)
-            Compare = SystemComparerStruct<T>.Instance.Compare;
-          Equals = SystemComparerStruct<T>.Instance.Equals;
-          GetHashCode = SystemComparerStruct<T>.Instance.GetHashCode;
-        }
-        else if (vtc!=null) {
-          if (ComparisonRules.Value.Direction==Direction.Positive && vtc.UsesDefaultCompare)
-            Compare = SystemComparerStruct<T>.Instance.Compare;
-          if (vtc.UsesDefaultEquals)
-            Equals = SystemComparerStruct<T>.Instance.Equals;
-          if (vtc.UsesDefaultGetHashCode)
-            GetHashCode = SystemComparerStruct<T>.Instance.GetHashCode;
-        }
-        // Setting interface comparers, if unassigned
-        if (Compare==null)
-          Compare = ComparerImplementation.Compare;
-        if (Equals==null)
-          Equals = EqualityComparerImplementation.Equals;
-        if (GetHashCode==null)
-          GetHashCode = EqualityComparerImplementation.GetHashCode;
-        GetNearestValue = Implementation.GetNearestValue;
-        ApplyRules = Implementation.ApplyRules;
-        ValueRangeInfo = Implementation.ValueRangeInfo;
-      }
-      else {
-        ComparisonRules = ComparisonRules.Positive;
-        if (ComparerImplementation!=null)
-          Compare = ComparerImplementation.Compare;
-        if (EqualityComparerImplementation!=null) {
-          Equals = EqualityComparerImplementation.Equals;
-          GetHashCode = EqualityComparerImplementation.GetHashCode;
-        }
-      }
-    }
-
-    /// <inheritdoc/>
-    [SecurityCritical]
-    public override void GetObjectData(SerializationInfo info, StreamingContext context)
-    {
-      base.GetObjectData(info, context);
-      info.AddValue("ComparerImplementation", ComparerImplementation);
-      info.AddValue("EqualityComparerImplementation", EqualityComparerImplementation);
     }
   }
 }

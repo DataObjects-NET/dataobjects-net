@@ -1,10 +1,11 @@
-﻿// Copyright (C) 2013 Xtensive LLC.
+// Copyright (C) 2013 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alena Mikshina
 // Created:    2014.02.13
 
 using System;
+using System.Linq;
 using System.Linq.Expressions;
 using NUnit.Framework;
 using Xtensive.Orm.Model;
@@ -44,13 +45,8 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void MainTest()
     {
-      RunTest(typeof (Derived));
-    }
-
-    private void RunTest(Type type)
-    {
-      BuildDomain(type, DomainUpgradeMode.Recreate);
-      BuildDomain(type, DomainUpgradeMode.Validate);
+      BuildDomain(typeof(Derived), DomainUpgradeMode.Recreate);
+      BuildDomain(typeof(Derived), DomainUpgradeMode.Validate);
     }
 
     private void BuildDomain(Type type, DomainUpgradeMode upgradeMode)
@@ -58,7 +54,7 @@ namespace Xtensive.Orm.Tests.Issues
       var configuration = DomainConfigurationFactory.Create();
       configuration.Types.Register(type);
       configuration.UpgradeMode = upgradeMode;
-      Domain.Build(configuration).Dispose();
+      using (Domain.Build(configuration)) { }
     }
   }
 }

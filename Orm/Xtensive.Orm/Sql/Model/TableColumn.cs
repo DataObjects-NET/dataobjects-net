@@ -11,7 +11,6 @@ namespace Xtensive.Sql.Model
   /// <summary>
   /// Represents a <see cref="Table"/> bound column.
   /// </summary>
-  [Serializable]
   public class TableColumn : DataTableColumn, IPairedNode<Table>,ISequenceable
   {
     private SqlValueType dataType;

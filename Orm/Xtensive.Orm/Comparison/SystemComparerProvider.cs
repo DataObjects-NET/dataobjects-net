@@ -6,7 +6,6 @@
 
 using System;
 using System.Diagnostics;
-using System.Runtime.Serialization;
 
 namespace Xtensive.Comparison
 {
@@ -39,11 +38,6 @@ namespace Xtensive.Comparison
     // Constructors
 
     private SystemComparerProvider()
-    {
-    }
-
-    public SystemComparerProvider(SerializationInfo info, StreamingContext context)
-      : base(info, context)
     {
     }
   }

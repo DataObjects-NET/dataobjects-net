@@ -13,7 +13,6 @@ namespace Xtensive.Orm.Rse.Providers
   /// <summary>
   /// Compilable provider that returns one record if it matches specified <see cref="Key"/> from <see cref="UnaryProvider.Source"/>.
   /// </summary>
-  [Serializable]
   public sealed class SeekProvider : UnaryProvider
   {
     /// <summary>

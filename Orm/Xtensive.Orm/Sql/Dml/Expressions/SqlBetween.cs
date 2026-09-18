@@ -10,7 +10,6 @@ namespace Xtensive.Sql.Dml
   /// <summary>
   /// Represents between expression.
   /// </summary>
-  [Serializable]
   public class SqlBetween: SqlExpression
   {
     private SqlExpression left;
@@ -21,28 +20,19 @@ namespace Xtensive.Sql.Dml
     /// Gets the left boundary of the between predicate.
     /// </summary>
     /// <value>The left boundary of the between predicate.</value>
-    public SqlExpression Left
-    {
-      get { return left; }
-    }
+    public SqlExpression Left => left;
 
     /// <summary>
     /// Gets the right boundary of the between predicate.
     /// </summary>
     /// <value>The right boundary of the between predicate.</value>
-    public SqlExpression Right
-    {
-      get { return right; }
-    }
+    public SqlExpression Right => right;
 
     /// <summary>
     /// Gets the expression to compare.
     /// </summary>
     /// <value>The expression to compare.</value>
-    public SqlExpression Expression
-    {
-      get { return expression; }
-    }
+    public SqlExpression Expression => expression;
 
     public override void ReplaceWith(SqlExpression expression)
     {
@@ -50,7 +40,7 @@ namespace Xtensive.Sql.Dml
       NodeType = replacingExpression.NodeType;
       left = replacingExpression.Left;
       right = replacingExpression.Right;
-      expression = replacingExpression.Expression;
+      this.expression = replacingExpression.Expression;
     }
 
     internal override SqlBetween Clone(SqlNodeCloneContext context) =>

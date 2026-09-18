@@ -6,7 +6,6 @@ using System;
 
 namespace Xtensive.Sql.Dml
 {
-  [Serializable]
   public class SqlBreak : SqlStatement
   {
     internal override SqlBreak Clone(SqlNodeCloneContext context) => this;

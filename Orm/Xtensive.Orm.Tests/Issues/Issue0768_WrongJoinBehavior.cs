@@ -18,7 +18,6 @@ namespace Xtensive.Orm.Tests.Issues
 {
   namespace Issue0768_WrongJoinBehavior_Model
   {
-    [Serializable]
     [HierarchyRoot]
     public class Node : Entity
     {
@@ -46,7 +45,6 @@ namespace Xtensive.Orm.Tests.Issues
       public Node Parent { get; set; }
     }
 
-    [Serializable]
     [HierarchyRoot]
     public class Reference : Entity
     {
@@ -67,17 +65,16 @@ namespace Xtensive.Orm.Tests.Issues
       [Field]
       public string Name { get; set; }
     }
-
   }
 
-  [Serializable]
   public class Issue0768_WrongJoinBehavior : AutoBuildTest
   {
 
     protected override DomainConfiguration BuildConfiguration()
     {
-      DomainConfiguration config = base.BuildConfiguration();
-      config.Types.RegisterCaching(typeof(Issue0768_WrongJoinBehavior_Model.Node).Assembly, typeof(Issue0768_WrongJoinBehavior_Model.Node).Namespace);
+      var config = base.BuildConfiguration();
+      config.Types.Register(typeof(Reference));
+      config.Types.Register(typeof(Node));
       return config;
     }
 
@@ -87,19 +84,19 @@ namespace Xtensive.Orm.Tests.Issues
       using (var session = Domain.OpenSession())
       using (var t = session.OpenTransaction()) {
         var ref1 = new Reference(Guid.NewGuid()) { Name = "q", Version = DateTime.Now };
-        var node1 = new Issue0768_WrongJoinBehavior_Model.Node(Guid.NewGuid()) { Name = "w", Ref = ref1, Version = DateTime.Now };
+        var node1 = new Node(Guid.NewGuid()) { Name = "w", Ref = ref1, Version = DateTime.Now };
 
         var ref2 = new Reference(Guid.NewGuid()) { Name = "p5", Version = DateTime.Now };
-        var node2 = new Issue0768_WrongJoinBehavior_Model.Node(Guid.NewGuid()) { Name = "pp", Ref = ref1, Version = DateTime.Now };
+        var node2 = new Node(Guid.NewGuid()) { Name = "pp", Ref = ref1, Version = DateTime.Now };
 
         var ref3 = new Reference(Guid.NewGuid()) { Name = "q2", Version = DateTime.Now };
-        var node3 = new Issue0768_WrongJoinBehavior_Model.Node(Guid.NewGuid()) { Name = "w2", Ref = ref1, Version = DateTime.Now, Parent = node2 };
+        var node3 = new Node(Guid.NewGuid()) { Name = "w2", Ref = ref1, Version = DateTime.Now, Parent = node2 };
 
         t.Complete();
       }
       using (var session = Domain.OpenSession())
       using (var t = session.OpenTransaction()) {
-        var list = session.Query.All<Issue0768_WrongJoinBehavior_Model.Node>().Select(node => new { Parent = node.Parent.Ref.Name, node.Name }).ToList();
+        var list = session.Query.All<Node>().Select(node => new { Parent = node.Parent.Ref.Name, node.Name }).ToList();
         Assert.That(list.Count(), Is.EqualTo(3));
 
         // Current wrong way

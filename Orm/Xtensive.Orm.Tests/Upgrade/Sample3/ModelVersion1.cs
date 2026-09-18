@@ -8,7 +8,6 @@ using System;
 
 namespace Xtensive.Orm.Tests.Upgrade.Sample3.Model.Version1
 {
-  [Serializable]
   [HierarchyRoot]
   public abstract class Person : Entity
   {
@@ -27,7 +26,6 @@ namespace Xtensive.Orm.Tests.Upgrade.Sample3.Model.Version1
     public string ContactPhone { get; set; }
   }
 
-  [Serializable]
   public class Employee : Person
   {
     [Field]
@@ -42,7 +40,6 @@ namespace Xtensive.Orm.Tests.Upgrade.Sample3.Model.Version1
     }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class Order : Entity
   {

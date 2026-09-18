@@ -11,7 +11,6 @@ namespace Xtensive.Orm.Upgrade
   /// <summary>
   /// Abstract base class for any upgrade hint.
   /// </summary>
-  [Serializable]
   public abstract class UpgradeHint :
     IEquatable<UpgradeHint>
   {

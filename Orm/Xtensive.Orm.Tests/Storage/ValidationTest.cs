@@ -19,7 +19,6 @@ namespace Xtensive.Orm.Tests.Storage.Validation
   {
     private static AsyncLocal<int> validationCallsCountAsync = new AsyncLocal<int>();
 
-    [Serializable]
     [HierarchyRoot]
     public class Referrer : Entity
     {
@@ -43,7 +42,6 @@ namespace Xtensive.Orm.Tests.Storage.Validation
       }
     }
 
-    [Serializable]
     [HierarchyRoot]
     public class Reference : Entity
     {
@@ -63,7 +61,6 @@ namespace Xtensive.Orm.Tests.Storage.Validation
       }
     }
 
-    [Serializable]
     [HierarchyRoot]
     public class Mouse : Entity
     {
@@ -96,7 +93,6 @@ namespace Xtensive.Orm.Tests.Storage.Validation
       }
     }
 
-    [Serializable]
     public class Led : Structure
     {
       [Field]

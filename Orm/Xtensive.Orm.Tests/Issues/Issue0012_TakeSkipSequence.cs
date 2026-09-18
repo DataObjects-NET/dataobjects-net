@@ -15,7 +15,6 @@ using Xtensive.Orm.Tests.Issues.Issue0012_Model;
 
 namespace Xtensive.Orm.Tests.Issues.Issue0012_Model
 {
-  [Serializable]
   [HierarchyRoot]
   public class MyEntity : Entity
   {
@@ -46,7 +45,7 @@ namespace Xtensive.Orm.Tests.Issues
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.RegisterCaching(typeof (MyEntity).Assembly, typeof (MyEntity).Namespace);
+      config.Types.Register(typeof(MyEntity));
       return config;
     }
 
@@ -63,12 +62,12 @@ namespace Xtensive.Orm.Tests.Issues
           .Indexes.PrimaryIndex.GetQuery()
           .Filter(t => t.GetValue<int>(0) == e1.Id || t.GetValue<int>(0) == e2.Id);
 
-        Assert.That(rsMyEntities.Count(Session.Current), Is.EqualTo(2));
+        Assert.That(rsMyEntities.Count(session), Is.EqualTo(2));
 
-        Assert.That(rsMyEntities.Take(1).Skip(1).Count(Session.Current), Is.EqualTo(0));
-        Assert.That(rsMyEntities.Skip(1).Take(1).Count(Session.Current), Is.EqualTo(1));
-        Assert.That(rsMyEntities.Take(1).Take(2).Count(Session.Current), Is.EqualTo(1));
-        Assert.That(rsMyEntities.Skip(1).Skip(1).Count(Session.Current), Is.EqualTo(0));
+        Assert.That(rsMyEntities.Take(1).Skip(1).Count(session), Is.EqualTo(0));
+        Assert.That(rsMyEntities.Skip(1).Take(1).Count(session), Is.EqualTo(1));
+        Assert.That(rsMyEntities.Take(1).Take(2).Count(session), Is.EqualTo(1));
+        Assert.That(rsMyEntities.Skip(1).Skip(1).Count(session), Is.EqualTo(0));
         trs.Complete();
       }
     }

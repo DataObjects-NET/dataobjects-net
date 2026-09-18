@@ -14,7 +14,6 @@ namespace Xtensive.Orm
   /// <summary>
   /// Configures key generator for the hierarchy.
   /// </summary>
-  [Serializable]
   [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
   public sealed class KeyGeneratorAttribute : StorageAttribute
   {
@@ -46,7 +45,7 @@ namespace Xtensive.Orm
     /// <remarks><paramref name="type"/> can be null.</remarks>
     public KeyGeneratorAttribute(Type type)
     {
-      if (type==null)
+      if (type is null)
         Kind = KeyGeneratorKind.None;
       else {
         Kind = KeyGeneratorKind.Custom;

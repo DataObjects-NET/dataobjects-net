@@ -11,7 +11,6 @@ using Xtensive.Orm.Tests.Storage.GeneralBehaviorTestModel;
 
 namespace Xtensive.Orm.Tests.Storage.GeneralBehaviorTestModel
 {
-  [Serializable]
   [HierarchyRoot]
   public abstract class Person : Entity
   {
@@ -22,14 +21,12 @@ namespace Xtensive.Orm.Tests.Storage.GeneralBehaviorTestModel
     public string Name { get; set; }
   }
 
-  [Serializable]
   public class Customer : Person
   {
     [Field, Association(PairTo = "Customer")]
     public EntitySet<Order> Orders { get; private set; }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class Order : Entity
   {
@@ -43,7 +40,6 @@ namespace Xtensive.Orm.Tests.Storage.GeneralBehaviorTestModel
     public Customer Customer { get; set; }
   }
 
-  [Serializable]
   [HierarchyRoot]
   [KeyGenerator(KeyGeneratorKind.None)]
   public class CustomerOrder : Entity

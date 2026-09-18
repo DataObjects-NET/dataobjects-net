@@ -10,7 +10,6 @@ using Xtensive.Core;
 
 namespace Xtensive.Sql.Dml
 {
-  [Serializable]
   public abstract class SqlFunctionCallBase : SqlExpression
   {
     /// <summary>

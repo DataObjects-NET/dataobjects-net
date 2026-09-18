@@ -5,7 +5,6 @@
 // Created:    2008.07.01
 
 using System;
-using System.Runtime.Serialization;
 using Xtensive.Core;
 
 using Xtensive.Reflection;
@@ -19,28 +18,27 @@ namespace Xtensive.Orm
   /// reference with <see cref="OnRemoveAction.Deny"/>
   /// option pointing to it.
   /// </summary>
-  [Serializable]
   public sealed class ReferentialIntegrityException : StorageException
   {
     /// <summary>
     /// Gets the association.
     /// </summary>
-    public AssociationInfo Association { get; private set; }
+    public AssociationInfo Association { get; }
 
     /// <summary>
     /// Gets the <see cref="Key"/> of the initiator of removing action.
     /// </summary>
-    public Key Initiator { get; private set; }
+    public Key Initiator { get; }
 
     /// <summary>
     /// Gets the <see cref="Key"/> of the referencing object.
     /// </summary>
-    public Key ReferencingObject { get; private set; }
+    public Key ReferencingObject { get; }
 
     /// <summary>
     /// Gets the <see cref="Key"/> of the referenced object.
     /// </summary>
-    public Key ReferencedObject { get; private set; }
+    public Key ReferencedObject { get; }
 
 
     // Constructors
@@ -61,24 +59,6 @@ namespace Xtensive.Orm
       Initiator = initiator.Key;
       ReferencingObject = referencingObject.Key;
       ReferencedObject = referencedObject.Key;
-    }
-
-    // Serialization
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="ReferentialIntegrityException"/> class.
-    /// </summary>
-    /// <param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo"/> that holds the serialized object data about the exception being thrown.</param>
-    /// <param name="context">The <see cref="T:System.Runtime.Serialization.StreamingContext"/> that contains contextual information about the source or destination.</param>
-    /// <exception cref="T:System.ArgumentNullException">The <paramref name="info"/> parameter is null. </exception>
-    /// <exception cref="T:System.Runtime.Serialization.SerializationException">The class name is null or <see cref="P:System.Exception.HResult"/> is zero (0). </exception>
-#if NET8_0_OR_GREATER
-    [Obsolete(DiagnosticId = "SYSLIB0051")]
-#endif
-    private ReferentialIntegrityException(SerializationInfo info, StreamingContext context)
-      : base(info, context)
-    {
-      // We can't serialize any of members declared in this type
     }
   }
 }

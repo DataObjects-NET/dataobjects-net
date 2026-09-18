@@ -243,7 +243,6 @@ namespace Xtensive.Orm.Tests.Upgrade.NewSkip.Model
       { }
     }
 
-    [Serializable]
     [HierarchyRoot]
     public class X : Entity
     {

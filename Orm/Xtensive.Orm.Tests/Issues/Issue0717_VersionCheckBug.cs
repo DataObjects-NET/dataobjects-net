@@ -15,7 +15,6 @@ using Xtensive.Orm.Tests;
 
 namespace Xtensive.Orm.Tests.Issues.Issue0717.Model
 {
-  [Serializable]
   [HierarchyRoot]
   public class Person : Entity
   {

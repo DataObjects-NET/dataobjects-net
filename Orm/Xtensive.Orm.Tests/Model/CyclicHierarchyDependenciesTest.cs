@@ -6,13 +6,10 @@
 
 using System;
 using NUnit.Framework;
-using Xtensive.Core;
-using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.CyclicHierarchyDependenciesModel;
 
 namespace Xtensive.Orm.Tests.CyclicHierarchyDependenciesModel
 {
-  [Serializable]
   [HierarchyRoot]
   public class H1 : Entity
   {
@@ -23,7 +20,6 @@ namespace Xtensive.Orm.Tests.CyclicHierarchyDependenciesModel
     public H3 Second { get; private set; }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class H2 : Entity
   {
@@ -34,7 +30,6 @@ namespace Xtensive.Orm.Tests.CyclicHierarchyDependenciesModel
     public H3 Second { get; private set; }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class H3 : Entity
   {
@@ -48,7 +43,7 @@ namespace Xtensive.Orm.Tests.CyclicHierarchyDependenciesModel
 
 namespace Xtensive.Orm.Tests.Model
 {
-  [TestFixture]
+  [TestFixture, Category("Model")]
   public class CyclicHierarchyDependenciesTest
   {
     [Test]
@@ -57,7 +52,7 @@ namespace Xtensive.Orm.Tests.Model
       var config = DomainConfigurationFactory.Create();
       config.UpgradeMode = DomainUpgradeMode.Recreate;
       config.Types.RegisterCaching(typeof(H1).Assembly, typeof(H1).Namespace);
-      var ex = Assert.Throws<DomainBuilderException>(() => Domain.Build(config));
+      var ex = Assert.Throws<DomainBuilderException>(() => Domain.Build(config).Dispose());
       Assert.That(ex.Message.StartsWith("At least one loop have been found"), Is.True);
     }
   }

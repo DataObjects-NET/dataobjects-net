@@ -11,7 +11,6 @@ namespace Xtensive.Orm.Tests.Core.Modelling.IndexingModel
   /// <summary>
   /// A collection of <see cref="IncludedColumnRef"/> instances.
   /// </summary>
-  [Serializable]
   public sealed class IncludedColumnRefCollection: NodeCollectionBase<IncludedColumnRef, SecondaryIndexInfo>
   {
     // Constructors

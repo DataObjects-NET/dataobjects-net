@@ -14,7 +14,6 @@ namespace Xtensive.Orm.Manual.ModellingDomain.IndexAttribute_
 {
   #region Model
 
-  [Serializable]
   [Index("FirstName", "LastName", Unique = true)]
   [Index("Age")]
   [HierarchyRoot]

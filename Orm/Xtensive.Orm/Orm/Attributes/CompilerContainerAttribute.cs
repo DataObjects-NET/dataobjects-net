@@ -13,7 +13,6 @@ namespace Xtensive.Orm
   /// <summary>
   /// Attribute for specifying user defined extension type.
   /// </summary>
-  [Serializable]
   [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
   [MeansImplicitUse]
   public sealed class CompilerContainerAttribute : Attribute

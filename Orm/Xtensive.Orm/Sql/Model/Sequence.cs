@@ -10,7 +10,6 @@ namespace Xtensive.Sql.Model
   /// <summary>
   /// Represents an object that generates unique numbers, mostly used for primary key values.
   /// </summary>
-  [Serializable]
   public class Sequence : SchemaNode, ISequenceable
   {
     private SequenceDescriptor sequenceDescriptor;

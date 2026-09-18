@@ -5,18 +5,13 @@
 // Created:    2009.04.29
 
 using System;
-using System.Collections.Generic;
-using System.Linq.Expressions;
 using Xtensive.Core;
-
-using Xtensive.Reflection;
 
 namespace Xtensive.Orm.Upgrade
 {
   /// <summary>
   /// Rename type hint.
   /// </summary>
-  [Serializable]
   public sealed class RecycledTypeHint : UpgradeHint,
     IEquatable<RecycledTypeHint>
   {

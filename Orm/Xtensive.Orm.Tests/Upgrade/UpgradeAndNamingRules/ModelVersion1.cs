@@ -8,7 +8,6 @@ using System;
 
 namespace Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRules.Model.Version1
 {
-  [Serializable]
   [HierarchyRoot]
   public class Person : Entity
   {

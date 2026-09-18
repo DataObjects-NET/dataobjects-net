@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2021 Xtensive LLC.
+// Copyright (C) 2007-2026 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alex Yakunin
@@ -23,41 +23,6 @@ namespace Xtensive.Orm.Tests.Core.Comparison
     {
       Assert.That(AdvancedComparer<Pair<Assembly, string>>.System, Is.Not.Null);
       Assert.That(AdvancedComparer<Pair<Assembly, string>>.Default, Is.Not.Null);
-    }
-
-    [Test]
-    public void SerializationTest()
-    {
-      SerializationTest<int[]>();
-      SerializationTest<Guid>();
-      SerializationTest<bool>();
-      SerializationTest<byte>();
-      SerializationTest<sbyte>();
-      SerializationTest<short>();
-      SerializationTest<int>();
-      SerializationTest<long>();
-      SerializationTest<ushort>();
-      SerializationTest<uint>();
-      SerializationTest<ulong>();
-      SerializationTest<float>();
-      SerializationTest<double>();
-      SerializationTest<decimal>();
-      SerializationTest<Direction>();
-      SerializationTest<IEnumerable<int>>();
-      SerializationTest<char>();
-      SerializationTest<string>();
-      SerializationTest<short?>();
-      SerializationTest<Pair<int>>();
-      SerializationTest<Pair<int, long>>();
-      SerializationTest<Xtensive.Tuples.Tuple>();
-    }
-
-    private void SerializationTest<T>()
-    {
-      var comparer = AdvancedComparer<T>.Default;
-      Assert.That(comparer.Compare, Is.Not.Null);
-      var deserializedComparer = Cloner.Clone(comparer);
-      Assert.That(deserializedComparer.Compare, Is.Not.Null);
     }
 
     [Test]

@@ -78,10 +78,10 @@ namespace Xtensive.Orm.Tests.Linq
 
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        new MainEntity {Reference = new RefBase()};
-        new MainEntity {Reference = new Ref()};
-        new MainEntity {Reference = new Ref {Info = "Don't know"}};
-        new MainEntity {Reference = new Ref {Info = "IDDQD"}};
+        _ = new MainEntity {Reference = new RefBase()};
+        _ = new MainEntity {Reference = new Ref()};
+        _ = new MainEntity {Reference = new Ref {Info = "Don't know"}};
+        _ = new MainEntity {Reference = new Ref {Info = "IDDQD"}};
         tx.Complete();
       }
     }

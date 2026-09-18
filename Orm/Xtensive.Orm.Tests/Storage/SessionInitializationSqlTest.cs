@@ -33,14 +33,14 @@ namespace Xtensive.Orm.Tests.Storage
 
       long id;
 
-      var domain1 = BuildDomain(MultidatabaseTest.Database1Name);
+      using (var domain1 = BuildDomain(MultidatabaseTest.Database1Name))
       using (var session = domain1.OpenSession())
       using (var tx = session.OpenTransaction()) {
         id = new TestEntity().Id;
         tx.Complete();
       }
 
-      var domain2 = BuildDomain(MultidatabaseTest.Database2Name);
+      using (var domain2 = BuildDomain(MultidatabaseTest.Database2Name))
       using (var session = domain2.OpenSession())
       using (var tx = session.OpenTransaction()) {
         session.Services.Demand<DirectSqlAccessor>().RegisterInitializationSql(GetUseDatabaseScript(MultidatabaseTest.Database1Name));

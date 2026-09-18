@@ -12,7 +12,6 @@ using Xtensive.Orm.Tests.Issues.Issue0402_WrongEntitySetQuery_Model;
 
 namespace Xtensive.Orm.Tests.Issues.Issue0402_WrongEntitySetQuery_Model
 {
-  [Serializable]
   [HierarchyRoot]
   public class Node : Entity
   {
@@ -43,7 +42,7 @@ namespace Xtensive.Orm.Tests.Issues
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.RegisterCaching(typeof (Node).Assembly, typeof (Node).Namespace);
+      config.Types.Register(typeof (Node));
       return config;
     }
 
@@ -51,64 +50,63 @@ namespace Xtensive.Orm.Tests.Issues
     public void MainTest()
     {
       Key key;
-      using (var session = Domain.OpenSession()) {
-        using (var t = session.OpenTransaction()) {
+      using (var session = Domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
 
-          var root1 = new Node("1");
-          key = root1.Key;
-          var child11 = new Node("11");
-          var child12 = new Node("12");
-          root1.Children.Add(child11);
-          root1.Children.Add(child12);
-          child11.Children.Add(new Node("111"));
-          child11.Children.Add(new Node("112"));
-          child12.Children.Add(new Node("121"));
-          child12.Children.Add(new Node("122"));
+        var root1 = new Node("1");
+        key = root1.Key;
+        var child11 = new Node("11");
+        var child12 = new Node("12");
+        _ = root1.Children.Add(child11);
+        _ = root1.Children.Add(child12);
+        _ = child11.Children.Add(new Node("111"));
+        _ = child11.Children.Add(new Node("112"));
+        _ = child12.Children.Add(new Node("121"));
+        _ = child12.Children.Add(new Node("122"));
 
-          var root2 = new Node("2");
-          var child21 = new Node("21");
-          var child22 = new Node("22");
-          root2.Children.Add(child21);
-          root2.Children.Add(child22);
-          child21.Children.Add(new Node("211"));
-          child21.Children.Add(new Node("212"));
-          child22.Children.Add(new Node("221"));
-          child22.Children.Add(new Node("222"));
+        var root2 = new Node("2");
+        var child21 = new Node("21");
+        var child22 = new Node("22");
+        _ = root2.Children.Add(child21);
+        _ = root2.Children.Add(child22);
+        _ = child21.Children.Add(new Node("211"));
+        _ = child21.Children.Add(new Node("212"));
+        _ = child22.Children.Add(new Node("221"));
+        _ = child22.Children.Add(new Node("222"));
 
-          t.Complete();
-        }
+        t.Complete();
       }
-      using (var session = Domain.OpenSession()) {
-        using (var t = session.OpenTransaction()) {
 
-          var root1 = session.Query.Single<Node>(key);
-          Console.WriteLine("Direct query");
-          var directQuery = session.Query
-            .All<Node>()
-            .Where(node => root1.Children.Contains(node.Parent));
-          var enumerable = session.Query
-            .All<Node>()
-            .AsEnumerable();
-          var directQueryExpected = enumerable
-            .Where(node => root1.Children.AsEnumerable().Contains(node.Parent));
-          foreach (var node in directQuery)
-            Console.WriteLine(node.Name);
-          Assert.That(directQueryExpected.Except(directQuery).Count(), Is.EqualTo(0));
+      using (var session = Domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+
+        var root1 = session.Query.Single<Node>(key);
+        Console.WriteLine("Direct query");
+        var directQuery = session.Query
+          .All<Node>()
+          .Where(node => root1.Children.Contains(node.Parent));
+        var enumerable = session.Query
+          .All<Node>()
+          .AsEnumerable();
+        var directQueryExpected = enumerable
+          .Where(node => root1.Children.AsEnumerable().Contains(node.Parent));
+        foreach (var node in directQuery)
+          Console.WriteLine(node.Name);
+        Assert.That(directQueryExpected.Except(directQuery).Count(), Is.EqualTo(0));
 
 
-          Console.WriteLine("Query through EntitySet");
-          var entitySet = root1.Children;
-          var entitySetQuery = session.Query
-            .All<Node>()
-            .Where(node => entitySet.Contains(node.Parent));
-          var entitySetQueryExpected = session.Query
-            .All<Node>()
-            .AsEnumerable()
-            .Where(node => entitySet.AsEnumerable().Contains(node.Parent));
-          foreach (var node in entitySetQuery)
-            Console.WriteLine(node.Name);
-          Assert.That(entitySetQueryExpected.Except(entitySetQuery).Count(), Is.EqualTo(0));
-        }
+        Console.WriteLine("Query through EntitySet");
+        var entitySet = root1.Children;
+        var entitySetQuery = session.Query
+          .All<Node>()
+          .Where(node => entitySet.Contains(node.Parent));
+        var entitySetQueryExpected = session.Query
+          .All<Node>()
+          .AsEnumerable()
+          .Where(node => entitySet.AsEnumerable().Contains(node.Parent));
+        foreach (var node in entitySetQuery)
+          Console.WriteLine(node.Name);
+        Assert.That(entitySetQueryExpected.Except(entitySetQuery).Count(), Is.EqualTo(0));
       }
     }
   }

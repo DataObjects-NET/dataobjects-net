@@ -11,7 +11,6 @@ namespace Xtensive.Sql.Dml
   /// <summary>
   /// Defines a reference to <see cref="DataTableColumn"/> object
   /// </summary>
-  [Serializable]
   public class SqlTableColumn : SqlColumn, ISqlLValue
   {
     public override void ReplaceWith(SqlExpression expression)

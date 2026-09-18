@@ -12,7 +12,6 @@ using Xtensive.Orm.Tests.Issues.IssueJIRA0085_Model;
 
 namespace Xtensive.Orm.Tests.Issues.IssueJIRA0085_Model
 {
-  [Serializable]
   [HierarchyRoot]
   public abstract class SomeEntity : Entity
   {
@@ -26,7 +25,6 @@ namespace Xtensive.Orm.Tests.Issues.IssueJIRA0085_Model
     {}
   }
 
-  [Serializable]
   public class FirstEntity : SomeEntity
   {
     [Field]
@@ -37,7 +35,6 @@ namespace Xtensive.Orm.Tests.Issues.IssueJIRA0085_Model
     {}
   }
 
-  [Serializable]
   public class SecondEntity : SomeEntity
   {
     [Field]
@@ -48,7 +45,6 @@ namespace Xtensive.Orm.Tests.Issues.IssueJIRA0085_Model
     {}
   }
 
-  [Serializable]
   public class MyEntity<TEntity> : Entity where TEntity : Entity
   {
     [Field, Key]
@@ -71,7 +67,6 @@ namespace Xtensive.Orm.Tests.Issues.IssueJIRA0085_Model
     {}
   }
 
-  [Serializable]
   [HierarchyRoot]
   public abstract class NextEntity : MyEntity<SomeEntity>
   {
@@ -82,7 +77,6 @@ namespace Xtensive.Orm.Tests.Issues.IssueJIRA0085_Model
     {}
   }
 
-  [Serializable]
   public class FirstChild : NextEntity
   {
     public FirstChild(Session session, SomeEntity entity) : base(session, entity)
@@ -92,7 +86,6 @@ namespace Xtensive.Orm.Tests.Issues.IssueJIRA0085_Model
     {}
   }
 
-  [Serializable]
   public class SecondChild : NextEntity
   {
     public SecondChild(Session session)

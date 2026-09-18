@@ -18,7 +18,6 @@ namespace Xtensive.Orm.Configuration
   /// An implementation of <see cref=" TypeRegistry"/>
   /// used by the <see cref="DomainConfiguration"/>.
   /// </summary>
-  [Serializable]
   public class DomainTypeRegistry : TypeRegistry
   {
     private readonly static Type iDomainServiceType = typeof(IDomainService);

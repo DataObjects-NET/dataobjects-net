@@ -8,7 +8,6 @@ using System;
 
 namespace Xtensive.Orm.Linq.Expressions
 {
-  [Serializable]
   internal enum ResultAccessMethod
   {
     All,

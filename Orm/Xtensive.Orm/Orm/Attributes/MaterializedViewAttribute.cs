@@ -13,7 +13,6 @@ namespace Xtensive.Orm
   /// Indicates that materialized view should be created for
   /// the interface type it is applied on.
   /// </summary>
-  [Serializable]
   [AttributeUsage(AttributeTargets.Interface, AllowMultiple = false, Inherited = false)]
   public sealed class MaterializedViewAttribute : StorageAttribute
   {

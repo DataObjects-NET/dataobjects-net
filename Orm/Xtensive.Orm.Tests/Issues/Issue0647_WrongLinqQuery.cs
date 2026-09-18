@@ -16,7 +16,6 @@ namespace Xtensive.Orm.Tests.Issues
 {
   namespace Issue0647_WrongLinqQuery_Model
   {
-    [Serializable]
     public abstract class EntityBase : Entity
     {
       protected EntityBase(Guid id)
@@ -113,7 +112,6 @@ namespace Xtensive.Orm.Tests.Issues
       }
     }
 
-    [Serializable]
     public abstract class Multilink<TOwner, TLinked> : EntityBase
       where TOwner : EntityBase
       where TLinked : EntityBase
@@ -203,13 +201,12 @@ namespace Xtensive.Orm.Tests.Issues
 
   }
 
-  [Serializable]
   public class Issue0647_WrongLinqQuery : AutoBuildTest
   {
-    private Guid globalId1 = new Guid("A3A01D2F-41A9-416E-8513-6C2F55224B56");
-    private Guid globalId2 = new Guid("FDBDBCF1-0117-4508-89A3-F47A9A098478");
-    private Guid globalId3 = new Guid("EC2F180E-48BB-445C-BE95-C384B069D60B");
-    private Guid globalId4 = new Guid("07F0DF2A-B55F-44BE-BB9B-034A875BF0DE");
+    private readonly Guid globalId1 = new Guid("A3A01D2F-41A9-416E-8513-6C2F55224B56");
+    private readonly Guid globalId2 = new Guid("FDBDBCF1-0117-4508-89A3-F47A9A098478");
+    private readonly Guid globalId3 = new Guid("EC2F180E-48BB-445C-BE95-C384B069D60B");
+    private readonly Guid globalId4 = new Guid("07F0DF2A-B55F-44BE-BB9B-034A875BF0DE");
 
     protected override void CheckRequirements()
     {
@@ -219,7 +216,7 @@ namespace Xtensive.Orm.Tests.Issues
 
     protected override DomainConfiguration BuildConfiguration()
     {
-      DomainConfiguration config = base.BuildConfiguration();
+      var config = base.BuildConfiguration();
       config.Types.RegisterCaching(typeof(Role).Assembly, typeof(Role).Namespace);
       return config;
     }

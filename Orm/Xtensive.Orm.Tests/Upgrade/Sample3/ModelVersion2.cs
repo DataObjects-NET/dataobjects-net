@@ -13,7 +13,6 @@ using System;
 
 namespace Xtensive.Orm.Tests.Upgrade.Sample3.Model.Version2
 {
-  [Serializable]
   [HierarchyRoot]
   public abstract class Person : Entity
   {
@@ -32,7 +31,6 @@ namespace Xtensive.Orm.Tests.Upgrade.Sample3.Model.Version2
     public string ContactPhone { get; set; }
   }
 
-  [Serializable]
   public class Employee : Person
   {
     [Field, Obsolete, Recycled("Department")]
@@ -45,7 +43,6 @@ namespace Xtensive.Orm.Tests.Upgrade.Sample3.Model.Version2
     public string DepartmentName { get; set; }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class Order : Entity
   {
@@ -75,7 +72,6 @@ namespace Xtensive.Orm.Tests.Upgrade.Sample3.Model.Version2
 
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class OrderItem : Entity
   {

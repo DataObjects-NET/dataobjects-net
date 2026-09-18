@@ -1,18 +1,12 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2011-2025 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Malisa Ncube
 // Created:    2011.03.17
 
 using System;
-using System.Collections.Generic;
-using System.Data;
 using System.Data.Common;
-using System.Diagnostics;
-using System.IO;
 using System.Linq;
-using System.Runtime.Serialization.Formatters.Binary;
-using System.Text;
 using NUnit.Framework;
 using Xtensive.Collections;
 using Xtensive.Sql;
@@ -60,22 +54,15 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
     }
 
     [Test]
-    public void ArrayTest()//TODO: Find reason why this pattern is structured like this.(Malisa)
+    public void ArrayTest()
     {
       SqlArray<int> i = SqlDml.Array(new int[] { 1, 2 });
       i.Values[0] = 10;
       SqlSelect select = SqlDml.Select();
       select.Where = SqlDml.In(1, i);
 
-      using (var mStream = new MemoryStream()) {
-        var formatter = new BinaryFormatter();
-        formatter.Serialize(mStream, select);
-
-        _ = mStream.Seek(0, SeekOrigin.Begin);
-        select = (SqlSelect) formatter.Deserialize(mStream);
-      }
-
       Console.WriteLine(SqlDriver.Compile(select).GetCommandText());
+
     }
 
     [Test]

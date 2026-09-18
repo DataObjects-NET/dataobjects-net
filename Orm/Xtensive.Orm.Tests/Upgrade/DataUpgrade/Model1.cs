@@ -8,7 +8,6 @@ using System;
 
 namespace Xtensive.Orm.Tests.Upgrade.DataUpgrade.Model.Version1
 {
-  [Serializable]
   [HierarchyRoot]
   public class A : Entity
   {
@@ -16,12 +15,10 @@ namespace Xtensive.Orm.Tests.Upgrade.DataUpgrade.Model.Version1
     public int Id { get; private set; }
   }
 
-  [Serializable]
   public class B : A
   {
   }
 
-  [Serializable]
   public class C : B
   {
     [Field]
@@ -31,7 +28,6 @@ namespace Xtensive.Orm.Tests.Upgrade.DataUpgrade.Model.Version1
     public B RefB { get; set; }
   }
 
-  [Serializable]
   public class D : A
   {
     [Field]

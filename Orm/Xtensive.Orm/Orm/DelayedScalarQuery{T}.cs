@@ -18,7 +18,6 @@ namespace Xtensive.Orm
   /// Future returning a scalar result.
   /// </summary>
   /// <typeparam name="TResult">The type of the result.</typeparam>
-  [Serializable]
   public sealed class DelayedScalarQuery<TResult> : DelayedQuery
   {
     private readonly ResultAccessMethod resultAccessMethod;

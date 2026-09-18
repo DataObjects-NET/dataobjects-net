@@ -14,7 +14,6 @@ namespace Xtensive.Modelling.Comparison.Hints
   /// <summary>
   /// Rename hint.
   /// </summary>
-  [Serializable]
   public class RenameHint : Hint
   {
     /// <summary>

@@ -19,7 +19,6 @@ namespace Xtensive.Orm.Manual.Concurrency.Versions
 {
   #region Model
 
-  [Serializable]
   [HierarchyRoot]
   public class Person : Entity
   {
@@ -66,7 +65,6 @@ namespace Xtensive.Orm.Manual.Concurrency.Versions
     }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class Company : Entity
   {
@@ -239,9 +237,6 @@ namespace Xtensive.Orm.Manual.Concurrency.Versions
           tx.Complete();
         }
 
-        // Let's clone VersionSet (actually - serialize & deserialize)
-        versions = Cloner.Clone(versions);
-        // And dump it
         Dump(versions);
 
         using (VersionValidator.Attach(session, versions))

@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2003-2010 Xtensive LLC.
+// Copyright (C) 2003-2010 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Roman Churakov
@@ -9,7 +9,6 @@ using System.Globalization;
 
 namespace Xtensive.Conversion
 {
-  [Serializable]
   internal class SByteAdvancedConverter :
     StrictAdvancedConverterBase<sbyte>,
     IAdvancedConverter<sbyte, byte>,
@@ -36,10 +35,7 @@ namespace Xtensive.Conversion
       }
     }
 
-    short IAdvancedConverter<sbyte, short>.Convert(sbyte value)
-    {
-      return value;
-    }
+    short IAdvancedConverter<sbyte, short>.Convert(sbyte value) => value;
 
     ushort IAdvancedConverter<sbyte, ushort>.Convert(sbyte value)
     {
@@ -48,10 +44,7 @@ namespace Xtensive.Conversion
       }
     }
 
-    int IAdvancedConverter<sbyte, int>.Convert(sbyte value)
-    {
-      return value;
-    }
+    int IAdvancedConverter<sbyte, int>.Convert(sbyte value) => value;
 
     uint IAdvancedConverter<sbyte, uint>.Convert(sbyte value)
     {
@@ -60,10 +53,7 @@ namespace Xtensive.Conversion
       }
     }
 
-    long IAdvancedConverter<sbyte, long>.Convert(sbyte value)
-    {
-      return value;
-    }
+    long IAdvancedConverter<sbyte, long>.Convert(sbyte value) => value;
 
     ulong IAdvancedConverter<sbyte, ulong>.Convert(sbyte value)
     {
@@ -72,20 +62,11 @@ namespace Xtensive.Conversion
       }
     }
 
-    float IAdvancedConverter<sbyte, float>.Convert(sbyte value)
-    {
-      return System.Convert.ToSingle(value);
-    }
+    float IAdvancedConverter<sbyte, float>.Convert(sbyte value) => System.Convert.ToSingle(value);
 
-    double IAdvancedConverter<sbyte, double>.Convert(sbyte value)
-    {
-      return System.Convert.ToDouble(value);
-    }
+    double IAdvancedConverter<sbyte, double>.Convert(sbyte value) => System.Convert.ToDouble(value);
 
-    decimal IAdvancedConverter<sbyte, decimal>.Convert(sbyte value)
-    {
-      return System.Convert.ToDecimal(value);
-    }
+    decimal IAdvancedConverter<sbyte, decimal>.Convert(sbyte value) => System.Convert.ToDecimal(value);
 
     DateTime IAdvancedConverter<sbyte, DateTime>.Convert(sbyte value)
     {
@@ -101,15 +82,9 @@ namespace Xtensive.Conversion
       }
     }
 
-    string IAdvancedConverter<sbyte, string>.Convert(sbyte value)
-    {
-      return value.ToString(CultureInfo.InvariantCulture);
-    }
+    string IAdvancedConverter<sbyte, string>.Convert(sbyte value) => value.ToString(CultureInfo.InvariantCulture);
 
-    char IAdvancedConverter<sbyte, char>.Convert(sbyte value)
-    {
-      return System.Convert.ToChar(value);
-    }
+    char IAdvancedConverter<sbyte, char>.Convert(sbyte value) => System.Convert.ToChar(value);
 
 
     // Constructors

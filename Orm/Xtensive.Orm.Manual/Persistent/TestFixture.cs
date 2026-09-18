@@ -11,7 +11,6 @@ using Xtensive.Orm.Tests;
 
 namespace Xtensive.Orm.Manual.Persistent
 {
-  [Serializable]
   [HierarchyRoot]
   public class Person : Entity
   {

@@ -9,7 +9,6 @@ using System;
 
 namespace Xtensive.Orm.Tests.ObjectModel.Cms
 {
-  [Serializable]
   [HierarchyRoot]
   public class ContentItem
     : Entity

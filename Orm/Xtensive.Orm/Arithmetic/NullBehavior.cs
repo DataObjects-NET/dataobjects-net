@@ -11,7 +11,6 @@ namespace Xtensive.Arithmetic
   /// <summary>
   /// Describes how arithmetics treats <see langword="null"/> in operations.   
   /// </summary>
-  [Serializable]
   public enum NullBehavior : sbyte
   {
     /// <summary>

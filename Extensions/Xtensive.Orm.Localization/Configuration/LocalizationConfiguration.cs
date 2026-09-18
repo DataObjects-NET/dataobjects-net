@@ -17,8 +17,7 @@ namespace Xtensive.Orm.Localization.Configuration
 {
   /// <summary>
   /// The configuration of the localization extension.
-  /// </summary> 
-  [Serializable]
+  /// </summary>
   public class LocalizationConfiguration : ConfigurationBase
   {
     /// <summary>

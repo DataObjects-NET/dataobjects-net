@@ -11,7 +11,6 @@ namespace Xtensive.Sql
   /// <summary>
   /// Represents an SQL type with specific <see cref="Length"/>, <see cref="Scale"/> and <see cref="Precision"/>.
   /// </summary>
-  [Serializable]
   public sealed class SqlValueType
     : IEquatable<SqlValueType>
   {

@@ -269,7 +269,7 @@ namespace Xtensive.Orm.Tests.Upgrade
       where TExpectedException : Exception
     {
       var configuration = BuildConfiguration(DomainUpgradeMode.PerformSafely, typeof(TEntity), GetUpgradeHandler());
-      _ = Assert.Throws<TExpectedException>(() => Domain.Build(configuration));
+      _ = Assert.Throws<TExpectedException>(() => Domain.Build(configuration).Dispose());
     }
 
     private DomainConfiguration BuildConfiguration(DomainUpgradeMode upgradeMode, Type entityType, Type upgraderType = null)

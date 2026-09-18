@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2011 Xtensive LLC.
+// Copyright (C) 2011 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -6,7 +6,6 @@
 
 using System;
 using System.Text;
-
 using Xtensive.Orm.Model;
 
 
@@ -16,34 +15,33 @@ namespace Xtensive.Orm
   /// Extended information about <see cref="StorageException"/>.
   /// All fields are optional.
   /// </summary>
-  [Serializable]
   public class StorageExceptionInfo
   {
     /// <summary>
     /// Type in which error occured (if any).
     /// </summary>
-    public TypeInfo Type { get; private set; }
+    public TypeInfo Type { get; }
     /// <summary>
     /// Field in which error occured (if any).
     /// </summary>
-    public FieldInfo Field { get; private set; }
+    public FieldInfo Field { get; }
     /// <summary>
     /// Value that caused error (if any).
     /// </summary>
-    public string Value { get; private set; }
+    public string Value { get; }
     /// <summary>
     /// Constraint that was violated (if any).
     /// </summary>
-    public string Constraint { get; private set; }
+    public string Constraint { get; }
 
     /// <inheritdoc/>
     public override string ToString()
     {
       var builder = new StringBuilder();
       if (Type!=null)
-        builder.AppendFormat(Strings.EntityX, Type);
+        _ = builder.AppendFormat(Strings.EntityX, Type);
       if (Field!=null)
-        builder.AppendFormat(Strings.FieldX, Field);
+        _ = builder.AppendFormat(Strings.FieldX, Field);
       // Do not write Value & Constraint values, those are directly taken from SqlExceptionInfo.
       // They will be provided by its ToString() method.
       return builder.ToString();

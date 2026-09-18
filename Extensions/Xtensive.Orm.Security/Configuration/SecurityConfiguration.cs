@@ -16,8 +16,7 @@ namespace Xtensive.Orm.Security.Configuration
 {
   /// <summary>
   /// The configuration of the security system.
-  /// </summary> 
-  [Serializable]
+  /// </summary>
   public class SecurityConfiguration : ConfigurationBase
   {
     /// <summary>

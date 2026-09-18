@@ -5,17 +5,16 @@
 // Created:    2010.07.12
 
 using System;
-using System.Diagnostics;
+using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Issues.Issue0764_LinqTranslationError_Model;
-using System.Linq;
+
 
 namespace Xtensive.Orm.Tests.Issues
 {
   namespace Issue0764_LinqTranslationError_Model
   {
-    [Serializable]
     [HierarchyRoot]
     public class MyEntity : Entity
     {
@@ -46,13 +45,12 @@ namespace Xtensive.Orm.Tests.Issues
     }
   }
 
-  [Serializable]
   public class Issue0764_LinqTranslationError : AutoBuildTest
   {
 
     protected override DomainConfiguration BuildConfiguration()
     {
-      DomainConfiguration config = base.BuildConfiguration();
+      var config = base.BuildConfiguration();
       config.Types.RegisterCaching(typeof(MyEntity).Assembly, typeof(MyEntity).Namespace);
       return config;
     }
@@ -71,7 +69,7 @@ namespace Xtensive.Orm.Tests.Issues
           where l.LinkSource == source && l.LinkDestination.Text == "Destination"
           select l.LinkDestination;
 
-        query.ToList();
+        _ = query.ToList();
       }
     }
   }

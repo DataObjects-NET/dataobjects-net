@@ -12,7 +12,6 @@ namespace Xtensive.Orm.Tests.Core.Modelling.IndexingModel
   /// <summary>
   /// Column collection.
   /// </summary>
-  [Serializable]
   public sealed class ColumnInfoCollection : NodeCollectionBase<ColumnInfo, TableInfo>
   {
     // Constructors

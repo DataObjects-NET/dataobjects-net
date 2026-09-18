@@ -16,7 +16,6 @@ namespace Xtensive.Sorting
   /// </summary>
   /// <typeparam name="TNodeItem">The type of the node item.</typeparam>
   /// <typeparam name="TConnectionItem">The type of the connection item.</typeparam>
-  [Serializable]
   public class TopologicalSortResult<TNodeItem, TConnectionItem> : TopologicalSortResult<TNodeItem>
   {
     /// <summary>

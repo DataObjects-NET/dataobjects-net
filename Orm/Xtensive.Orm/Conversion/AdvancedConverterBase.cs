@@ -5,9 +5,6 @@
 // Created:    2008.02.15
 
 using System;
-using System.Diagnostics;
-using System.Runtime.Serialization;
-using Xtensive.Core;
 
 
 namespace Xtensive.Conversion
@@ -15,19 +12,11 @@ namespace Xtensive.Conversion
   /// <summary>
   /// Base class for any advanced converter.
   /// </summary>
-  [Serializable]
   public abstract class AdvancedConverterBase :
-    IAdvancedConverterBase,
-    IDeserializationCallback
+    IAdvancedConverterBase
   {
-    private IAdvancedConverterProvider provider;
-
     /// <inheritdoc/>
-    public IAdvancedConverterProvider Provider
-    {
-      [DebuggerStepThrough]
-      get { return provider; }
-    }
+    public IAdvancedConverterProvider Provider { get; }
 
 
     // Constructors
@@ -38,17 +27,7 @@ namespace Xtensive.Conversion
     /// <param name="provider">The provider this advanced converter is bound to.</param>
     public AdvancedConverterBase(IAdvancedConverterProvider provider)
     {
-      this.provider = provider ?? throw new ArgumentNullException(nameof(provider));
-    }
-
-    /// <summary>
-    /// Performs post-deserialization actions.
-    /// </summary>
-    /// <param name="sender"></param>
-    public virtual void OnDeserialization(object sender)
-    {
-      if (provider==null || provider.GetType()==typeof (AdvancedConverterProvider))
-        provider = AdvancedConverterProvider.Default;
+      Provider = provider ?? throw new ArgumentNullException(nameof(provider));
     }
   }
 }

@@ -15,7 +15,6 @@ namespace Xtensive.Core
   /// </summary>
   /// <typeparam name="TFirst">The <see cref="Type"/> of first value.</typeparam>
   /// <typeparam name="TSecond">The <see cref="Type"/> of second value.</typeparam>
-  [Serializable]
   [DebuggerDisplay("{First}, {Second}")]
   public readonly struct Pair<TFirst, TSecond> :
     IComparable<Pair<TFirst, TSecond>>,

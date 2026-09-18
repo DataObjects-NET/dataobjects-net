@@ -13,7 +13,6 @@ namespace Xtensive.Orm.Tests.Core.Modelling.IndexingModel
   /// <summary>
   /// References to key column.
   /// </summary>
-  [Serializable]
   public sealed class KeyColumnRef: KeyColumnRef<IndexInfo>
   {
     /// <inheritdoc/>

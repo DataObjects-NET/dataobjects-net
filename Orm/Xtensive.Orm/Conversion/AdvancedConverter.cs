@@ -6,8 +6,6 @@
 
 using System;
 using System.Diagnostics;
-using System.Runtime.Serialization;
-using System.Threading;
 using Xtensive.Core;
 
 
@@ -19,21 +17,19 @@ namespace Xtensive.Conversion
   /// </summary>
   /// <typeparam name="TFrom">Type of the first <see cref="IAdvancedConverter{TFrom,TTo}"/> generic argument.</typeparam>
   /// <typeparam name="TTo">Type of the second <see cref="IAdvancedConverter{TFrom,TTo}"/> generic argument.</typeparam>
-  [Serializable]
   public sealed class AdvancedConverter<TFrom, TTo> : MethodCacheBase<IAdvancedConverter<TFrom, TTo>>
   {
     private static readonly Lazy<AdvancedConverter<TFrom, TTo>> CachedConverter =
-      new Lazy<AdvancedConverter<TFrom, TTo>>(() => AdvancedConverterProvider.Default.GetConverter<TFrom, TTo>());
+      new (() => AdvancedConverterProvider.Default.GetConverter<TFrom, TTo>());
 
     /// <summary>
     /// Gets default advanced converter for types <typeparamref name="TFrom"/> and <typeparamref name="TTo"/>.
     /// (uses <see cref="AdvancedConverterProvider.Default"/> <see cref="AdvancedConverter{TFrom,TTo}"/>).
     /// </summary>
-    public static AdvancedConverter<TFrom, TTo> Default {
+    public static AdvancedConverter<TFrom, TTo> Default
+    {
       [DebuggerStepThrough]
-      get {
-        return CachedConverter.Value;
-      }
+      get => CachedConverter.Value;
     }
 
     /// <summary>
@@ -60,19 +56,6 @@ namespace Xtensive.Conversion
     /// <param name="implementation">Advanced converter to provide the delegates for.</param>
     public AdvancedConverter(IAdvancedConverter<TFrom, TTo> implementation)
       : base(implementation)
-    {
-      Provider = Implementation.Provider;
-      Convert = Implementation.Convert;
-      IsRough = Implementation.IsRough;
-    }
-
-    /// <summary>
-    /// Deserializes the instance of this class.
-    /// </summary>
-    /// <param name="info">Serialization info.</param>
-    /// <param name="context">Streaming context.</param>
-    public AdvancedConverter(SerializationInfo info, StreamingContext context)
-      : base(info, context)
     {
       Provider = Implementation.Provider;
       Convert = Implementation.Convert;

@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2012 Xtensive LLC.
+// Copyright (C) 2012 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Dmitri Maximov
@@ -11,7 +11,6 @@ namespace Xtensive.Orm.Tracking
   /// <summary>
   /// State of <see cref="ITrackingItem"/>
   /// </summary>
-  [Serializable]
   public enum TrackingItemState
   {
     /// <summary>

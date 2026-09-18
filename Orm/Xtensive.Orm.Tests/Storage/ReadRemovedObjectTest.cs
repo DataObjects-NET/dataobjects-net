@@ -16,7 +16,6 @@ using Xtensive.Orm.Services;
 
 namespace Xtensive.Orm.Tests.Storage.ReadRemovedObjectTest
 {
-  [Serializable]
   [HierarchyRoot]
   public class Book : Entity
   {
@@ -27,7 +26,6 @@ namespace Xtensive.Orm.Tests.Storage.ReadRemovedObjectTest
     public string Title { get; set; }
   }
 
-  [Serializable]
   public class CoolBook : Book
   {
     [Field]

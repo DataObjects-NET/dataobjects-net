@@ -29,13 +29,12 @@ namespace Xtensive.Orm.Tests.Issues
     }
   }
 
-  [Serializable]
   public class Issue0587_ByteArrayEquals : AutoBuildTest
   {
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.RegisterCaching(typeof (User).Assembly, typeof (User).Namespace);
+      config.Types.Register(typeof(User));
       return config;
     }
 
@@ -63,7 +62,7 @@ namespace Xtensive.Orm.Tests.Issues
         var usersQuery = session.Query.All<User>().Skip(pageIndex * pageSize).Take(pageSize);
         var key = new byte[] { 1, 1, 1 };
         var result = session.Query.All<User>().Where(user => user.Photo == key).ToList();
-        Assert.That(result.Count, Is.GreaterThan(0));
+        Assert.That(result.Count, Is.EqualTo(1));
       }
     }
   }

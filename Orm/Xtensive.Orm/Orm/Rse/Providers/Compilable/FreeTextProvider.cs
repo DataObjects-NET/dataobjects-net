@@ -17,7 +17,6 @@ namespace Xtensive.Orm.Rse.Providers
   /// <summary>
   /// Executes full-text search (free text query) against specified <see cref="PrimaryIndex"/>.
   /// </summary>
-  [Serializable]
   public sealed class FreeTextProvider : CompilableProvider
   {
     public Func<ParameterContext, string> SearchCriteria { get; }

@@ -13,7 +13,6 @@ namespace Xtensive.Orm.Upgrade.Model
   /// <summary>
   /// A collection of <see cref="IncludedColumnRef"/> instances.
   /// </summary>
-  [Serializable]
   public sealed class IncludedColumnRefCollection : NodeCollectionBase<IncludedColumnRef, SecondaryIndexInfo>
   {
     // Constructors

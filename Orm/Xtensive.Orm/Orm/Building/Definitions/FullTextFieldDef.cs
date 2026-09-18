@@ -14,7 +14,6 @@ namespace Xtensive.Orm.Building.Definitions
   /// <summary>
   /// Defines a single field inside full-text index.
   /// </summary>
-  [Serializable]
   [DebuggerDisplay("{Name}")]
   public class FullTextFieldDef : Node
   {

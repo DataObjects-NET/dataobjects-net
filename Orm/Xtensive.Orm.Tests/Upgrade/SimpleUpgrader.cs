@@ -13,7 +13,6 @@ using Xtensive.Orm.Upgrade;
 
 namespace Xtensive.Orm.Tests.Upgrade
 {
-  [Serializable]
   public class SimpleUpgrader : UpgradeHandler
   {
     private static bool isEnabled = false;

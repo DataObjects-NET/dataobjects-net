@@ -14,7 +14,6 @@ using Range = Xtensive.Orm.Tests.Issues.Issue0245_Model.Range;
 
 namespace Xtensive.Orm.Tests.Issues.Issue0245_Model
 {
-  [Serializable]
   public class Point : Structure
   {
     [Field]
@@ -32,7 +31,6 @@ namespace Xtensive.Orm.Tests.Issues.Issue0245_Model
     }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class Range : Entity
   {
@@ -50,7 +48,6 @@ namespace Xtensive.Orm.Tests.Issues.Issue0245_Model
 namespace Xtensive.Orm.Tests.Issues
 {
   [TestFixture]
-  [Serializable]
   public class Issue0245_StructureWhere : AutoBuildTest
   {
     protected override DomainConfiguration BuildConfiguration()

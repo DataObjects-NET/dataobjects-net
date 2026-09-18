@@ -12,7 +12,6 @@ namespace Xtensive.Orm.Upgrade.Model
   /// <summary>
   /// An abstract base class for all columns refs.
   /// </summary>
-  [Serializable]
   public abstract class ColumnInfoRef<TParent> : Ref<StorageColumnInfo, TParent>
     where TParent: NodeBase<TableInfo>
   {

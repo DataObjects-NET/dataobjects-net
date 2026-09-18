@@ -11,7 +11,6 @@ using Xtensive.Orm.Tests.Model.NonPublicFieldTestModel;
 
 namespace Xtensive.Orm.Tests.Model.NonPublicFieldTestModel
 {
-  [Serializable]
   [HierarchyRoot]
   public class MyEntity : Entity
   {
@@ -46,6 +45,7 @@ namespace Xtensive.Orm.Tests.Model.NonPublicFieldTestModel
 
 namespace Xtensive.Orm.Tests.Model
 {
+  [TestFixture, Category("Model")]
   public class NonPublicFieldTest : AutoBuildTest
   {
     protected override DomainConfiguration BuildConfiguration()

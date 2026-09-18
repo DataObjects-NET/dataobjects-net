@@ -9,7 +9,6 @@ namespace Xtensive.Sql.Model
   /// <summary>
   /// Represents a character set object.
   /// </summary>
-  [Serializable]
   public class CharacterSet : SchemaNode
   {
     #region SchemaNode Members

@@ -12,7 +12,6 @@ namespace Xtensive.Orm.Metadata
   /// <summary>
   /// Persistent descriptor of registered type.
   /// </summary>
-  [Serializable]
   [SystemType(1)]
   [HierarchyRoot]
   [KeyGenerator(KeyGeneratorKind.None)]

@@ -13,7 +13,7 @@ namespace Xtensive.Tuples
   ///<summary>
   /// Helper type allowing to update tuples using functional style syntax.
   ///</summary>
-  [Serializable]
+  [Obsolete("No longer in use.")]
   public struct TupleUpdater
   {
     private readonly Tuple tuple;
@@ -22,7 +22,7 @@ namespace Xtensive.Tuples
     /// Gets the wrapped tuple.
     /// </summary>
     /// <value>The tuple.</value>
-    public Tuple Tuple { get { return tuple; } }
+    public Tuple Tuple => tuple;
 
     /// <summary>
     /// Updates the field of <see cref="Tuple"/> with the specified index.

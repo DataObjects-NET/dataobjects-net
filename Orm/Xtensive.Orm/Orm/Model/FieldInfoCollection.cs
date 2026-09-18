@@ -16,7 +16,6 @@ namespace Xtensive.Orm.Model
   /// <summary>
   /// A collection of <see cref="FieldInfo"/> objects.
   /// </summary>
-  [Serializable]
   public sealed class FieldInfoCollection
     : NodeCollection<FieldInfo>,
       IFilterable<FieldAttributes, FieldInfo>

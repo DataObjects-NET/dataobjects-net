@@ -15,7 +15,6 @@ using Xtensive.Orm.Tests.Linq.CustomExpressionCompilersModel;
 
 namespace Xtensive.Orm.Tests.Linq.CustomExpressionCompilersModel
 {
-  [Serializable]
   [HierarchyRoot]
   public class Person : Entity
   {
@@ -109,6 +108,7 @@ namespace Xtensive.Orm.Tests.Linq.CustomExpressionCompilersModel
 
 namespace Xtensive.Orm.Tests.Linq
 {
+  [TestFixture, Category("Linq")]
   public class CustomExpressionCompilers : AutoBuildTest
   {
     protected override DomainConfiguration BuildConfiguration()

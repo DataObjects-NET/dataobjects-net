@@ -6,20 +6,13 @@ using System;
 
 namespace Xtensive.Sql.Dml
 {
-  [Serializable]
   public class SqlOpenCursor : SqlStatement, ISqlCompileUnit
   {
-    private SqlCursor cursor;
-
     /// <summary>
     /// Gets the cursor.
     /// </summary>
     /// <value>The cursor.</value>
-    public SqlCursor Cursor {
-      get {
-        return cursor;
-      }
-    }
+    public SqlCursor Cursor { get; }
 
     internal override SqlOpenCursor Clone(SqlNodeCloneContext context) => throw new NotImplementedException();
 
@@ -30,7 +23,7 @@ namespace Xtensive.Sql.Dml
 
     public SqlOpenCursor(SqlCursor cursor) : base(SqlNodeType.OpenCursor)
     {
-      this.cursor = cursor;
+      Cursor = cursor;
     }
   }
 }

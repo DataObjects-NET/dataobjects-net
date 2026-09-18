@@ -5,18 +5,16 @@
 // Created:    2009.11.20
 
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.IO;
-using System.Runtime.Serialization.Formatters.Binary;
+using System.Runtime.Serialization;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Model.FieldConverterTestModel;
 
 namespace Xtensive.Orm.Tests.Model.FieldConverterTestModel
 {
-  [Serializable]
   [HierarchyRoot]
   public class Person : Entity
   {
@@ -49,8 +47,8 @@ namespace Xtensive.Orm.Tests.Model.FieldConverterTestModel
     private static byte[] Serialize(ObservableCollection<int> collection)
     {
       using (var ms = new MemoryStream()) {
-        var bf = new BinaryFormatter();
-        bf.Serialize(ms, collection);
+        var dcSerializer = new DataContractSerializer(typeof(ObservableCollection<int>), new[] { typeof(int) });
+        dcSerializer.WriteObject(ms, collection);
         return ms.ToArray();
       }
     }
@@ -58,8 +56,8 @@ namespace Xtensive.Orm.Tests.Model.FieldConverterTestModel
     private static ObservableCollection<int> Deserialize(byte[] bytes)
     {
       using (var ms = new MemoryStream(bytes)) {
-        var bf = new BinaryFormatter();
-        return (ObservableCollection<int>) bf.Deserialize(ms);
+        var dcSerializer = new DataContractSerializer(typeof(ObservableCollection<int>), new[] { typeof(int) });
+        return (ObservableCollection<int>) dcSerializer.ReadObject(ms);
       }
     }
 
@@ -91,12 +89,13 @@ namespace Xtensive.Orm.Tests.Model.FieldConverterTestModel
 
 namespace Xtensive.Orm.Tests.Model
 {
+  [TestFixture, Category("Model")]
   public class FieldConverterTest : AutoBuildTest
   {
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.RegisterCaching(typeof (Person).Assembly, typeof (Person).Namespace);
+      config.Types.Register(typeof (Person));
       return config;
     }
 

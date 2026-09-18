@@ -15,7 +15,6 @@ namespace Xtensive.Orm.Rse.Providers
   /// <summary>
   /// Executes full-text search (contains table query) against specified <see cref="PrimaryIndex"/>.
   /// </summary>
-  [Serializable]
   public sealed class ContainsTableProvider : CompilableProvider
   {
     public Func<ParameterContext, string> SearchCriteria { get; }

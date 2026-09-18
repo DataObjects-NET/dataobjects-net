@@ -41,13 +41,13 @@ namespace Xtensive.Orm.Tests.Issues
         TestLog.Error("Domain build failed: " + e.ToString());
         throw;
       }
+      using (domain) {
+        string key = CreateObjects.CreateTestEchoQueueProcessor(domain);
 
-      string key = CreateObjects.CreateTestEchoQueueProcessor(domain);
-
-      IList<object> workList = QueueProcessor.GetWork(key, domain);
-      foreach (object workUnit in workList)
-      {
-        QueueProcessor.Execute(key, workUnit, domain);
+        IList<object> workList = QueueProcessor.GetWork(key, domain);
+        foreach (object workUnit in workList) {
+          QueueProcessor.Execute(key, workUnit, domain);
+        }
       }
     }
   }

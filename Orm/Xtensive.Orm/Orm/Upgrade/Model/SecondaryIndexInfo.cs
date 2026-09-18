@@ -9,14 +9,12 @@ using System.Linq;
 using Xtensive.Core;
 using Xtensive.Modelling;
 using Xtensive.Modelling.Attributes;
-using Xtensive.Collections;
 
 namespace Xtensive.Orm.Upgrade.Model
 {
   /// <summary>
   /// Secondary index.
   /// </summary>
-  [Serializable]
   public sealed class SecondaryIndexInfo : StorageIndexInfo
   {
     private PartialIndexFilterInfo filter;
@@ -39,9 +37,8 @@ namespace Xtensive.Orm.Upgrade.Model
     [Property(Priority = -90)]
     public PartialIndexFilterInfo Filter
     {
-      get { return filter; }
-      set
-      {
+      get => filter;
+      set {
         EnsureIsEditable();
         filter = value;
       }
@@ -56,7 +53,7 @@ namespace Xtensive.Orm.Upgrade.Model
       if (Parent.PrimaryIndex == null)
         return;
       foreach (var kcr in Parent.PrimaryIndex.KeyColumns)
-        new PrimaryKeyColumnRef(this, kcr.Value, kcr.Direction);
+        _ = new PrimaryKeyColumnRef(this, kcr.Value, kcr.Direction);
     }
 
     /// <inheritdoc/>
@@ -68,32 +65,27 @@ namespace Xtensive.Orm.Upgrade.Model
 
         // Secondary key columns: empty set, duplicates
         var keyColumns = KeyColumns.Select(valueRef => valueRef.Value).ToArray(KeyColumns.Count);
-        if (keyColumns.Length==0)
-          ea.Execute(() => {
-            throw new ValidationException(Strings.ExEmptyKeyColumnsCollection, Path);
-          });
+        if (keyColumns.Length == 0) {
+          ea.Add(new ValidationException(Strings.ExEmptyKeyColumnsCollection, Path), handle: true);
+        }
         foreach (var group in keyColumns
           .GroupBy(keyColumn => keyColumn)
-          .Where(g => g.Count() > 1)) {
-          ea.Execute((_column) => {
-            throw new ValidationException(
-              string.Format(Strings.ExMoreThenOneKeyColumnReferenceToColumnX, _column.Name),
-              Path);
-          }, group.Key);
+          .Where(static g => g.Count() > 1)) {
+
+          ea.Add(new ValidationException(string.Format(Strings.ExMoreThenOneKeyColumnReferenceToColumnX, group.Key.Name), Path), handle: true);
         }
 
         // Primary key columns
-        if (Parent.PrimaryIndex != null && PrimaryKeyColumns.Count!=Parent.PrimaryIndex.KeyColumns.Count)
-          ea.Execute(() => {
-            throw new ValidationException(Strings.ExInvalidPrimaryKeyColumnsCollection, Path);
-          });
-        for (int i = 0; i < PrimaryKeyColumns.Count; i++) {
+        if (Parent.PrimaryIndex != null && PrimaryKeyColumns.Count != Parent.PrimaryIndex.KeyColumns.Count) {
+          ea.Add(new ValidationException(Strings.ExInvalidPrimaryKeyColumnsCollection, Path), handle: true);
+        }
+
+        for (int i = 0, count = PrimaryKeyColumns.Count; i < count; i++) {
           var ref1 = PrimaryKeyColumns[i];
           var ref2 = Parent.PrimaryIndex.KeyColumns[i];
-          if (ref1.Value!=ref2.Value || ref1.Direction!=ref2.Direction)
-            ea.Execute(() => {
-              throw new ValidationException(Strings.ExInvalidPrimaryKeyColumnsCollection, Path);
-            });
+          if (ref1.Value != ref2.Value || ref1.Direction != ref2.Direction) {
+            ea.Add(new ValidationException(Strings.ExInvalidPrimaryKeyColumnsCollection, Path), handle: true);
+          }
         }
 
         // Included columns
@@ -103,20 +95,19 @@ namespace Xtensive.Orm.Upgrade.Model
             .Concat(PrimaryKeyColumns.Select(cr => cr.Value))
             .ToHashSet();
         foreach (var columnRef in IncludedColumns) {
-          if (fullKeySet.Contains(columnRef.Value))
-            ea.Execute(() => {
-              throw new ValidationException(Strings.ExInvalidIncludedColumnsCollection, Path);
-            });
+          if (fullKeySet.Contains(columnRef.Value)) {
+            ea.Add(new ValidationException(Strings.ExInvalidIncludedColumnsCollection, Path), handle: true);
+          }
         }
 
         foreach (var group in IncludedColumns
           .GroupBy(keyColumn => keyColumn)
           .Where(g => g.Count() > 1)) {
-          ea.Execute((_column) => {
-            throw new ValidationException(
-              string.Format(Strings.ExMoreThenOneIncludedColumnReferenceToColumnX, _column.Name),
-              Path);
-          }, group.Key);
+
+          ea.Add(
+            new ValidationException(
+              string.Format(Strings.ExMoreThenOneIncludedColumnReferenceToColumnX, group.Key.Name), Path),
+            handle: true);
         }
 
         ea.Complete();
@@ -133,9 +124,9 @@ namespace Xtensive.Orm.Upgrade.Model
     protected override void Initialize()
     {
       base.Initialize();
-      if (PrimaryKeyColumns==null)
+      if (PrimaryKeyColumns is null)
         PrimaryKeyColumns = new PrimaryKeyColumnRefCollection(this);
-      if (IncludedColumns==null)
+      if (IncludedColumns is null)
         IncludedColumns = new IncludedColumnRefCollection(this);
     }
 

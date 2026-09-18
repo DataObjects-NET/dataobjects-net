@@ -11,7 +11,6 @@ using Xtensive.Orm.Tests.Issues.IssueJira0804_RenameFieldHintValidationBugModel;
 
 namespace Xtensive.Orm.Tests.Issues.IssueJira0804_RenameFieldHintValidationBugModel
 {
-  [Serializable]
   [HierarchyRoot]
   public class Person : Entity
   {
@@ -19,7 +18,6 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0804_RenameFieldHintValidationBugMo
     public long Id { get; private set; }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class Address : Entity
   {

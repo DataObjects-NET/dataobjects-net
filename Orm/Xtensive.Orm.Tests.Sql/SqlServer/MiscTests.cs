@@ -4,14 +4,11 @@
 
 using System;
 using System.Data;
-using System.IO;
-using System.Runtime.Serialization.Formatters.Binary;
 using NUnit.Framework;
 using Xtensive.Collections;
 using Xtensive.Sql;
 using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Dml;
-using System.Data.Common;
 using System.Linq;
 using Xtensive.Sql.Model;
 
@@ -70,14 +67,6 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       i.Values[0] = 10;
       SqlSelect select = SqlDml.Select();
       select.Where = SqlDml.In(1, i);
-
-      using (var mStream = new MemoryStream()) {
-        var formatter = new BinaryFormatter();
-        formatter.Serialize(mStream, select);
-
-        _ = mStream.Seek(0, SeekOrigin.Begin);
-        select = (SqlSelect) formatter.Deserialize(mStream);
-      }
 
       Console.WriteLine(sqlDriver.Compile(select).GetCommandText());
     }
@@ -139,7 +128,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       SqlBinary rb = b + 3;
       rb.Left.ReplaceWith(rb);
       select.Where = rb > 1;
-     Assert.Throws<SqlCompilerException>(() => Console.WriteLine(sqlDriver.Compile(select).GetCommandText()));
+      _ = Assert.Throws<SqlCompilerException>(() => Console.WriteLine(sqlDriver.Compile(select).GetCommandText()));
     }
 
     [Test]

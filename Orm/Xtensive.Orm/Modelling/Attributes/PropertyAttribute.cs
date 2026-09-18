@@ -11,7 +11,6 @@ namespace Xtensive.Modelling.Attributes
   /// <summary>
   /// Node property marker.
   /// </summary>
-  [Serializable]
   [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = false)]
   public sealed class PropertyAttribute : Attribute
   {

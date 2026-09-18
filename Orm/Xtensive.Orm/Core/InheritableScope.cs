@@ -16,7 +16,6 @@ namespace Xtensive.Core
   /// </summary>
   /// <typeparam name="TContext">The type of the context.</typeparam>
   /// <typeparam name="TBaseAncestor">The type of the very base ancestor.</typeparam>
-  [Serializable]
   public class InheritableScope<TContext, TBaseAncestor> : Scope<TContext>
     where TContext : class
     where TBaseAncestor: Scope<TContext>
@@ -54,9 +53,11 @@ namespace Xtensive.Core
     static InheritableScope()
     {
       var ancestorType = typeof(TBaseAncestor);
-      if (allowedType==null) lock (@lock) if (allowedType==null)
-        allowedType = ancestorType;
-      if (allowedType!=ancestorType)
+      if (allowedType is null)
+        lock (@lock)
+          if (allowedType is null)
+            allowedType = ancestorType;
+      if (allowedType != ancestorType)
         throw new SecurityException(
           Strings.ExOnlyOneAncestorOfEachInstanceOfThisGenericTypeIsAllowed);
     }

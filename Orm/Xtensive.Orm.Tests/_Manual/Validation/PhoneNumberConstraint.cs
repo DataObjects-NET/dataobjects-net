@@ -11,7 +11,6 @@ using Xtensive.Orm.Validation;
 
 namespace Xtensive.Orm.Tests._Manual.Validation
 {
-  [Serializable]
   public class PhoneNumberConstraint : PropertyValidator
   {
     private const string PhoneNumberPattern = "^[2-9]\\d{2}-\\d{3}-\\d{4}$";

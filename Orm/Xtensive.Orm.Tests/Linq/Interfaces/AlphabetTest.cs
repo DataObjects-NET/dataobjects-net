@@ -15,7 +15,7 @@ using Xtensive.Orm.Tests.ObjectModel.Interfaces.Alphabet;
 
 namespace Xtensive.Orm.Tests.Linq.Interfaces
 {
-  [Serializable]
+  [TestFixture, Category("Linq")]
   public class AlphabetTest : AutoBuildTest
   {
     const int EachCount = 10;
@@ -27,85 +27,83 @@ namespace Xtensive.Orm.Tests.Linq.Interfaces
       return config;
     }
 
-    public override void TestFixtureSetUp()
+    protected override void PopulateData()
     {
-      base.TestFixtureSetUp();
-      using (var session = Domain.OpenSession()) {
-        using (var t = session.OpenTransaction()) {
-          // ClassTable
-          for (var i = 0; i < EachCount; i++) {
-            _ = new A() {Name = "Name: A" + i};
-          }
-
-          for (var i = 0; i < EachCount; i++) {
-            var named = (INamed)new B() { Name = "Name: B" + i, Tag = "Tag: B" + i};
-            named.Name = "Name: B'" + i;
-          }
-          for (var i = 0; i < EachCount; i++) {
-            var tagged = (ITagged)new C() { Name = "Name: C" + i };
-            tagged.Tag = "Tag: C'" + i;
-          }
-          for (var i = 0; i < EachCount; i++) {
-            var named = (INamed)new D() { Name = "Name: D" + i, Tag= "Tag: D" + i, First = "First: D" + i, Second = "Second: D" + i };
-            named.Name = "Name: D'" + i;
-          }
-          for (var i = 0; i < EachCount; i++) {
-            var named = (INamed)new E() { Name = "Name: E" + i, Tag = "Tag: E" + i, First = "First: E" + i, Second = "Second: E" + i };
-            var composite = (IComposite) named;
-            named.Name = "Name: E'" + i;
-            composite.First = "First: E'" + i;
-          }
-
-          // ConcreteTable
-          for (var i = 0; i < EachCount; i++) {
-            _ = new F() {Name = "Name: F" + i};
-          }
-
-          for (var i = 0; i < EachCount; i++) {
-            var named = (INamed)new G() { Name = "Name: G" + i, Tag = "Tag: G" + i};
-            named.Name = "Name: G'" + i;
-          }
-          for (var i = 0; i < EachCount; i++) {
-            var tagged = (ITagged)new H() { Name = "Name: H" + i };
-            tagged.Tag = "Tag: H'" + i;
-          }
-          for (var i = 0; i < EachCount; i++) {
-            var named = (INamed)new I() { Name = "Name: I" + i, Tag= "Tag: I" + i, First = "First: I" + i, Second = "Second: I" + i };
-            named.Name = "Name: I'" + i;
-          }
-          for (var i = 0; i < EachCount; i++) {
-            var named = (INamed)new J() { Name = "Name: J" + i, Tag = "Tag: J" + i, First = "First: J" + i, Second = "Second: J" + i };
-            var composite = (IComposite) named;
-            named.Name = "Name: J'" + i;
-            composite.First = "First: J'" + i;
-          }
-
-          // SingleTable
-          for (var i = 0; i < EachCount; i++) {
-            _ = new K() {Name = "Name: K" + i};
-          }
-
-          for (var i = 0; i < EachCount; i++) {
-            var named = (INamed)new L() { Name = "Name: L" + i, Tag = "Tag: L" + i};
-            named.Name = "Name: L'" + i;
-          }
-          for (var i = 0; i < EachCount; i++) {
-            var tagged = (ITagged)new M() { Name = "Name: M" + i };
-            tagged.Tag = "Tag: M'" + i;
-          }
-          for (var i = 0; i < EachCount; i++) {
-            var named = (INamed)new N() { Name = "Name: N" + i, Tag= "Tag: N" + i, First = "First: N" + i, Second = "Second: N" + i };
-            named.Name = "Name: N'" + i;
-          }
-          for (var i = 0; i < EachCount; i++) {
-            var named = (INamed)new O() { Name = "Name: O" + i, Tag = "Tag: O" + i, First = "First: O" + i, Second = "Second: O" + i };
-            var composite = (IComposite) named;
-            named.Name = "Name: O'" + i;
-            composite.First = "First: O'" + i;
-          }
-          
-          t.Complete();
+      using (var session = Domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        // ClassTable
+        for (var i = 0; i < EachCount; i++) {
+          _ = new A() {Name = "Name: A" + i};
         }
+
+        for (var i = 0; i < EachCount; i++) {
+          var named = (INamed)new B() { Name = "Name: B" + i, Tag = "Tag: B" + i};
+          named.Name = "Name: B'" + i;
+        }
+        for (var i = 0; i < EachCount; i++) {
+          var tagged = (ITagged)new C() { Name = "Name: C" + i };
+          tagged.Tag = "Tag: C'" + i;
+        }
+        for (var i = 0; i < EachCount; i++) {
+          var named = (INamed)new D() { Name = "Name: D" + i, Tag= "Tag: D" + i, First = "First: D" + i, Second = "Second: D" + i };
+          named.Name = "Name: D'" + i;
+        }
+        for (var i = 0; i < EachCount; i++) {
+          var named = (INamed)new E() { Name = "Name: E" + i, Tag = "Tag: E" + i, First = "First: E" + i, Second = "Second: E" + i };
+          var composite = (IComposite) named;
+          named.Name = "Name: E'" + i;
+          composite.First = "First: E'" + i;
+        }
+
+        // ConcreteTable
+        for (var i = 0; i < EachCount; i++) {
+          _ = new F() {Name = "Name: F" + i};
+        }
+
+        for (var i = 0; i < EachCount; i++) {
+          var named = (INamed)new G() { Name = "Name: G" + i, Tag = "Tag: G" + i};
+          named.Name = "Name: G'" + i;
+        }
+        for (var i = 0; i < EachCount; i++) {
+          var tagged = (ITagged)new H() { Name = "Name: H" + i };
+          tagged.Tag = "Tag: H'" + i;
+        }
+        for (var i = 0; i < EachCount; i++) {
+          var named = (INamed)new I() { Name = "Name: I" + i, Tag= "Tag: I" + i, First = "First: I" + i, Second = "Second: I" + i };
+          named.Name = "Name: I'" + i;
+        }
+        for (var i = 0; i < EachCount; i++) {
+          var named = (INamed)new J() { Name = "Name: J" + i, Tag = "Tag: J" + i, First = "First: J" + i, Second = "Second: J" + i };
+          var composite = (IComposite) named;
+          named.Name = "Name: J'" + i;
+          composite.First = "First: J'" + i;
+        }
+
+        // SingleTable
+        for (var i = 0; i < EachCount; i++) {
+          _ = new K() {Name = "Name: K" + i};
+        }
+
+        for (var i = 0; i < EachCount; i++) {
+          var named = (INamed)new L() { Name = "Name: L" + i, Tag = "Tag: L" + i};
+          named.Name = "Name: L'" + i;
+        }
+        for (var i = 0; i < EachCount; i++) {
+          var tagged = (ITagged)new M() { Name = "Name: M" + i };
+          tagged.Tag = "Tag: M'" + i;
+        }
+        for (var i = 0; i < EachCount; i++) {
+          var named = (INamed)new N() { Name = "Name: N" + i, Tag= "Tag: N" + i, First = "First: N" + i, Second = "Second: N" + i };
+          named.Name = "Name: N'" + i;
+        }
+        for (var i = 0; i < EachCount; i++) {
+          var named = (INamed)new O() { Name = "Name: O" + i, Tag = "Tag: O" + i, First = "First: O" + i, Second = "Second: O" + i };
+          var composite = (IComposite) named;
+          named.Name = "Name: O'" + i;
+          composite.First = "First: O'" + i;
+        }
+
+        t.Complete();
       }
     }
 

@@ -6,7 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Reflection;
@@ -20,7 +19,6 @@ namespace Xtensive.Orm.Rse.Providers
   /// Column value is <see langword="true" /> if source value equal to one of provided values; 
   /// otherwise, <see langword="false" />.
   /// </summary>
-  [Serializable]
   public sealed class IncludeProvider: UnaryProvider,
     IInlinableProvider
   {
@@ -43,7 +41,7 @@ namespace Xtensive.Orm.Rse.Providers
     /// <summary>
     /// Gets the filtered columns.
     /// </summary>
-    public IReadOnlyList<int> FilteredColumns { [DebuggerStepThrough] get; }
+    public IReadOnlyList<int> FilteredColumns { get; }
 
     /// <summary>
     /// Gets filter data.

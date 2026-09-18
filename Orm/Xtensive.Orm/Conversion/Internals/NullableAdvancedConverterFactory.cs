@@ -9,10 +9,9 @@ using Xtensive.Reflection;
 
 namespace Xtensive.Conversion
 {
-  [Serializable]
   internal class NullableAdvancedConverterFactory<TFrom> : IAdvancedConverterFactory<TFrom>
   {
-    private IAdvancedConverterProvider provider;
+    private readonly IAdvancedConverterProvider provider;
 
     public IAdvancedConverter<TFrom, TTo> CreateForwardConverter<TTo>()
     {
@@ -22,7 +21,7 @@ namespace Xtensive.Conversion
         try {
           return
             typeof (NullableNullableAdvancedConverter<,>).Activate(
-              new Type[] { typeof(TFrom).GetGenericArguments()[0], typeof(TTo).GetGenericArguments()[0] }, provider)
+              [typeof(TFrom).GetGenericArguments()[0], typeof(TTo).GetGenericArguments()[0]], provider)
               as IAdvancedConverter<TFrom, TTo>;
         }
         catch {
@@ -31,12 +30,12 @@ namespace Xtensive.Conversion
       }
       else if (fromIsNullable) {
         return typeof (NullableForwardAdvancedConverter<,>).Activate(
-          new Type[] { typeof(TFrom).GetGenericArguments()[0], typeof(TTo) }, provider)
+          [typeof(TFrom).GetGenericArguments()[0], typeof(TTo)], provider)
           as IAdvancedConverter<TFrom, TTo>;
       }
       else if (toIsNullable) {
         return typeof (NullableReverseAdvancedConverter<,>).Activate(
-          new Type[] { typeof(TFrom), typeof(TTo).GetGenericArguments()[0] }, provider)
+          [typeof(TFrom), typeof(TTo).GetGenericArguments()[0]], provider)
           as IAdvancedConverter<TFrom, TTo>;
       }
       return null;
@@ -47,7 +46,7 @@ namespace Xtensive.Conversion
       bool fromIsNullable = TypeHelper.IsNullable<TFrom>();
       if (fromIsNullable) {
         return typeof (NullableReverseAdvancedConverter<,>).Activate(
-          new Type[] { typeof(TTo), typeof(TFrom).GetGenericArguments()[0] }, provider)
+          [typeof(TTo), typeof(TFrom).GetGenericArguments()[0]], provider)
           as IAdvancedConverter<TTo, TFrom>;
       }
       return null;

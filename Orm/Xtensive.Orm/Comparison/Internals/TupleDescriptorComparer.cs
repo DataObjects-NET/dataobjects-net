@@ -1,21 +1,15 @@
-// Copyright (C) 2008-2021 Xtensive LLC.
+// Copyright (C) 2008-2026 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alex Yakunin
 // Created:    2008.01.22
 
 using System;
-using System.Reflection;
-using System.Runtime.Serialization;
-using Xtensive.Collections;
-using Xtensive.Core;
-
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Comparison
 {
-  [Serializable]
   internal sealed class TupleDescriptorComparer: WrappingComparer<TupleDescriptor, Type[]>,
     ISystemComparer<TupleDescriptor>
   {
@@ -32,15 +26,6 @@ namespace Xtensive.Comparison
 
     public TupleDescriptorComparer(IComparerProvider provider, ComparisonRules comparisonRules)
       : base(provider, comparisonRules)
-    {
-    }
-
-    public TupleDescriptorComparer(SerializationInfo info, StreamingContext context)
-      : base(info, context)
-    {
-    }
-
-    public override void OnDeserialization(object sender)
     {
     }
   }

@@ -32,7 +32,6 @@ foreach (var type in types) {
   var primitiveName = type.Name;
   var className = type.Name + "Arithmetic";
 #>
-  [Serializable]
   internal sealed class <#= className #>
     : ArithmeticBase<<#= primitiveName #>>
   {

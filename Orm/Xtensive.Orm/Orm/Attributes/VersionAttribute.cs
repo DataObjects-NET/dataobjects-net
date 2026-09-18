@@ -12,7 +12,6 @@ namespace Xtensive.Orm
   /// <summary>
   /// Marks persistent property as a part of version.
   /// </summary>
-  [Serializable]
   [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = false)]
   public sealed class VersionAttribute : StorageAttribute
   {

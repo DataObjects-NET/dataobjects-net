@@ -8,7 +8,6 @@ using System;
 
 namespace Xtensive.Sql.Dml
 {
-  [Serializable]
   public abstract class SqlArray : SqlExpression
   {
     public abstract Type ItemType { get; }

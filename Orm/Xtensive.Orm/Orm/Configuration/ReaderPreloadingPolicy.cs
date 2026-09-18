@@ -11,7 +11,6 @@ namespace Xtensive.Orm.Configuration
   /// <summary>
   /// A policy for dealing with database readers.
   /// </summary>
-  [Serializable]
   public enum ReaderPreloadingPolicy
   {
     /// <summary>

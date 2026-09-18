@@ -6,20 +6,13 @@ using System;
 
 namespace Xtensive.Sql.Dml
 {
-  [Serializable]
   public class SqlCloseCursor : SqlStatement, ISqlCompileUnit
   {
-    private SqlCursor cursor;
-
     /// <summary>
     /// Gets the cursor.
     /// </summary>
     /// <value>The cursor.</value>
-    public SqlCursor Cursor {
-      get {
-        return cursor;
-      }
-    }
+    public SqlCursor Cursor { get; }
 
     internal override SqlCloseCursor Clone(SqlNodeCloneContext context) => throw new NotImplementedException();
 
@@ -31,7 +24,7 @@ namespace Xtensive.Sql.Dml
     public SqlCloseCursor(SqlCursor cursor)
       : base(SqlNodeType.CloseCursor)
     {
-      this.cursor = cursor;
+      Cursor = cursor;
     }
   }
 }

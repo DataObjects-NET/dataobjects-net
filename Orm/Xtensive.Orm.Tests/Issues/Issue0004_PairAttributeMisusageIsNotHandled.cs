@@ -5,16 +5,12 @@
 // Created:    2008.11.26
 
 using System;
-using System.Reflection;
 using NUnit.Framework;
-using Xtensive.Core;
-using Xtensive.Orm.Tests;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Issue0004_Model;
 
 namespace Xtensive.Orm.Tests.Issue0004_Model
 {
-  [Serializable]
   [HierarchyRoot]
   public class User : Entity
   {
@@ -28,7 +24,6 @@ namespace Xtensive.Orm.Tests.Issue0004_Model
     public EntitySet<Notification> Notifications { get; set; }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class Notification : Entity
   {
@@ -45,22 +40,30 @@ namespace Xtensive.Orm.Tests.Issue0004_Model
 
 namespace Xtensive.Orm.Tests.Issues
 {
-  [Ignore("No more actual")]
-  public class Issue0004_PairAttributeMisusageIsNotHandled : AutoBuildTest
+  public class Issue0004_PairAttributeMisusageIsNotHandled
   {
-    protected override DomainConfiguration BuildConfiguration()
+    [Test]
+    public void DomainBuildTest()
     {
-      var config = base.BuildConfiguration();
-      config.Types.RegisterCaching(Assembly.GetExecutingAssembly(), typeof(User).Namespace);
+      var configuration = BuildConfiguration();
+      Assert.DoesNotThrow(() => Domain.Build(configuration).Dispose());
+    }
+
+    [Test]
+    public void DomainBuildAsyncTest()
+    {
+      var configuration = BuildConfiguration();
+      Assert.DoesNotThrowAsync(async () =>  (await Domain.BuildAsync(configuration)).Dispose());
+    }
+
+    private static DomainConfiguration BuildConfiguration()
+    {
+      var config = DomainConfigurationFactory.Create();
+      config.Types.Register(typeof(User));
+      config.Types.Register(typeof(Notification));
       return config;
     }
 
-    protected override Domain BuildDomain(DomainConfiguration configuration)
-    {
-      Domain result = null;
-      AssertEx.Throws<DomainBuilderException>(() => result = base.BuildDomain(configuration));
-      return result;
-    }
   }
 }
 

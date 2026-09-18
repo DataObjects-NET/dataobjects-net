@@ -13,7 +13,6 @@ namespace Xtensive.Orm.Configuration
   /// <summary>
   /// Base class for configuration.
   /// </summary>
-  [Serializable]
   public abstract class ConfigurationBase: LockableBase, ICloneable
   {
     /// <summary>

@@ -15,7 +15,6 @@ using M2 = Xtensive.Orm.Tests.Issues.IssueJira0208_IncorrectUpgradeSequence.Mode
 
 namespace Xtensive.Orm.Tests.Issues.IssueJira0208_IncorrectUpgradeSequence
 {
-  [Serializable]
   public class Upgrader : UpgradeHandler
   {
     private static bool isEnabled = false;

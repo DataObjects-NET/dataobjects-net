@@ -9,12 +9,12 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
-using System.Runtime.Serialization;
+using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Model;
-using Xtensive.Orm.Operations;
 using Xtensive.Orm.PairIntegrity;
+using Xtensive.Orm.Providers;
 using Xtensive.Orm.ReferentialIntegrity;
 using Xtensive.Orm.Rse;
 using Xtensive.Reflection;
@@ -560,12 +560,11 @@ namespace Xtensive.Orm
       }
 
       try {
-        var operations = Session.Operations;
+        var (operations, operationsFactory, allowRegistration) = Session.GetOperationsContext();
         using (var scope = operations.BeginRegistration(Operations.OperationType.System)) {
           var itemKey = item.Key;
-          if (operations.CanRegisterOperation) {
-            operations.RegisterOperation(new EntitySetItemAddOperation(Owner.Key, Field, itemKey));
-          }
+          if (allowRegistration && operations.CanRegisterOperation)
+            operations.RegisterOperation(operationsFactory.EntitySetItemAddOperation(Owner.Key, Field, itemKey));
 
           SystemBeforeAdd(item);
 
@@ -596,7 +595,8 @@ namespace Xtensive.Orm
             index = GetItemIndex(state, itemKey);
           };
 
-          operations.NotifyOperationStarting();
+          if (allowRegistration && operations.CanRegisterOperation)
+            operations.NotifyOperationStarting();
           if (association.IsPaired) {
             Session.PairSyncManager.ProcessRecursively(syncContext, removalContext,
               OperationType.Add, association, Owner, item, finalizer);
@@ -614,7 +614,7 @@ namespace Xtensive.Orm
 
           SystemAdd(item, index);
           SystemAddCompleted(item, null);
-          scope.Complete();
+          scope?.Complete();
           return true;
         }
       }
@@ -633,13 +633,12 @@ namespace Xtensive.Orm
       }
 
       try {
-        var operations = Session.Operations;
+        var (operations, operationsFactory, allowRegistration) = Session.GetOperationsContext();
         var scope = operations.BeginRegistration(Operations.OperationType.System);
         try {
           var itemKey = item.Key;
-          if (operations.CanRegisterOperation) {
-            operations.RegisterOperation(new EntitySetItemRemoveOperation(Owner.Key, Field, itemKey));
-          }
+          if (allowRegistration && operations.CanRegisterOperation)
+            operations.RegisterOperation(operationsFactory.EntitySetItemRemoveOperation(Owner.Key, Field, itemKey));
 
           SystemBeforeRemove(item);
 
@@ -669,7 +668,8 @@ namespace Xtensive.Orm
             Session.EntitySetChangeRegistry.Register(state);
           };
 
-          operations.NotifyOperationStarting();
+          if (allowRegistration && operations.CanRegisterOperation)
+            operations.NotifyOperationStarting();
           if (association.IsPaired) {
             Session.PairSyncManager.ProcessRecursively(syncContext, removalContext,
               OperationType.Remove, association, Owner, item, finalizer);
@@ -690,7 +690,7 @@ namespace Xtensive.Orm
 
                   SystemRemove(item, index);
                   SystemRemoveCompleted(item, null);
-                  scope.Complete();
+                  scope?.Complete();
                 }
                 finally {
                   scope.DisposeSafely();
@@ -710,7 +710,7 @@ namespace Xtensive.Orm
 
           SystemRemove(item, index);
           SystemRemoveCompleted(item, null);
-          scope.Complete();
+          scope?.Complete();
           return true;
         }
         finally {
@@ -732,14 +732,14 @@ namespace Xtensive.Orm
     {
       EnsureOwnerIsNotRemoved();
       try {
-        var operations = Session.Operations;
+        var (operations, operationsFactory, allowRegistration) = Session.GetOperationsContext();
         using (var scope = operations.BeginRegistration(Operations.OperationType.System)) {
-          if (operations.CanRegisterOperation) {
-            operations.RegisterOperation(new EntitySetClearOperation(Owner.Key, Field));
-          }
+          if (allowRegistration && operations.CanRegisterOperation)
+            operations.RegisterOperation(operationsFactory.EntitySetClearOperation(Owner.Key, Field));
 
           SystemBeforeClear();
-          operations.NotifyOperationStarting();
+          if (allowRegistration && operations.CanRegisterOperation)
+            operations.NotifyOperationStarting();
 
           foreach (var entity in Entities.ToList()) {
             _ = Remove(entity);
@@ -747,7 +747,7 @@ namespace Xtensive.Orm
 
           SystemClear();
           SystemClearCompleted(null);
-          scope.Complete();
+          scope?.Complete();
         }
       }
       catch (Exception e) {
@@ -1064,16 +1064,6 @@ namespace Xtensive.Orm
         : Session.Domain.Configuration.VersioningConvention.DenyEntitySetOwnerVersionChange;
 
       Initialize(WellKnownOrmTypes.EntitySetBase);
-    }
-
-    /// <summary>
-    /// Initializes a new instance of this class.
-    /// </summary>
-    /// <param name="info">The <see cref="SerializationInfo"/>.</param>
-    /// <param name="context">The <see cref="StreamingContext"/>.</param>
-    protected EntitySetBase(SerializationInfo info, StreamingContext context)
-    {
-      throw new NotImplementedException();
     }
   }
 }

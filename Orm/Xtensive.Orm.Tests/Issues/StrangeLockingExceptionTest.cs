@@ -16,7 +16,6 @@ namespace Xtensive.Orm.Tests.Issues
 {
   namespace StrangeLockingExceptionModel
   {
-    [Serializable]
     [HierarchyRoot]
     public class TestA : Entity
     {
@@ -29,7 +28,6 @@ namespace Xtensive.Orm.Tests.Issues
       public int Val { get; set; }
     }
 
-    [Serializable]
     [HierarchyRoot]
     public class TestB : Entity
     {

@@ -15,7 +15,6 @@ using Xtensive.Collections;
 
 namespace Xtensive.Orm.Linq.Expressions
 {
-  [Serializable]
   internal class SubQueryExpression : ParameterizedExpression,
     IMappedExpression
   {
@@ -24,14 +23,10 @@ namespace Xtensive.Orm.Linq.Expressions
     public ApplyParameter ApplyParameter { get; }
 
     public virtual Expression BindParameter(ParameterExpression parameter, Dictionary<Expression, Expression> processedExpressions)
-    {
-      return this;
-    }
+      => this;
 
     public virtual Expression RemoveOuterParameter(Dictionary<Expression, Expression> processedExpressions)
-    {
-      return this;
-    }
+      => this;
 
     public virtual Expression Remap(int offset, Dictionary<Expression, Expression> processedExpressions)
     {

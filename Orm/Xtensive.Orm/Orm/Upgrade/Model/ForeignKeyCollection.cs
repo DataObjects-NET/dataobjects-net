@@ -5,16 +5,13 @@
 // Created:    2009.03.23
 
 using System;
-
 using Xtensive.Modelling;
-using Xtensive.Orm.Upgrade.Model;
 
 namespace Xtensive.Orm.Upgrade.Model
 {
   /// <summary>
   /// Foreign key collection.
   /// </summary>
-  [Serializable]
   public sealed class ForeignKeyCollection : NodeCollectionBase<ForeignKeyInfo, TableInfo>, 
     IUnorderedNodeCollection
   {

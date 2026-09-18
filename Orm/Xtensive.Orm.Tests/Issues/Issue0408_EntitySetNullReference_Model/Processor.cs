@@ -3,7 +3,6 @@ using System.Linq;
 
 namespace Xtensive.Orm.Tests.Issues.Issue0408_EntitySetNullReference_Model
 {
-  [Serializable]
   [HierarchyRoot] 
   public abstract class Processor : Entity
   {
@@ -48,7 +47,7 @@ namespace Xtensive.Orm.Tests.Issues.Issue0408_EntitySetNullReference_Model
       //  qr = q.Execute();
       //}
 
-      var qr = from link in Session.Demand().Query.All<DocumentLink>()
+      var qr = from link in Session.Query.All<DocumentLink>()
                where link.LinkSemantic == LinkSemantic.GroupHeadToDocumentInGroup
                where link.LinkDestination == sourceDocument
                select link;

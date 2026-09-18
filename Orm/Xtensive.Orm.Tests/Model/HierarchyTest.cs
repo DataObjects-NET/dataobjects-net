@@ -24,7 +24,6 @@ namespace Xtensive.Orm.Tests.Model.Hierarchies
   {
   }
 
-  [Serializable]
   public class A : Entity, IA
   {
     string I0.AName { get; set; }
@@ -33,7 +32,6 @@ namespace Xtensive.Orm.Tests.Model.Hierarchies
     public string AName { get; set; }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class AB : A
   {
@@ -44,17 +42,14 @@ namespace Xtensive.Orm.Tests.Model.Hierarchies
     public string ABName { get; set; }
   }
 
-  [Serializable]
   public class ABC : AB
   {
   }
 
-  [Serializable]
   public abstract class B : Entity
   {
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class BC : B
   {
@@ -62,7 +57,6 @@ namespace Xtensive.Orm.Tests.Model.Hierarchies
     public Guid ID { get; private set; }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class BD : B
   {
@@ -73,7 +67,6 @@ namespace Xtensive.Orm.Tests.Model.Hierarchies
     public string AName { get; set; }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class BE : B
   {
@@ -81,14 +74,12 @@ namespace Xtensive.Orm.Tests.Model.Hierarchies
     public int ID { get; private set; }
   }
 
-  [Serializable]
   public class IdentifiableEntity : Entity
   {
     [Field, Key]
     public Guid Id { get; private set; }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class MyEntity : IdentifiableEntity
   {
@@ -130,6 +121,7 @@ namespace Xtensive.Orm.Tests.Model.Hierarchies
 
 namespace Xtensive.Orm.Tests.Model
 {
+  [TestFixture, Category("Model")]
   public class HierarchyTest : AutoBuildTest
   {
     protected override DomainConfiguration BuildConfiguration()
@@ -159,21 +151,29 @@ namespace Xtensive.Orm.Tests.Model
     [Test]
     public void MainTest()
     {
-      Assert.That(Domain.Model.Types.Contains(typeof (A)), Is.False);
-      Assert.That(Domain.Model.Types[typeof (AB)], Is.Not.Null);
-      Assert.That(Domain.Model.Types[typeof (AB)].Fields["ID"], Is.Not.Null);
-      Assert.That(Domain.Model.Types[typeof (AB)].Fields["ABName"], Is.Not.Null);
-      Assert.That(Domain.Model.Types[typeof (AB)].Fields["AName"], Is.Not.Null);
-      Assert.That(Domain.Model.Types[typeof (AB)].Fields["ABName"].DeclaringType, Is.EqualTo(Domain.Model.Types[typeof (AB)]));
-      Assert.That(Domain.Model.Types[typeof (AB)].Fields["AName"].DeclaringType, Is.EqualTo(Domain.Model.Types[typeof (AB)]));
-      Assert.That(Domain.Model.Types[typeof (AB)].Hierarchy.Root, Is.EqualTo(Domain.Model.Types[typeof (AB)]));
-      Assert.That(Domain.Model.Types[typeof (ABC)].Hierarchy.Root, Is.EqualTo(Domain.Model.Types[typeof (AB)]));
-      Assert.That(Domain.Model.Types[typeof (ABC)].Hierarchy, Is.EqualTo(Domain.Model.Types[typeof (AB)].Hierarchy));
-      Assert.That(Domain.Model.Types[typeof (AB)].Fields["ID"].ValueType, Is.EqualTo(typeof (long)));
-      Assert.That(Domain.Model.Types[typeof (ABC)].Fields["ID"].ValueType, Is.EqualTo(typeof (long)));
-      Assert.That(Domain.Model.Types[typeof (BC)].Fields["ID"].ValueType, Is.EqualTo(typeof (Guid)));
-      Assert.That(Domain.Model.Types[typeof (BD)].Fields["ID"].ValueType, Is.EqualTo(typeof (long)));
-      Assert.That(Domain.Model.Types[typeof (BE)].Fields["ID"].ValueType, Is.EqualTo(typeof (int)));
+      var modelTypes = Domain.Model.Types;
+
+      Assert.That(modelTypes.Contains(typeof (A)), Is.False);
+
+      var abType = modelTypes[typeof (AB)];
+      Assert.That(abType, Is.Not.Null);
+      Assert.That(abType.Fields["ID"], Is.Not.Null);
+      Assert.That(abType.Fields["ID"].ValueType, Is.EqualTo(typeof(long)));
+      Assert.That(abType.Fields["ABName"], Is.Not.Null);
+      Assert.That(abType.Fields["AName"], Is.Not.Null);
+      Assert.That(abType.Fields["ABName"].DeclaringType, Is.EqualTo(abType));
+      Assert.That(abType.Fields["AName"].DeclaringType, Is.EqualTo(abType));
+      Assert.That(abType.Hierarchy.Root, Is.EqualTo(abType));
+
+      var abcType = modelTypes[typeof(ABC)];
+      Assert.That(abcType.Hierarchy.Root, Is.EqualTo(abType));
+      Assert.That(abcType.Hierarchy, Is.EqualTo(abType.Hierarchy));
+      Assert.That(abcType.Fields["ID"].ValueType, Is.EqualTo(typeof (long)));
+
+      var bcType = modelTypes[typeof (BC)];
+      Assert.That(bcType.Fields["ID"].ValueType, Is.EqualTo(typeof (Guid)));
+      Assert.That(modelTypes[typeof(BD)].Fields["ID"].ValueType, Is.EqualTo(typeof (long)));
+      Assert.That(modelTypes[typeof(BE)].Fields["ID"].ValueType, Is.EqualTo(typeof (int)));
     }
 
     [Test]

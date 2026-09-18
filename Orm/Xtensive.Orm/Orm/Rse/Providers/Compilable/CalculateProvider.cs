@@ -13,7 +13,6 @@ namespace Xtensive.Orm.Rse.Providers
   /// <summary>
   /// Compilable provider that calculates columns from <see cref="UnaryProvider.Source"/>.
   /// </summary>
-  [Serializable]
   public class CalculateProvider : UnaryProvider,
     IInlinableProvider
   {

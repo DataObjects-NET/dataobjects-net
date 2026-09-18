@@ -11,7 +11,6 @@ namespace Xtensive.Orm.Configuration
   /// <summary>
   /// Enumerates all possible modification types to names.
   /// </summary>
-  [Serializable]
   public enum LetterCasePolicy
   {
     /// <summary>

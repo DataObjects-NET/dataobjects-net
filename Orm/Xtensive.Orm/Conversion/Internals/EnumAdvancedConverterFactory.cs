@@ -9,37 +9,36 @@ using Xtensive.Reflection;
 
 namespace Xtensive.Conversion
 {
-  [Serializable]
   internal class EnumAdvancedConverterFactory<TFrom> : IAdvancedConverterFactory<TFrom>
   {
     private readonly IAdvancedConverterProvider provider;
 
     public IAdvancedConverter<TFrom, TTo> CreateForwardConverter<TTo>()
     {
-      Type fromType = typeof (TFrom);
-      Type toType = typeof (TTo);
+      var fromType = typeof (TFrom);
+      var toType = typeof (TTo);
       if (fromType.IsEnum) {
-        Type fromUnderlyingType = Enum.GetUnderlyingType(fromType);
+        var fromUnderlyingType = Enum.GetUnderlyingType(fromType);
         Type[] genericArguments;
         Type genericType;
         if (toType.IsEnum) {
           Type toUnderlyingType = Enum.GetUnderlyingType(toType);
           if (fromUnderlyingType==toUnderlyingType) {
-            genericArguments = new Type[] {fromType, toType, fromUnderlyingType};
+            genericArguments = [fromType, toType, fromUnderlyingType];
             genericType = typeof (EnumAdvancedConverter<,,>);
           }
           else {
-            genericArguments = new Type[] {fromType, toType, fromUnderlyingType, toUnderlyingType};
+            genericArguments = [fromType, toType, fromUnderlyingType, toUnderlyingType];
             genericType = typeof (EnumAdvancedConverter<,,,>);
           }
         }
         else {
           if (toType==fromUnderlyingType) {
-            genericArguments = new Type[] {fromType, toType};
+            genericArguments = [fromType, toType];
             genericType = typeof (EnumAdvancedConverter<,>);
           }
           else {
-            genericArguments = new Type[] {fromType, toType, fromUnderlyingType};
+            genericArguments = [fromType, toType, fromUnderlyingType];
             genericType = typeof (EnumAdvancedConverter<,,>);
           }
         }
@@ -50,18 +49,18 @@ namespace Xtensive.Conversion
 
     public IAdvancedConverter<TTo, TFrom> CreateBackwardConverter<TTo>()
     {
-      Type fromType = typeof (TFrom);
-      Type toType = typeof (TTo);
+      var fromType = typeof (TFrom);
+      var toType = typeof (TTo);
       if (fromType.IsEnum) {
-        Type fromUnderlyingType = Enum.GetUnderlyingType(fromType);
+        var fromUnderlyingType = Enum.GetUnderlyingType(fromType);
         Type[] genericArguments;
         Type genericType;
         if (toType==fromUnderlyingType) {
-          genericArguments = new Type[] {toType, fromType};
+          genericArguments = [toType, fromType];
           genericType = typeof (EnumAdvancedConverter<,>);
         }
         else {
-          genericArguments = new Type[] {toType, fromType, fromUnderlyingType};
+          genericArguments = [toType, fromType, fromUnderlyingType];
           genericType = typeof (EnumAdvancedConverter<,,>);
         }
         object result = genericType.Activate(genericArguments, provider);

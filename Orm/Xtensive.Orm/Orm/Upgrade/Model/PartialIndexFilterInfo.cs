@@ -9,10 +9,9 @@ using Xtensive.Core;
 
 namespace Xtensive.Orm.Upgrade.Model
 {
-  [Serializable]
   public sealed class PartialIndexFilterInfo : IEquatable<PartialIndexFilterInfo>
   {
-    public string Expression { get; private set; }
+    public string Expression { get; }
 
     #region Equality members
 
@@ -36,17 +35,11 @@ namespace Xtensive.Orm.Upgrade.Model
       return Equals((PartialIndexFilterInfo)obj);
     }
 
-    public override int GetHashCode()
-    {
-      return Expression.GetHashCode();
-    }
+    public override int GetHashCode() => Expression.GetHashCode();
 
     #endregion
 
-    public override string ToString()
-    {
-      return Expression;
-    }
+    public override string ToString() => Expression;
 
 
     // Constructors

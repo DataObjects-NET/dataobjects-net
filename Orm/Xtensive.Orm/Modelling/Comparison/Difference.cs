@@ -18,7 +18,6 @@ namespace Xtensive.Modelling.Comparison
   /// <summary>
   /// Base comparison result.
   /// </summary>
-  [Serializable]
   public abstract class Difference : IDifference
   {
     /// <summary>
@@ -27,13 +26,13 @@ namespace Xtensive.Modelling.Comparison
     protected static readonly int ToString_IndentSize = 2;
 
     /// <inheritdoc/>
-    public object Source { get; private set; }
+    public object Source { get; }
 
     /// <inheritdoc/>
-    public object Target { get; private set; }
+    public object Target { get; }
 
     /// <inheritdoc/>
-    public Difference Parent { get; private set; }
+    public Difference Parent { get; }
 
     /// <inheritdoc/>
     public abstract bool HasChanges { get; }
@@ -72,7 +71,7 @@ namespace Xtensive.Modelling.Comparison
       Source = source;
       Target = target;
       var any = source ?? target;
-      if (any==null)
+      if (any is null)
         throw new InvalidOperationException(Strings.ExBothSourceAndTargetAreNull);
       Parent = Comparer.Current.Context.Difference;
     }

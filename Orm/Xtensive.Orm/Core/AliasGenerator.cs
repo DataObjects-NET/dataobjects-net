@@ -11,7 +11,6 @@ namespace Xtensive.Core
   /// <summary>
   /// Universal alias generator.
   /// </summary>
-  [Serializable]
   public sealed class AliasGenerator
   {
     /// <summary>
@@ -57,28 +56,19 @@ namespace Xtensive.Core
     /// Creates generator with default settings.
     /// </summary>
     /// <returns></returns>
-    public static AliasGenerator Create()
-    {
-      return new AliasGenerator();
-    }
+    public static AliasGenerator Create() => new AliasGenerator();
 
     /// <summary>
     /// Creates generator using specified alias template.
     /// </summary>
     /// <param name="aliasTemplate">Alias template. Could use two template parameters: {0} - for prefix and {1} for suffix.</param>
-    public static AliasGenerator Create(string aliasTemplate)
-    {
-      return new AliasGenerator(aliasTemplate);
-    }
+    public static AliasGenerator Create(string aliasTemplate) => new AliasGenerator(aliasTemplate);
 
     /// <summary>
     /// Creates generator using specified prefix sequence.
     /// </summary>
     /// <param name="overriddenPrefixes">The overridden prefix sequence.</param>
-    public static AliasGenerator Create(string [] overriddenPrefixes)
-    {
-      return new AliasGenerator(overriddenPrefixes);
-    }
+    public static AliasGenerator Create(string[] overriddenPrefixes) => new AliasGenerator(overriddenPrefixes);
 
     /// <summary>
     /// Creates generator using specified <paramref name="overriddenPrefixes"/> and <paramref name="aliasTemplate"/>.
@@ -86,9 +76,7 @@ namespace Xtensive.Core
     /// <param name="overriddenPrefixes">The overridden prefix sequence.</param>
     /// <param name="aliasTemplate">The alias template.</param>
     public static AliasGenerator Create(string[] overriddenPrefixes, string aliasTemplate)
-    {
-      return new AliasGenerator(overriddenPrefixes, aliasTemplate);
-    }
+      => new AliasGenerator(overriddenPrefixes, aliasTemplate);
 
 
     // Constructors

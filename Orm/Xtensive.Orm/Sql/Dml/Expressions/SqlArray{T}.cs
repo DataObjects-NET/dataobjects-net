@@ -12,7 +12,6 @@ namespace Xtensive.Sql.Dml
   /// <summary>
   /// Represents generic array expression.
   /// </summary>
-  [Serializable]
   public class SqlArray<T> : SqlArray
   {
     /// <summary>
@@ -21,9 +20,9 @@ namespace Xtensive.Sql.Dml
     /// <values>The values.</values>
     public T[] Values { get; private set; }
 
-    public override Type ItemType { get { return typeof (T); } }
+    public override Type ItemType => typeof(T);
 
-    public override int Length { get { return Values.Length; } }
+    public override int Length => Values.Length;
 
     public override object[] GetValues()
     {

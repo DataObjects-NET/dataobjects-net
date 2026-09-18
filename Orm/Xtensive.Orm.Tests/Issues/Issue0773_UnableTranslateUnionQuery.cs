@@ -13,7 +13,6 @@ using Xtensive.Orm.Tests.ObjectModel.ChinookDO;
 
 namespace Xtensive.Orm.Tests.Issues
 {
-  [Serializable]
   public class Issue0773_UnableTranslateUnionQuery : ChinookDOModelTest
   {
     private class DTO

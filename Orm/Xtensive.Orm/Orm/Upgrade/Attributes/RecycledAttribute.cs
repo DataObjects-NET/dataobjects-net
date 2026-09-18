@@ -12,7 +12,6 @@ namespace Xtensive.Orm.Upgrade
   /// <summary>
   /// An attribute describing the recycled type or property.
   /// </summary>
-  [Serializable]
   [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface | AttributeTargets.Property, 
     AllowMultiple = false, Inherited = false)]
   public sealed class RecycledAttribute : Attribute

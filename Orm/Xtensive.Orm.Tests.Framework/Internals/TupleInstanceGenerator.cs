@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2008-2026 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Gamzov
 // Created:    2008.01.30
 
@@ -12,12 +12,12 @@ using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Tests
 {
-  [Serializable]
-  internal class TupleInstanceGenerator : InstanceGeneratorBase<Tuples.Tuple>
+  internal class TupleInstanceGenerator(IInstanceGeneratorProvider provider)
+    : InstanceGeneratorBase<Tuples.Tuple>(provider)
   {
-    private static readonly Dictionary<Type[], int> descriptors = new Dictionary<Type[], int>(); // Descriptor - probability
+    private static readonly Dictionary<Type[], int> Descriptors = new Dictionary<Type[], int>(); // Descriptor - probability
     private static readonly int commonProbability;
-    private readonly IInstanceGeneratorProvider provider;
+    private readonly IInstanceGeneratorProvider provider = provider;
 
     internal struct TupleGeneratorData
     {
@@ -36,7 +36,7 @@ namespace Xtensive.Orm.Tests
     public override Tuples.Tuple GetInstance(Random random)
     {
       int position = random.Next(0, commonProbability);
-      foreach (KeyValuePair<Type[], int> descriptor in descriptors) {
+      foreach (KeyValuePair<Type[], int> descriptor in Descriptors) {
         if (position <= descriptor.Value) {
           Type[] types = descriptor.Key;
           Tuples.Tuple tuple = Tuples.Tuple.Create(types);
@@ -53,24 +53,12 @@ namespace Xtensive.Orm.Tests
       return null;
     }
 
-
-    // Constructors
-
-    public TupleInstanceGenerator(IInstanceGeneratorProvider provider)
-      : base(provider)
-    {
-      this.provider = provider;
-    }
-
     static TupleInstanceGenerator()
     {
-//      descriptors.Add(new Type[] {typeof (int)}, 20);
-//      descriptors.Add(new Type[] {typeof (Guid)}, 20);
-      descriptors.Add(new Type[] {typeof (long), typeof(int), typeof(string), typeof(bool), typeof(decimal)}, 50);
-//      descriptors.Add(new Type[] {typeof (long), typeof (Guid)}, 20);
-//      descriptors.Add(new Type[] {typeof (long), typeof (Guid), typeof (byte)}, 10);
-      foreach (KeyValuePair<Type[], int> descriptor in descriptors)
+      Descriptors.Add([typeof (long), typeof(int), typeof(string), typeof(bool), typeof(decimal)], 50);
+      foreach (KeyValuePair<Type[], int> descriptor in Descriptors) {
         commonProbability += descriptor.Value;
+      }
     }
   }
 }

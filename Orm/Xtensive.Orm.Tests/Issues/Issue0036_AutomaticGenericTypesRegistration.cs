@@ -15,7 +15,6 @@ namespace Xtensive.Orm.Tests.Issues.Issue0036_Model
   {
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class Person : Entity
   {
@@ -23,7 +22,6 @@ namespace Xtensive.Orm.Tests.Issues.Issue0036_Model
     public int Id { get; private set; }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class User : Entity, ISecurable
   {
@@ -31,7 +29,6 @@ namespace Xtensive.Orm.Tests.Issues.Issue0036_Model
     public int Id { get; private set; }
   }
 
-  [Serializable]
   [KeyGenerator(KeyGeneratorKind.None)]
   [HierarchyRoot]
   public class SyncInfo<TEntity> : Entity 
@@ -46,7 +43,6 @@ namespace Xtensive.Orm.Tests.Issues.Issue0036_Model
     }
   }
 
-  [Serializable]
   [KeyGenerator(KeyGeneratorKind.None)]
   [HierarchyRoot]
   public class SecurityInfo<TEntity> : Entity 
@@ -76,18 +72,15 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void MainTest()
     {
-//      Domain.Model.Dump();
+      using (var session = Domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var person = new Person();
+        var personSyncInfo = new SyncInfo<Person>(person);
+        var user = new User();
+        var userSyncInfo = new SyncInfo<User>(user);
+        var userSecurityInfo = new SecurityInfo<User>(user);
 
-      using (var session = Domain.OpenSession()) {
-        using (var t = session.OpenTransaction()) {
-          var person = new Person();
-          var personSyncInfo = new SyncInfo<Person>(person);
-          var user = new User();
-          var userSyncInfo = new SyncInfo<User>(user);
-          var userSecurityInfo = new SecurityInfo<User>(user);
-
-          t.Complete();
-        }
+        t.Complete();
       }
     }
   }

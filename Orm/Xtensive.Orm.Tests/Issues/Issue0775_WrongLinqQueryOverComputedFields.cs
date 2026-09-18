@@ -99,7 +99,6 @@ namespace Xtensive.Orm.Tests.Issues
     }
   }
 
-  [Serializable]
   public class Issue0775_WrongLinqQueryOverComputedFields : AutoBuildTest
   {
     protected override void CheckRequirements()

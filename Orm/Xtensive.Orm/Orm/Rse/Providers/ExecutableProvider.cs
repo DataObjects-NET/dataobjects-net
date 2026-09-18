@@ -17,7 +17,6 @@ namespace Xtensive.Orm.Rse.Providers
   /// <summary>
   /// Abstract base class for any query provider that can be directly executed.
   /// </summary>
-  [Serializable]
   public abstract class ExecutableProvider : Provider
   {
     /// <summary>

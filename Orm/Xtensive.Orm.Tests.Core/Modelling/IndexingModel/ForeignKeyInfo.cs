@@ -16,7 +16,6 @@ namespace Xtensive.Orm.Tests.Core.Modelling.IndexingModel
   /// <summary>
   /// Foreign key.
   /// </summary>
-  [Serializable]
   [DataDependent]
   public sealed class ForeignKeyInfo : NodeBase<TableInfo>
   {

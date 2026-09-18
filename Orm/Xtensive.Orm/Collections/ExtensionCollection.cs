@@ -19,7 +19,6 @@ namespace Xtensive.Collections
   /// <summary>
   /// Default <see cref="IExtensionCollection"/> implementation (<see cref="ILockable">lockable</see>).
   /// </summary>
-  [Serializable]
   public class ExtensionCollection: LockableBase,
     IExtensionCollection,
     ICloneable
@@ -29,27 +28,21 @@ namespace Xtensive.Collections
     /// <inheritdoc/>
     public long Count {
       [DebuggerStepThrough]
-      get {
-        return extensions!=null ? extensions.Count : 0;
-      }
+      get => extensions is not null ? extensions.Count : 0;
     }
 
     /// <inheritdoc/>
     [DebuggerStepThrough]
-    public T Get<T>() 
-      where T : class
-    {
-      return (T) Get(typeof (T));
-    }
+    public T Get<T>()
+      where T : class => (T) Get(typeof(T));
 
     /// <inheritdoc/>
     public object Get(Type extensionType)
     {
       ArgumentNullException.ThrowIfNull(extensionType);
-      if (extensions==null)
+      if (extensions is null)
         return null;
-      object result;
-      if (extensions.TryGetValue(extensionType, out result))
+      if (extensions.TryGetValue(extensionType, out object result))
         return result;
       else
         return null;
@@ -57,11 +50,8 @@ namespace Xtensive.Collections
 
     /// <inheritdoc/>
     [DebuggerStepThrough]
-    public void Set<T>(T value) 
-      where T : class
-    {
-      Set(typeof (T), value);
-    }
+    public void Set<T>(T value)
+      where T : class => Set(typeof(T), value);
 
     /// <inheritdoc/>
     /// <exception cref="ArgumentException">Wrong arguments.</exception>
@@ -76,8 +66,8 @@ namespace Xtensive.Collections
         throw new ArgumentException(string.Format(
           Strings.ExTypeXMustImplementY, value.GetType(), extensionType.GetShortName()), nameof(value));
       
-      if (extensions==null)
-        if (value==null)
+      if (extensions is null)
+        if (value is null)
           return;
         else
           extensions = new Dictionary<Type, object>();
@@ -95,11 +85,11 @@ namespace Xtensive.Collections
     public override void Lock(bool recursive)
     {
       base.Lock(recursive);
-      if (extensions!=null)
+      if (extensions is not null)
         foreach (KeyValuePair<Type, object> pair in extensions) {
-          var lockable = pair.Value as ILockable;
-          if (lockable!=null)
-            lockable.Lock(recursive);
+          if (pair.Value is ILockable locable) {
+            locable.Lock(recursive);
+          }
         }
     }
 

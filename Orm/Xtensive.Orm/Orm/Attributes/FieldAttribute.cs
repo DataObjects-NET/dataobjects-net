@@ -12,7 +12,6 @@ namespace Xtensive.Orm
   /// Indicates that property is persistent field
   /// and defines its persistence-related properties.
   /// </summary>
-  [Serializable]
   [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = false)]
   public sealed class FieldAttribute : StorageAttribute
   {
@@ -29,8 +28,8 @@ namespace Xtensive.Orm
     /// </summary>
     public bool Indexed
     {
-      get { return indexed ?? false; }
-      set { indexed = value; }
+      get => indexed ?? false;
+      set => indexed = value;
     }
 
     /// <summary>
@@ -41,8 +40,8 @@ namespace Xtensive.Orm
     /// </remarks>
     public int Length
     {
-      get { return length ?? 0; }
-      set { length = value; }
+      get => length ?? 0;
+      set => length = value;
     }
 
     /// <summary>
@@ -53,8 +52,8 @@ namespace Xtensive.Orm
     /// </remarks>
     public int Scale
     {
-      get { return scale ?? 0; }
-      set { scale = value; }
+      get => scale ?? 0;
+      set => scale = value;
     }
 
     /// <summary>
@@ -65,8 +64,8 @@ namespace Xtensive.Orm
     /// </remarks>
     public int Precision
     {
-      get { return precision ?? 0; }
-      set { precision = value; }
+      get => precision ?? 0;
+      set => precision = value;
     }
 
     /// <summary>
@@ -81,8 +80,8 @@ namespace Xtensive.Orm
     /// </value>
     public bool Nullable
     {
-      get { return nullable ?? false; }
-      set { nullable = value; }
+      get => nullable ?? false;
+      set => nullable = value;
     }
 
     /// <summary>
@@ -90,8 +89,8 @@ namespace Xtensive.Orm
     /// </summary>
     public bool NullableOnUpgrade
     {
-      get { return nullableOnUpgrade ?? false; }
-      set { nullableOnUpgrade = value; }
+      get => nullableOnUpgrade ?? false;
+      set => nullableOnUpgrade = value;
     }
 
     /// <summary>
@@ -116,8 +115,8 @@ namespace Xtensive.Orm
     /// </remarks>
     public bool LazyLoad
     {
-      get { return lazyLoad ?? false; }
-      set { lazyLoad = value; }
+      get => lazyLoad ?? false;
+      set => lazyLoad = value;
     }
   }
 }

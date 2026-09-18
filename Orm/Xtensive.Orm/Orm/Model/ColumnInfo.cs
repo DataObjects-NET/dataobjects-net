@@ -16,7 +16,6 @@ namespace Xtensive.Orm.Model
   /// Describes a single column.
   /// </summary>
   [DebuggerDisplay("{Name}; Attributes = {Attributes}")]
-  [Serializable]
   public sealed class ColumnInfo : Node, 
     ICloneable
   {
@@ -294,7 +293,7 @@ namespace Xtensive.Orm.Model
       }
       if (field.IsEnum) {
         valueType = Enum.GetUnderlyingType(valueType);
-        if (field.DefaultValue != null)
+        if (field.DefaultValue is not null)
           defaultValue = Convert.ChangeType(field.DefaultValue, valueType);
       }
       else {

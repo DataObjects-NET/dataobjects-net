@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2003-2010 Xtensive LLC.
+// Copyright (C) 2003-2010 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Roman Churakov
@@ -9,7 +9,6 @@ using System.Globalization;
 
 namespace Xtensive.Conversion
 {
-  [Serializable]
   internal class ByteAdvancedConverter :
     StrictAdvancedConverterBase<byte>,
     IAdvancedConverter<byte, sbyte>,
@@ -36,50 +35,23 @@ namespace Xtensive.Conversion
       }
     }
 
-    short IAdvancedConverter<byte, short>.Convert(byte value)
-    {
-      return value;
-    }
+    short IAdvancedConverter<byte, short>.Convert(byte value) => value;
 
-    ushort IAdvancedConverter<byte, ushort>.Convert(byte value)
-    {
-      return value;
-    }
+    ushort IAdvancedConverter<byte, ushort>.Convert(byte value) => value;
 
-    int IAdvancedConverter<byte, int>.Convert(byte value)
-    {
-      return value;
-    }
+    int IAdvancedConverter<byte, int>.Convert(byte value) => value;
 
-    uint IAdvancedConverter<byte, uint>.Convert(byte value)
-    {
-      return value;
-    }
+    uint IAdvancedConverter<byte, uint>.Convert(byte value) => value;
 
-    long IAdvancedConverter<byte, long>.Convert(byte value)
-    {
-      return value;
-    }
+    long IAdvancedConverter<byte, long>.Convert(byte value) => value;
 
-    ulong IAdvancedConverter<byte, ulong>.Convert(byte value)
-    {
-      return value;
-    }
+    ulong IAdvancedConverter<byte, ulong>.Convert(byte value) => value;
 
-    float IAdvancedConverter<byte, float>.Convert(byte value)
-    {
-      return System.Convert.ToSingle(value);
-    }
+    float IAdvancedConverter<byte, float>.Convert(byte value) => System.Convert.ToSingle(value);
 
-    double IAdvancedConverter<byte, double>.Convert(byte value)
-    {
-      return System.Convert.ToDouble(value);
-    }
+    double IAdvancedConverter<byte, double>.Convert(byte value) => System.Convert.ToDouble(value);
 
-    decimal IAdvancedConverter<byte, decimal>.Convert(byte value)
-    {
-      return System.Convert.ToDecimal(value);
-    }
+    decimal IAdvancedConverter<byte, decimal>.Convert(byte value) => System.Convert.ToDecimal(value);
 
     DateTime IAdvancedConverter<byte, DateTime>.Convert(byte value)
     {
@@ -95,15 +67,9 @@ namespace Xtensive.Conversion
       }
     }
 
-    string IAdvancedConverter<byte, string>.Convert(byte value)
-    {
-      return value.ToString(CultureInfo.InvariantCulture);
-    }
+    string IAdvancedConverter<byte, string>.Convert(byte value) => value.ToString(CultureInfo.InvariantCulture);
 
-    char IAdvancedConverter<byte, char>.Convert(byte value)
-    {
-      return System.Convert.ToChar(value);
-    }
+    char IAdvancedConverter<byte, char>.Convert(byte value) => System.Convert.ToChar(value);
 
 
     // Constructors

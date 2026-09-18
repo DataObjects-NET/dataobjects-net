@@ -9,7 +9,6 @@ using System;
 
 namespace Xtensive.Orm.Tests.Upgrade.Recycled.Model.Version2
 {
-  [Serializable]
   [HierarchyRoot]
   public class Person : Entity
   {
@@ -32,7 +31,6 @@ namespace Xtensive.Orm.Tests.Upgrade.Recycled.Model.Version2
     }
   }
 
-  [Serializable]
   public class Customer : Person
   {
     [Field(Length = 256)]
@@ -54,7 +52,6 @@ namespace Xtensive.Orm.Tests.Upgrade.Recycled.Model.Version2
     }
   }
 
-  [Serializable]
   public class Employee : Person
   {
     [Field(Length = 30)]
@@ -73,7 +70,6 @@ namespace Xtensive.Orm.Tests.Upgrade.Recycled.Model.Version2
     }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class Order : Entity
   {
@@ -104,7 +100,6 @@ namespace Xtensive.Orm.Tests.Upgrade.Recycled.Model.Version2
     }
   }
 
-  [Serializable]
   [Recycled("Xtensive.Orm.Tests.Upgrade.Recycled.Model.Version1.Customer")]
   [HierarchyRoot]
   public class RcCustomer : Entity
@@ -122,7 +117,6 @@ namespace Xtensive.Orm.Tests.Upgrade.Recycled.Model.Version2
     public string Name{ get; set;}
   }
 
-  [Serializable]
   [Recycled("Xtensive.Orm.Tests.Upgrade.Recycled.Model.Version1.Employee")]
   [HierarchyRoot]
   public class RcEmployee : Entity

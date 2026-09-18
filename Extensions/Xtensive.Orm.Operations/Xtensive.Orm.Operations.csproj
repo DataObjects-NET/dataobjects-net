@@ -1,0 +1,26 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <IsPackable>true</IsPackable>
+    <DocumentationFile>$(OutputPath)$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
+    <Configurations>Debug;Release;Debug-NET8;Release-NET8;Debug-NET10;Release-NET10</Configurations>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PackageId>Xtensive.Orm.Operations</PackageId>
+    <Title>Operations log for $(DoProductName)</Title>
+    <AssemblyTitle>$(Title)</AssemblyTitle>
+    <PackageDescription>Adds logging of entity life-cycle in form of operations.</PackageDescription>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>$(ExtensionsKeyFile)</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+  <PropertyGroup Label="Nuget ReadMe" Condition="$(GeneratePackageOnBuild) == 'true'">
+    <PackageReadmeFile>ReadMe.md</PackageReadmeFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Orm\Xtensive.Orm\Xtensive.Orm.csproj" />
+  </ItemGroup>
+  <ItemGroup Label="Nuget content">
+    <Content Include="$(ProjectDir)NugetContent\**">
+      <PackagePath>.</PackagePath>
+    </Content>
+  </ItemGroup>
+</Project>

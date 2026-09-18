@@ -13,7 +13,6 @@ using Xtensive.Orm.Tests.Storage.LegacyDb.AnimalDbTestModel;
 
 namespace Xtensive.Orm.Tests.Storage.LegacyDb.AnimalDbTestModel
 {
-  [Serializable]
   [HierarchyRoot(InheritanceSchema = InheritanceSchema.SingleTable)]
   [TypeDiscriminatorValue("Animal", Default = true)]
   public class Animal : Entity
@@ -36,19 +35,16 @@ namespace Xtensive.Orm.Tests.Storage.LegacyDb.AnimalDbTestModel
     public Person Owner { get; set; }
   }
 
-  [Serializable]
   [TypeDiscriminatorValue("Dog")]
   public class Dog : Animal
   {
   }
 
-  [Serializable]
   [TypeDiscriminatorValue("Cat")]
   public class Cat : Animal
   {
   }
 
-  [Serializable]
   [HierarchyRoot]
   public abstract class Person : Entity
   {
@@ -63,7 +59,6 @@ namespace Xtensive.Orm.Tests.Storage.LegacyDb.AnimalDbTestModel
     public string ElementType { get; private set; }
   }
 
-  [Serializable]
   [TypeDiscriminatorValue("Cat")]
   public class CatLover : Person
   {
@@ -76,7 +71,6 @@ namespace Xtensive.Orm.Tests.Storage.LegacyDb.AnimalDbTestModel
     public EntitySet<Cat> Pets { get; private set; }
   }
 
-  [Serializable]
   [TypeDiscriminatorValue("Dog")]
   public class DogLover : Person
   {
@@ -88,7 +82,6 @@ namespace Xtensive.Orm.Tests.Storage.LegacyDb.AnimalDbTestModel
     public EntitySet<Dog> Pets { get; private set; }
   }
 
-  [Serializable]
   [HierarchyRoot(InheritanceSchema = InheritanceSchema.ConcreteTable)]
   public abstract class VetClinic : Entity
   {
@@ -106,7 +99,6 @@ namespace Xtensive.Orm.Tests.Storage.LegacyDb.AnimalDbTestModel
     public abstract void Kill(Animal victim);
   }
 
-  [Serializable]
   public class DogClinic : VetClinic
   {
     public override void Heal(Animal patient)
@@ -120,7 +112,6 @@ namespace Xtensive.Orm.Tests.Storage.LegacyDb.AnimalDbTestModel
     }
   }
 
-  [Serializable]
   public class CatClinic : VetClinic
   {
     public override void Heal(Animal patient)

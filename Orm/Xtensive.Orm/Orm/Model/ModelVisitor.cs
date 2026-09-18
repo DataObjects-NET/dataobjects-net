@@ -13,7 +13,6 @@ namespace Xtensive.Orm.Model
   /// An abstract base class for all <see cref="DomainModel"/> visitors.
   /// </summary>
   /// <typeparam name="TResult">The type of the result.</typeparam>
-  [Serializable]
   public abstract class ModelVisitor<TResult>
   {
     /// <summary>

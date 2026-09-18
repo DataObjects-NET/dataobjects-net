@@ -8,7 +8,6 @@ using System;
 
 namespace Xtensive.Orm.Linq
 {
-  [Serializable]
   internal enum MemberType
   {
     Default = Unknown,

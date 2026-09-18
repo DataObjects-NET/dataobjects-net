@@ -10,7 +10,6 @@ namespace Xtensive.Sql.Dml
   /// <summary>
   /// Represents SQL IF...ELSE statement.
   /// </summary>
-  [Serializable]
   public class SqlIf: SqlStatement, ISqlCompileUnit
   {
     private SqlStatement trueStatement;

@@ -24,7 +24,6 @@ namespace Xtensive.IoC
   /// <summary>
   /// Default IoC (inversion of control) container implementation.
   /// </summary>
-  [Serializable]
   public class ServiceContainer : ServiceContainerBase
   {
     private static readonly Type iServiceContainerType = typeof(IServiceContainer);
@@ -79,7 +78,7 @@ namespace Xtensive.IoC
     {
       var cachedInfo = constructorCache.GetOrAdd(serviceInfo, ConstructorFactory);
       var cInfo = cachedInfo.First;
-      if (cInfo == null) {
+      if (cInfo is null) {
         return null;
       }
       var pInfos = cachedInfo.Second;

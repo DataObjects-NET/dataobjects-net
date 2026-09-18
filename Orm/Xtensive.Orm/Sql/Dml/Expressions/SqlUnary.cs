@@ -10,7 +10,6 @@ namespace Xtensive.Sql.Dml
   /// <summary>
   /// Represents unary expression.
   /// </summary>
-  [Serializable]
   public class SqlUnary : SqlExpression
   {
     /// <summary>

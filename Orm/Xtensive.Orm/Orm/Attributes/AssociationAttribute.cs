@@ -13,7 +13,6 @@ namespace Xtensive.Orm
   /// Provides additional properties to association. 
   /// This attribute can be applied on persistent properties of <see cref="Entity"/> or <see cref="EntitySet{TItem}"/> type.
   /// </summary>
-  [Serializable]
   [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = false)]
   public sealed class AssociationAttribute : StorageAttribute
   {
@@ -26,8 +25,8 @@ namespace Xtensive.Orm
     /// </summary>
     public OnRemoveAction OnTargetRemove
     {
-      get { return onTargetRemove.HasValue ? onTargetRemove.Value : OnRemoveAction.Default; }
-      set { onTargetRemove = value; }
+      get => onTargetRemove ?? OnRemoveAction.Default;
+      set => onTargetRemove = value;
     }
 
     /// <summary>
@@ -36,8 +35,8 @@ namespace Xtensive.Orm
     /// </summary>
     public OnRemoveAction OnOwnerRemove
     {
-      get { return onOwnerRemove.HasValue ? onOwnerRemove.Value : OnRemoveAction.Default; }
-      set { onOwnerRemove = value; }
+      get => onOwnerRemove ?? OnRemoveAction.Default;
+      set => onOwnerRemove = value;
     }
 
     /// <summary>

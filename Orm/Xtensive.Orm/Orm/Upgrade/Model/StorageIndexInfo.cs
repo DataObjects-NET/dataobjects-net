@@ -14,7 +14,6 @@ namespace Xtensive.Orm.Upgrade.Model
   /// <summary>
   /// The base abstract class for all indexes.
   /// </summary>
-  [Serializable]
   public abstract class StorageIndexInfo : NodeBase<TableInfo>
   {
     private bool isUnique;

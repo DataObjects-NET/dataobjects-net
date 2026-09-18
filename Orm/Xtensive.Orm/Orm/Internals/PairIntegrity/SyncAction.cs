@@ -11,16 +11,15 @@ using Xtensive.Orm.ReferentialIntegrity;
 
 namespace Xtensive.Orm.PairIntegrity
 {
-  [Serializable]
-  internal struct SyncAction
+  internal readonly struct SyncAction
   {
-    public Action<AssociationInfo, IEntity, IEntity, SyncContext, RemovalContext> Action { get; private set; }
+    public readonly Action<AssociationInfo, IEntity, IEntity, SyncContext, RemovalContext> Action;
 
-    public AssociationInfo Association { get; private set; }
+    public readonly AssociationInfo Association;
 
-    public IEntity Owner { get; private set; }
+    public readonly IEntity Owner;
 
-    public IEntity Target { get; private set; }
+    public readonly IEntity Target;
 
     public SyncAction(Action<AssociationInfo, IEntity, IEntity, SyncContext, RemovalContext> action,
       AssociationInfo association, IEntity owner, IEntity target)

@@ -8,7 +8,6 @@ using System;
 
 namespace Xtensive.Orm.Tests.Upgrade.Recycled.Model.Version1
 {
-  [Serializable]
   [HierarchyRoot]
   public class Customer : Entity
   {
@@ -25,7 +24,6 @@ namespace Xtensive.Orm.Tests.Upgrade.Recycled.Model.Version1
     public string Name{ get; set;}
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class Employee : Entity
   {
@@ -39,7 +37,6 @@ namespace Xtensive.Orm.Tests.Upgrade.Recycled.Model.Version1
     public string Name { get; set; }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class Order : Entity
   {

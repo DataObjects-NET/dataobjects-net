@@ -38,7 +38,6 @@ namespace Xtensive.Orm.Tests.Issues
     }
   }
 
-  [Serializable]
   public class IssueJIRA0003_OrderByStructureFieldLost : AutoBuildTest
   {
     protected override DomainConfiguration BuildConfiguration()
@@ -53,8 +52,8 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (var session = Domain.OpenSession())
       using (var t = session.OpenTransaction()) {
-        new Person() {Name = "Vasya", Address = new Address {City = "Moscow", PostCode = "444444"}};
-        new Person() {Name = "Petya", Address = new Address {City = "Kiev", PostCode = "111111"}};
+        _ = new Person() {Name = "Vasya", Address = new Address {City = "Moscow", PostCode = "444444"}};
+        _ = new Person() {Name = "Petya", Address = new Address {City = "Kiev", PostCode = "111111"}};
         session.SaveChanges();
 
         var query = session.Query.All<Person>()

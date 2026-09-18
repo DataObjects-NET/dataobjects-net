@@ -67,15 +67,6 @@ namespace Xtensive.Orm.Tests.Core.Modelling
     }
 
     [Test]
-    [Ignore("TODO: AY check it ASAP")]
-    public void SerializationTest()
-    {
-      var clone = Cloner.Clone(srv);
-//      clone.Dump();
-      clone.Validate();
-    }
-
-    [Test]
     public void CloneTest()
     {
       var clone = Clone(srv);

@@ -15,7 +15,6 @@ namespace Xtensive.Sql.Model
   /// The purpose of a domain is to constrain the set of valid values 
   /// that can be stored in SQL-data by various operations.
   /// </summary>
-  [Serializable]
   public class Domain : SchemaNode,IConstrainable
   {
     private SqlValueType dataType;

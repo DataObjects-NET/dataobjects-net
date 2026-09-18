@@ -10,7 +10,6 @@ using Xtensive.Modelling;
 
 namespace Xtensive.Orm.Tests.Core.Modelling.DatabaseModel
 {
-  [Serializable]
   public sealed class SecondaryIndexCollection : NodeCollectionBase<SecondaryIndex, Table>,
     IUnorderedNodeCollection
   {

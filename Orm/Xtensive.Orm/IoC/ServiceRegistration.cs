@@ -16,7 +16,6 @@ namespace Xtensive.IoC
   /// <summary>
   /// Describes single service mapping entry for <see cref="ServiceContainer"/>.
   /// </summary>
-  [Serializable]
   public sealed class ServiceRegistration
   {
     private static readonly ConcurrentDictionary<ServiceRegistrationKey, Lazy<ServiceRegistration[]>> serviceRegistrationsByType =
@@ -27,27 +26,27 @@ namespace Xtensive.IoC
     /// <summary>
     /// Gets the type of the service.
     /// </summary>
-    public Type Type { get; private set; }
+    public Type Type { get; }
 
     /// <summary>
     /// Gets the name of the service.
     /// </summary>
-    public string Name { get; private set; }
+    public string Name { get; }
 
     /// <summary>
     /// Gets the type it is mapped to.
     /// </summary>
-    public Type MappedType { get; private set; }
+    public Type MappedType { get; }
 
     /// <summary>
     /// Gets the instance it is mapped to.
     /// </summary>
-    public object MappedInstance { get; private set; }
+    public object MappedInstance { get; }
 
     /// <summary>
     /// Gets a value indicating whether this service is singleton.
     /// </summary>
-    public bool Singleton { get; private set; }
+    public bool Singleton { get; }
 
 
     // Static constructor-like methods

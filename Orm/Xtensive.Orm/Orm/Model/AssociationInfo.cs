@@ -15,7 +15,6 @@ namespace Xtensive.Orm.Model
   /// <summary>
   /// Describes single association.
   /// </summary>
-  [Serializable]
   public sealed class AssociationInfo : Node
   {
     private Multiplicity                multiplicity;
@@ -30,10 +29,7 @@ namespace Xtensive.Orm.Model
     /// <summary>
     /// Gets the owner type.
     /// </summary>
-    public TypeInfo OwnerType
-    {
-      get { return OwnerField.ReflectedType; }
-    }
+    public TypeInfo OwnerType => OwnerField.ReflectedType;
 
     /// <summary>
     /// Gets the owner field.
@@ -62,10 +58,7 @@ namespace Xtensive.Orm.Model
     /// Gets or sets ancestor association.
     /// </summary>
     /// <value>The ancestor.</value>
-    public NodeCollection<AssociationInfo> Ancestors
-    {
-      get { return ancestors; }
-    }
+    public NodeCollection<AssociationInfo> Ancestors => ancestors;
 
     /// <summary>
     /// Gets the underlying index for this instance.
@@ -92,18 +85,12 @@ namespace Xtensive.Orm.Model
     /// <summary>
     /// Gets a value indicating whether this instance is paired.
     /// </summary>
-    public bool IsPaired
-    {
-      get { return reversed!=null; }
-    }
+    public bool IsPaired => reversed is not null;
 
     /// <summary>
     /// Gets a value indicating whether this instance represents a loop.
     /// </summary>
-    public bool IsLoop
-    {
-      get { return IsPaired && Reversed == this; }
-    }
+    public bool IsLoop => IsPaired && Reversed == this;
 
     /// <summary>
     /// Gets master association.
@@ -118,8 +105,8 @@ namespace Xtensive.Orm.Model
       {
         if (isMaster) 
           return this;
-        if (reversed==null || !reversed.isMaster) 
-          throw new InvalidOperationException(String.Format(Strings.ExUnableToFindMasterAssociation, Name));
+        if (reversed is null || !reversed.isMaster) 
+          throw new InvalidOperationException(string.Format(Strings.ExUnableToFindMasterAssociation, Name));
         return reversed;
       }
     }
@@ -184,7 +171,7 @@ namespace Xtensive.Orm.Model
     public Tuple ExtractForeignKey(TypeInfo type, Tuple tuple)
     {
       // foreignKeyExtractor can be null if OwnerType is interface
-      if (foreignKeyExtractor != null)
+      if (foreignKeyExtractor is not null)
         return foreignKeyExtractor.Apply(TupleTransformType.TransformedTuple, tuple);
 
       if (OwnerType.IsInterface) {

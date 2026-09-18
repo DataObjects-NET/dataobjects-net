@@ -16,7 +16,6 @@ using M2 = Xtensive.Orm.Tests.Issues.Issue_0743_UpgradeToNonNullableTypes.Model.
 
 namespace Xtensive.Orm.Tests.Issues.Issue_0743_UpgradeToNonNullableTypes
 {
-  [Serializable]
   public class Upgrader : UpgradeHandler
   {
     private static bool isEnabled = false;

@@ -9,14 +9,13 @@ using System.Collections.Generic;
 
 namespace Xtensive.Orm.Building.DependencyGraph
 {
-  [Serializable]
   internal class Node<TValue>
   {
-    public TValue Value { get; private set; }
+    public TValue Value { get; }
 
-    public HashSet<Edge<TValue>> OutgoingEdges { get; private set; }
+    public HashSet<Edge<TValue>> OutgoingEdges { get; }
 
-    public HashSet<Edge<TValue>> IncomingEdges { get; private set; }
+    public HashSet<Edge<TValue>> IncomingEdges { get; }
 
     /// <inheritdoc/>
     public override string ToString()

@@ -13,7 +13,6 @@ namespace Xtensive.Orm.Upgrade.Model
   /// <summary>
   /// Reference to full-text column.
   /// </summary>
-  [Serializable]
   public sealed class FullTextColumnRef : ColumnInfoRef<StorageFullTextIndexInfo>
   {
     [Property(Priority = -1100, CaseInsensitiveComparison = true)]

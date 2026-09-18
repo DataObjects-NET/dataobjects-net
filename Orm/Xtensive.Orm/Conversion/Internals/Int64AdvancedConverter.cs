@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2008-2026 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Gamzov
 // Created:    2008.01.22
 
@@ -9,7 +9,6 @@ using System.Globalization;
 
 namespace Xtensive.Conversion
 {
-  [Serializable]
   internal class Int64AdvancedConverter :
     StrictAdvancedConverterBase<long>,
     IAdvancedConverter<long, byte>,
@@ -21,6 +20,8 @@ namespace Xtensive.Conversion
     IAdvancedConverter<long, ulong>,
     IAdvancedConverter<long, decimal>,
     IAdvancedConverter<long, DateTime>,
+    IAdvancedConverter<long, DateOnly>,
+    IAdvancedConverter<long, TimeOnly>,
     IAdvancedConverter<long, TimeSpan>,
     IAdvancedConverter<long, string>,
     IAdvancedConverter<long, char>
@@ -76,15 +77,26 @@ namespace Xtensive.Conversion
       }
     }
 
-    decimal IAdvancedConverter<long, decimal>.Convert(long value)
-    {
-      return System.Convert.ToDecimal(value);
-    }
+    decimal IAdvancedConverter<long, decimal>.Convert(long value) => System.Convert.ToDecimal(value);
 
     DateTime IAdvancedConverter<long, DateTime>.Convert(long value)
     {
       checked{
         return new DateTime(value + baseDateTimeTicks, DateTimeKind.Utc);
+      }
+    }
+
+    DateOnly IAdvancedConverter<long, DateOnly>.Convert(long value)
+    {
+      checked {
+        return DateOnly.FromDayNumber((int) value);
+      }
+    }
+
+    TimeOnly IAdvancedConverter<long, TimeOnly>.Convert(long value)
+    {
+      checked {
+        return new TimeOnly(value);
       }
     }
 
@@ -95,15 +107,9 @@ namespace Xtensive.Conversion
       }
     }
 
-    string IAdvancedConverter<long, string>.Convert(long value)
-    {
-      return value.ToString(CultureInfo.InvariantCulture);
-    }
+    string IAdvancedConverter<long, string>.Convert(long value) => value.ToString(CultureInfo.InvariantCulture);
 
-    char IAdvancedConverter<long, char>.Convert(long value)
-    {
-      return System.Convert.ToChar(value);
-    }
+    char IAdvancedConverter<long, char>.Convert(long value) => System.Convert.ToChar(value);
 
 
     // Constructors

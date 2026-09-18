@@ -13,7 +13,6 @@ using Xtensive.Orm.Tests.Storage.ValidationContextTestModel;
 
 namespace Xtensive.Orm.Tests.Storage.ValidationContextTestModel
 {
-  [Serializable]
   [HierarchyRoot]
   public class Validatable : Entity
   {

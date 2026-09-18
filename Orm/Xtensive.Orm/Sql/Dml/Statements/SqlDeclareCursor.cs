@@ -6,16 +6,9 @@ using System;
 
 namespace Xtensive.Sql.Dml
 {
-  [Serializable]
   public class SqlDeclareCursor : SqlStatement, ISqlCompileUnit
   {
-    private SqlCursor cursor;
-
-    public SqlCursor Cursor {
-      get {
-        return cursor;
-      }
-    }
+    public SqlCursor Cursor { get; }
 
     internal override SqlDeclareCursor Clone(SqlNodeCloneContext context) => throw new NotImplementedException();
 
@@ -27,7 +20,7 @@ namespace Xtensive.Sql.Dml
     internal SqlDeclareCursor(SqlCursor cursor)
       : base(SqlNodeType.DeclareCursor)
     {
-      this.cursor = cursor;
+      Cursor = cursor;
     }
   }
 }

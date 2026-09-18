@@ -14,7 +14,6 @@ namespace Xtensive.Orm.Rse.Providers
   /// Compilable provider that returns <see cref="bool"/> column. 
   /// Column value is <see langword="true" /> if <see cref="UnaryProvider.Source"/> contains any result; otherwise <see langword="false" />.
   /// </summary>
-  [Serializable]
   public sealed class ExistenceProvider : UnaryProvider
   {
     private static readonly TupleDescriptor BoolTupleDescriptor = TupleDescriptor.Create(new[] { WellKnownTypes.Bool });

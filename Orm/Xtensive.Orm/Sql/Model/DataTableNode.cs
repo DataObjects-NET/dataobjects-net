@@ -10,7 +10,6 @@ namespace Xtensive.Sql.Model
   /// <summary>
   /// Represents a <see cref="DataTable"/> bound object.
   /// </summary>
-  [Serializable]
   public abstract class DataTableNode : Node, IPairedNode<DataTable>
   {
     private DataTable dataTable;

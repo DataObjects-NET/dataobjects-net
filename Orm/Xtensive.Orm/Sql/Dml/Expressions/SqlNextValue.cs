@@ -11,50 +11,41 @@ namespace Xtensive.Sql.Dml
   /// <summary>
   /// Represents NEXT VALUE FOR expression.
   /// </summary>
-  [Serializable]
   public class SqlNextValue : SqlExpression
   {
-    private Sequence sequence;
-    private int increment = 1;
 
     /// <summary>
     /// Gets the increment.
     /// </summary>
     /// <value>The increment.</value>
-    public int Increment
-    {
-      get { return increment; }
-    }
+    public int Increment { get; private set; } = 1;
 
     /// <summary>
     /// Gets the sequence.
     /// </summary>
     /// <value>The sequence.</value>
-    public Sequence Sequence
-    {
-      get { return sequence; }
-    }
+    public Sequence Sequence { get; private set; }
 
     public override void ReplaceWith(SqlExpression expression)
     {
       var replacingExpression = ArgumentValidator.EnsureArgumentIs<SqlNextValue>(expression);
-      sequence = replacingExpression.Sequence;
-      increment = replacingExpression.Increment;
+      Sequence = replacingExpression.Sequence;
+      Increment = replacingExpression.Increment;
     }
 
     internal override SqlNextValue Clone(SqlNodeCloneContext context) =>
       context.GetOrAdd(this, static (t, c) =>
-        new SqlNextValue(t.sequence, t.increment));
+        new SqlNextValue(t.Sequence, t.Increment));
 
     internal SqlNextValue(Sequence sequence) : base(SqlNodeType.NextValue)
     {
-      this.sequence = sequence;
+      Sequence = sequence;
     }
 
     internal SqlNextValue(Sequence sequence, int increment) : base(SqlNodeType.NextValue)
     {
-      this.sequence = sequence;
-      this.increment = increment;
+      Sequence = sequence;
+      Increment = increment;
     }
 
     public override void AcceptVisitor(ISqlVisitor visitor)

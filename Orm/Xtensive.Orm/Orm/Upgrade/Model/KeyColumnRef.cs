@@ -14,7 +14,6 @@ namespace Xtensive.Orm.Upgrade.Model
   /// <summary>
   /// References to key column.
   /// </summary>
-  [Serializable]
   public sealed class KeyColumnRef : KeyColumnRef<StorageIndexInfo>
   {
     /// <inheritdoc/>

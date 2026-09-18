@@ -12,12 +12,12 @@ using Xtensive.Core;
 using Xtensive.Orm.Configuration;
 using System.Linq;
 using Xtensive.Collections;
+using Xtensive.Orm.Tests.Storage.VersionRootModel;
 
 #region Model
 
 namespace Xtensive.Orm.Tests.Storage.VersionRootModel
 {
-  [Serializable]
   [HierarchyRoot]
   public class Order : Entity
   {
@@ -31,14 +31,12 @@ namespace Xtensive.Orm.Tests.Storage.VersionRootModel
     public int Number { get; set; }
   }
 
-  [Serializable]
   public class AdvancedOrder : Order
   {
     [Field]
     public string CustomerName { get; set; }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class OrderItem : Entity,
     IHasVersionRoots
@@ -64,14 +62,12 @@ namespace Xtensive.Orm.Tests.Storage.VersionRootModel
     }
   }
 
-  [Serializable]
   public class AdvancedOrderItem : OrderItem
   {
     [Field]
     public string SupplierName { get; set; }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class Owner1 : Entity
   {
@@ -82,7 +78,6 @@ namespace Xtensive.Orm.Tests.Storage.VersionRootModel
     public long Version { get; private set; }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class Owner2 : Entity
   {
@@ -96,7 +91,6 @@ namespace Xtensive.Orm.Tests.Storage.VersionRootModel
     internal ushort Version2 { get; set; }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class Item : Entity,
     IHasVersionRoots
@@ -118,8 +112,6 @@ namespace Xtensive.Orm.Tests.Storage.VersionRootModel
 
 namespace Xtensive.Orm.Tests.Storage
 {
-  using VersionRootModel;
-
   [TestFixture]
   public class VersionRootTests
     : AutoBuildTest
@@ -238,26 +230,6 @@ namespace Xtensive.Orm.Tests.Storage
           transactionScope.Complete();
         }
       }
-    }
-
-    [Test]
-    public void SerializeVersionInfoTest()
-    {
-      VersionInfo itemVersion;
-      
-      using (var session = Domain.OpenSession()) {
-        using (var transactionScope = session.OpenTransaction()) {
-          var owner1 = new Owner1();
-          var owner2 = new Owner2();
-          var item = new Item {Value = "Value"};
-          itemVersion = item.VersionInfo;
-          transactionScope.Complete();
-        }
-      }
-      Assert.That(itemVersion.IsVoid, Is.False);
-      var clone = Cloner.Clone(itemVersion);
-      Assert.That(clone.IsVoid, Is.False);
-      Assert.That(itemVersion==clone, Is.True);
     }
   }
 }

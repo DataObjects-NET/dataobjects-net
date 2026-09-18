@@ -7,21 +7,11 @@ using Xtensive.Sql.Model;
 
 namespace Xtensive.Sql.Ddl
 {
-  [Serializable]
   public class SqlDropSequence : SqlStatement, ISqlCompileUnit
   {
-    private bool cascade = true;
-
     public Sequence Sequence { get; }
 
-    public bool Cascade {
-      get {
-        return cascade;
-      }
-      set {
-        cascade = value;
-      }
-    }
+    public bool Cascade { get; set; } = true;
 
     internal override SqlDropSequence Clone(SqlNodeCloneContext context) =>
       context.GetOrAdd(this, static (t, c) =>
@@ -42,7 +32,7 @@ namespace Xtensive.Sql.Ddl
       : base(SqlNodeType.Drop)
     {
       Sequence = sequence;
-      this.cascade = cascade;
+      Cascade = cascade;
     }
   }
 }

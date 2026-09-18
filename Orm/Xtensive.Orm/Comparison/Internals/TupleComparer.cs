@@ -1,21 +1,18 @@
-// Copyright (C) 2008-2021 Xtensive LLC.
+// Copyright (C) 2008-2026 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alex Yakunin
 // Created:    2008.01.29
 
 using System;
-using System.Runtime.Serialization;
 using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Comparison
 {
-  [Serializable]
   internal sealed class TupleComparer : AdvancedComparerBase<Tuple>,
     ISystemComparer<Tuple>
   {
-    [NonSerialized]
-    private int nullHashCode;
+    private readonly int nullHashCode;
 
     protected override TupleComparer CreateNew(ComparisonRules rules) => new(Provider, ComparisonRules.Combine(rules));
 
@@ -31,27 +28,13 @@ namespace Xtensive.Comparison
         : obj.GetHashCode();
     }
 
-    private void Initialize()
-      => nullHashCode = SystemComparerStruct<Tuple>.Instance.GetHashCode(null);
-
 
     // Constructors
 
     public TupleComparer(IComparerProvider provider, ComparisonRules comparisonRules) 
       : base(provider, comparisonRules)
     {
-      Initialize();
-    }
-
-    public TupleComparer(SerializationInfo info, StreamingContext context)
-      : base(info, context)
-    {
-    }
-
-    public override void OnDeserialization(object sender)
-    {
-      base.OnDeserialization(sender);
-      Initialize();
+      nullHashCode = SystemComparerStruct<Tuple>.Instance.GetHashCode(null);
     }
   }
 }

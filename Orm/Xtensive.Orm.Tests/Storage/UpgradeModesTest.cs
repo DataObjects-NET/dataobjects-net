@@ -17,7 +17,6 @@ using Xtensive.Orm.Rse;
 
 namespace Xtensive.Orm.Tests.Storage.UpgradeModesTest
 {
-  [Serializable]
   [HierarchyRoot]
   public class Book : Entity
   {
@@ -28,7 +27,6 @@ namespace Xtensive.Orm.Tests.Storage.UpgradeModesTest
     public string Title { get; set; }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class Person : Entity
   {
@@ -39,7 +37,6 @@ namespace Xtensive.Orm.Tests.Storage.UpgradeModesTest
     public string Title { get; set; }
   }
 
-  [Serializable]
   public class Author : Person
   {
     // Just to validate how model builder handles [Field(Nullable = ...)]
@@ -227,7 +224,8 @@ namespace Xtensive.Orm.Tests.Storage.UpgradeModesTest
       try {
         Dictionary<Type, int> result = new Dictionary<Type, int>();
         using (m = new Measurement("metrics"))
-          result = CheckTypeCount(typeCount, Domain.Build(cfg));
+        using (var domain = Domain.Build(cfg))
+          result = CheckTypeCount(typeCount, domain);
         Console.WriteLine($"  Done, {m}");
         return result;
       }

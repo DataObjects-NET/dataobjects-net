@@ -1,17 +1,16 @@
-﻿// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2008-2026 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Roman Churakov
 // Created:    2008.01.25
 
 using System;
+using System.Collections.Generic;
 using NUnit.Framework;
-using Xtensive.Orm.Tests;
 
 namespace Xtensive.Orm.Tests.Core.Conversion
 {
-  [TestFixture]
-  public class DoubleConverterTest : ConverterTestBase
+  public class DoubleConverterTest : ConverterTestBase<double>
   {
     private readonly double[] constants = {
       0x7FFFFFFFFFFF1234, 0, 123, 0x7F, 0xFF, 0x7FFFFFFF, -9223372036854714932,
@@ -21,52 +20,42 @@ namespace Xtensive.Orm.Tests.Core.Conversion
       2.14748366E+11d, 2.14748366E+12d, 2.14748366E+13d, 2.14748366E+14d, 2.14748366E+15d, 2.14748366E+16d,
       1.6E+308d, 2.14748366E+37d, 0.4503599627370496
     };
-    private const int iterationCount = 100;
+    private readonly HashSet<Type> allowedTargetTypes = new HashSet<Type>() {
+      // strict conversions
+      typeof(string),
+      // rough coversions
+      typeof(bool),
+      typeof(byte),
+      typeof(sbyte),
+      typeof(short),
+      typeof(ushort),
+      typeof(int),
+      typeof(uint),
+      typeof(long),
+      typeof(ulong),
+      typeof(float),
+      typeof(decimal),
+      typeof(DateTime),
+      typeof(DateOnly),
+      typeof(TimeOnly),
+      typeof(TimeSpan),
+      typeof(char),
+    };
+
+    /// <inheritdoc/>
+    protected override double[] Constants => constants;
+
+    /// <inheritdoc/>
+    protected override HashSet<Type> AllowedTargetTypes => allowedTargetTypes;
+
 
     [Test]
-    public void StringTest()
+    public void AdditionalStringTest()
     {
       IInstanceGenerator<double> generator = InstanceGeneratorProvider.Default.GetInstanceGenerator<double>();
       Random random = RandomManager.CreateRandom(1, SeedVariatorType.CallingMethod);
-      for (int i = 0; i < iterationCount * 10000; i++)
+      for (int i = 0; i < IterationCount * 100; i++)
         OneValueTest<double, string>(generator.GetInstance(random), 1);
-    }
-
-    [Test]
-    public void CombinedTest()
-    {
-      foreach (double constant in constants)
-        OneValueTest<double, bool>(constant, iterationCount);
-      foreach (double constant in constants)
-        OneValueTest<double, byte>(constant, iterationCount);
-      foreach (double constant in constants)
-        OneValueTest<double, sbyte>(constant, iterationCount);
-      foreach (double constant in constants)
-        OneValueTest<double, short>(constant, iterationCount);
-      foreach (double constant in constants)
-        OneValueTest<double, ushort>(constant, iterationCount);
-      foreach (double constant in constants)
-        OneValueTest<double, int>(constant, iterationCount);
-      foreach (double constant in constants)
-        OneValueTest<double, uint>(constant, iterationCount);
-      foreach (double constant in constants)
-        OneValueTest<double, long>(constant, iterationCount);
-      foreach (double constant in constants)
-        OneValueTest<double, ulong>(constant, iterationCount);
-      foreach (double constant in constants)
-        OneValueTest<double, float>(constant, iterationCount);
-      foreach (double constant in constants)
-        OneValueTest<double, double>(constant, iterationCount);
-      foreach (double constant in constants)
-        OneValueTest<double, decimal>(constant, iterationCount);
-      foreach (double constant in constants)
-        OneValueTest<double, DateTime>(constant, iterationCount);
-      foreach (double constant in constants)
-        OneValueTest<double, Guid>(constant, iterationCount);
-      foreach (double constant in constants)
-        OneValueTest<double, string>(constant, iterationCount);
-      foreach (double constant in constants)
-        OneValueTest<double, char>(constant, iterationCount);
     }
   }
 }

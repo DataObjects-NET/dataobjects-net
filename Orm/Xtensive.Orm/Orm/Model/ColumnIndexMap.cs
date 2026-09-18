@@ -13,23 +13,22 @@ namespace Xtensive.Orm.Model
   /// <summary>
   /// A map of useful column indexes.
   /// </summary>
-  [Serializable]
   public readonly struct ColumnIndexMap
   {
     /// <summary>
     /// Gets or sets positions of system columns within <see cref="IndexInfo"/>.
     /// </summary>
-    public IReadOnlyList<int> System { get; }
+    public readonly IReadOnlyList<int> System;
 
     /// <summary>
     /// Gets or sets positions of lazy load columns within <see cref="IndexInfo"/>.
     /// </summary>
-    public IReadOnlyList<int> LazyLoad { get; }
+    public readonly IReadOnlyList<int> LazyLoad;
 
     /// <summary>
     /// Gets or sets positions of regular columns (not system and not lazy load) within <see cref="IndexInfo"/>.
     /// </summary>
-    public IReadOnlyList<int> Regular { get; }
+    public readonly IReadOnlyList<int> Regular;
 
 
     // Constructors

@@ -10,27 +10,14 @@ namespace Xtensive.Sql.Dml
   /// <summary>
   /// Represents collection of <see cref="SqlOrder"/>s.
   /// </summary>
-  [Serializable]
   public class SqlOrderCollection : Collection<SqlOrder>
   {
-    public void Add(SqlExpression expression)
-    {
-      Add(SqlDml.Order(expression));
-    }
+    public void Add(SqlExpression expression) => Add(SqlDml.Order(expression));
 
-    public void Add(SqlExpression expression, bool ascending)
-    {
-      Add(SqlDml.Order(expression, ascending));
-    }
-    
-    public void Add(int position)
-    {
-      Add(SqlDml.Order(position));
-    }
+    public void Add(SqlExpression expression, bool ascending) => Add(SqlDml.Order(expression, ascending));
 
-    public void Add(int position, bool ascending)
-    {
-      Add(SqlDml.Order(position, ascending));
-    }
+    public void Add(int position) => Add(SqlDml.Order(position));
+
+    public void Add(int position, bool ascending) => Add(SqlDml.Order(position, ascending));
   }
 }

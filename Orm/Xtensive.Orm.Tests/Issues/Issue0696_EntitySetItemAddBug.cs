@@ -17,7 +17,6 @@ using Xtensive.Reflection;
 
 namespace Xtensive.Orm.Tests.Issues.Issue0696.Model
 {
-  [Serializable]
   [HierarchyRoot]
   public class Master : Entity
   {
@@ -37,7 +36,6 @@ namespace Xtensive.Orm.Tests.Issues.Issue0696.Model
     }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class Detail : Entity
   {
@@ -161,14 +159,14 @@ namespace Xtensive.Orm.Tests.Issues
         d1.Master = m1;
         d2.Master = m1;
         d1.Master = m2;
-        m1.Details.Add(d2);
+        _ = m1.Details.Add(d2);
 
         EventHandler<EntitySetItemEventArgs> h1 =  (s, e) => {
           isNewChain = true;
-          m2.Details.Add(d3);
+          _ = m2.Details.Add(d3);
         };
         session.Events.EntitySetItemRemove += h1;
-        m2.Details.Add(d2);
+        _ = m2.Details.Add(d2);
       }
     }
 
@@ -227,7 +225,7 @@ namespace Xtensive.Orm.Tests.Issues
       }
       int depth;
       if (entry.CheckDirection(direction, out depth))
-        stack.Pop();
+        _ = stack.Pop();
       TestLog.Info($"{message.Indent(depth * 2)}");
     }
   }

@@ -18,11 +18,8 @@ namespace Xtensive.Orm.Rse
   /// <summary>
   /// Descriptor of the calculated column.
   /// </summary>
-  [Serializable]
   public class CalculatedColumnDescriptor
   {
-    private const string ToStringFormat = "{0} {1} = {2}";
-
     /// <summary>
     /// Gets the column name.
     /// </summary>
@@ -40,10 +37,7 @@ namespace Xtensive.Orm.Rse
 
     /// <inheritdoc/>
     public override string ToString()
-    {
-      return string.Format(ToStringFormat,
-        Type.GetShortName(), Name, Expression.ToString(true));
-    }
+      => $"{Type.GetShortName()} {Name} = {Expression.ToString(true)}";
 
 
     // Constructors

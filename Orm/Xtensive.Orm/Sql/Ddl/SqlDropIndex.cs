@@ -8,7 +8,6 @@ using Index = Xtensive.Sql.Model.Index;
 
 namespace Xtensive.Sql.Ddl
 {
-  [Serializable]
   public class SqlDropIndex : SqlStatement, ISqlCompileUnit
   {
     //private bool? online;

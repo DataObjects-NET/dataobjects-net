@@ -11,7 +11,6 @@ using Xtensive.Orm.Tests.Issues.Issue0409_ConstructorTransactional_Model;
 
 namespace Xtensive.Orm.Tests.Issues.Issue0409_ConstructorTransactional_Model
 {
-  [Serializable]
   [HierarchyRoot]
   public class Document : Entity
   {
@@ -29,7 +28,7 @@ namespace Xtensive.Orm.Tests.Issues
   {
     protected override DomainConfiguration BuildConfiguration()
     {
-      DomainConfiguration config = base.BuildConfiguration();
+      var config = base.BuildConfiguration();
       config.Types.RegisterCaching(typeof (Document).Assembly, typeof (Document).Namespace);
       return config;
     }
@@ -45,16 +44,9 @@ namespace Xtensive.Orm.Tests.Issues
           t.Complete();
         }
       }
-      using (var s = Domain.OpenSession()) {
-        Assert.Throws<InvalidOperationException>(() => { var document = s.Query.Single<Document>(key); });
-      }
-    }
-
-    [Test]
-    public void DocumentCreatedInAutoTransactionTest()
-    {
-      using (var s = Domain.OpenSession()) {
-        Assert.Throws<InvalidOperationException>(() => { var document = new Document(); });
+      using (var s = Domain.OpenSession())
+      using (var tx = s.OpenTransaction()) {
+        Assert.DoesNotThrow(() => { var document = s.Query.Single<Document>(key); });
       }
     }
   }

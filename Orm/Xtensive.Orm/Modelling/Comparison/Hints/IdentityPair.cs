@@ -13,24 +13,23 @@ namespace Xtensive.Modelling.Comparison.Hints
   /// <summary>
   /// Pair of node paths or node path and constant.
   /// </summary>
-  [Serializable]
   [DebuggerDisplay("{Source} == {Target}")]
   public class IdentityPair
   {
     /// <summary>
     /// Gets the source node path.
     /// </summary>
-    public string Source { get; private set; }
+    public string Source { get; }
 
     /// <summary>
     /// Gets the target node path or constant.
     /// </summary>
-    public string Target { get; private set; }
+    public string Target { get; }
 
     /// <summary>
     /// Gets a value indicating whether this <see cref="Target"/> value is constant.
     /// </summary>
-    public bool IsIdentifiedByConstant { get; private set; }
+    public bool IsIdentifiedByConstant { get; }
 
     /// <inheritdoc/>
     public override string ToString()

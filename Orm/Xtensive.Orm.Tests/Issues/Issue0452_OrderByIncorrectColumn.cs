@@ -13,7 +13,6 @@ using Xtensive.Orm.Tests.Issues.Issue0452_OrderByIncorrectColumn_Model;
 
 namespace Xtensive.Orm.Tests.Issues.Issue0452_OrderByIncorrectColumn_Model
 {
-  [Serializable]
   [HierarchyRoot]
   public class Image : Entity
   {
@@ -21,7 +20,6 @@ namespace Xtensive.Orm.Tests.Issues.Issue0452_OrderByIncorrectColumn_Model
     public Guid Id { get; private set; }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class SitePage : Entity
   {
@@ -31,7 +29,6 @@ namespace Xtensive.Orm.Tests.Issues.Issue0452_OrderByIncorrectColumn_Model
     public string Url { get; set; }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class Person : Entity
   {
@@ -39,7 +36,6 @@ namespace Xtensive.Orm.Tests.Issues.Issue0452_OrderByIncorrectColumn_Model
     public Guid Id { get; private set; }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class Category : Entity
   {
@@ -50,7 +46,6 @@ namespace Xtensive.Orm.Tests.Issues.Issue0452_OrderByIncorrectColumn_Model
     public string Name { get; set; }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public abstract class AbstractObject : Entity
   {
@@ -64,7 +59,6 @@ namespace Xtensive.Orm.Tests.Issues.Issue0452_OrderByIncorrectColumn_Model
     public Person CreatedBy{ get; set;}
   }
 
-  [Serializable]
   public abstract class BlogPost : AbstractObject
   {
     [Field]
@@ -83,12 +77,10 @@ namespace Xtensive.Orm.Tests.Issues.Issue0452_OrderByIncorrectColumn_Model
     public SitePage SitePage { get; set; }
   }
 
-  [Serializable]
   public sealed class Article : BlogPost
   {
   }
 
-  [Serializable]
   public sealed class Article2 : BlogPost
   {
     
@@ -114,82 +106,77 @@ namespace Xtensive.Orm.Tests.Issues
       Require.AnyFeatureSupported(ProviderFeatures.RowNumber | ProviderFeatures.NativePaging);
     }
 
-    public override void TestFixtureSetUp()
+    protected override void PopulateData()
     {
-      base.TestFixtureSetUp();
-      using (var session = Domain.OpenSession()) {
-        using (var t = session.OpenTransaction()) {
-          Fill();
-          t.Complete();
-        }
+      using (var session = Domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        Fill(session);
+        t.Complete();
       }
     }
 
     [Test]
     public void TakeTest()
     {
-      using (var session = Domain.OpenSession()) {
-        using (var t = session.OpenTransaction()) {
-          var result = session.Query.All<Article>().OrderByDescending(a => a.PublishedOn).Take(Count - 1).ToList();
-          var expected = session.Query.All<Article>().AsEnumerable().OrderByDescending(a => a.PublishedOn).Take(Count - 1).ToList();
-          Assert.That(expected.Count>0, Is.True);
-          Assert.That(result.Count, Is.EqualTo(expected.Count));
-          for (int i = 0; i < expected.Count; i++) {
-            var areMatch = Equals(expected[i], result[i]);
-            Assert.That(areMatch, Is.True);
-          }
-          Assert.That(expected.SequenceEqual(result), Is.True);
+      using (var session = Domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var result = session.Query.All<Article>().OrderByDescending(a => a.PublishedOn).Take(Count - 1).ToList();
+        var expected = session.Query.All<Article>().AsEnumerable().OrderByDescending(a => a.PublishedOn).Take(Count - 1).ToList();
+        Assert.That(expected.Count > 0, Is.True);
+        Assert.That(result.Count, Is.EqualTo(expected.Count));
+        for (int i = 0; i < expected.Count; i++) {
+          var areMatch = Equals(expected[i], result[i]);
+          Assert.That(areMatch, Is.True);
         }
+        Assert.That(expected.SequenceEqual(result), Is.True);
       }
     }
 
     [Test]
     public void SkipTakeTest()
     {
-      using (var session = Domain.OpenSession()) {
-        using (var t = session.OpenTransaction()) {
-          var result = session.Query.All<Article>().OrderByDescending(a => a.PublishedOn).Skip(5).Take(Count - 10).ToList();
-          var expected = session.Query.All<Article>().AsEnumerable().OrderByDescending(a => a.PublishedOn).Skip(5).Take(Count - 10).ToList();
-          Assert.That(expected.Count>0, Is.True);
-          Assert.That(result.Count, Is.EqualTo(expected.Count));
-          for (int i = 0; i < expected.Count; i++) {
-            bool areMatch = Equals(expected[i], result[i]);
-            Assert.That(areMatch, Is.True);
-          }
-          Assert.That(expected.SequenceEqual(result), Is.True);
+      using (var session = Domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var result = session.Query.All<Article>().OrderByDescending(a => a.PublishedOn).Skip(5).Take(Count - 10).ToList();
+        var expected = session.Query.All<Article>().AsEnumerable().OrderByDescending(a => a.PublishedOn).Skip(5).Take(Count - 10).ToList();
+        Assert.That(expected.Count > 0, Is.True);
+        Assert.That(result.Count, Is.EqualTo(expected.Count));
+        for (int i = 0; i < expected.Count; i++) {
+          bool areMatch = Equals(expected[i], result[i]);
+          Assert.That(areMatch, Is.True);
         }
+        Assert.That(expected.SequenceEqual(result), Is.True);
       }
     }
 
     [Test]
     public void SkipTest()
     {
-      using (var session = Domain.OpenSession()) {
-        using (var t = session.OpenTransaction()) {
-          var result = session.Query.All<Article>().OrderByDescending(a => a.PublishedOn).Skip(5).ToList();
-          var expected = session.Query.All<Article>().AsEnumerable().OrderByDescending(a => a.PublishedOn).Skip(5).ToList();
-          Assert.That(result.Count, Is.EqualTo(expected.Count));
-          Assert.That(expected.Count>0, Is.True);
-          for (int i = 0; i < expected.Count; i++) {
-            bool areMatch = Equals(expected[i], result[i]);
-            Assert.That(areMatch, Is.True);
-          }
-          Assert.That(expected.SequenceEqual(result), Is.True);
+      using (var session = Domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var result = session.Query.All<Article>().OrderByDescending(a => a.PublishedOn).Skip(5).ToList();
+        var expected = session.Query.All<Article>().AsEnumerable().OrderByDescending(a => a.PublishedOn).Skip(5).ToList();
+        Assert.That(result.Count, Is.EqualTo(expected.Count));
+        Assert.That(expected.Count > 0, Is.True);
+        for (int i = 0; i < expected.Count; i++) {
+          bool areMatch = Equals(expected[i], result[i]);
+          Assert.That(areMatch, Is.True);
         }
+        Assert.That(expected.SequenceEqual(result), Is.True);
       }
     }
 
     [Test]
     public void SelectCategoryTest()
     {
-      using (var session = Domain.OpenSession()) {
-        using (var t = session.OpenTransaction()) {
-          var result = session.Query.All<Article>().Select(p => p.Category);
-          foreach (var category in result) {
-            Assert.That(category, Is.Not.Null);
-          }
+      using (var session = Domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var result = session.Query.All<Article>().Select(p => p.Category);
+        foreach (var category in result) {
+          Assert.That(category, Is.Not.Null);
         }
       }
+
     }
 
     [Test]
@@ -216,7 +203,7 @@ namespace Xtensive.Orm.Tests.Issues
       }
     }
 
-    private void Fill()
+    private void Fill(Session session)
     {
       for (int i = 0; i < Count; i++) {
         var person = new Person();
@@ -235,7 +222,7 @@ namespace Xtensive.Orm.Tests.Issues
           TeaserImage = image
         };
       }
-      Session.Current.SaveChanges();
+      session.SaveChanges();
     }
   }
 }

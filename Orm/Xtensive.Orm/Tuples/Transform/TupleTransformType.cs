@@ -11,7 +11,6 @@ namespace Xtensive.Tuples.Transform
   /// <summary>
   /// Enumerates possible tuple transformation types.
   /// </summary>
-  [Serializable]
   public enum TupleTransformType
   {
     /// <summary>

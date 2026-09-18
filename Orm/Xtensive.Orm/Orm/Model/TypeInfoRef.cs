@@ -14,7 +14,6 @@ namespace Xtensive.Orm.Model
   /// <summary>
   /// Loosely-coupled reference that describes <see cref="TypeInfo"/> instance.
   /// </summary>
-  [Serializable]
   [DebuggerDisplay("TypeName = {TypeName}")]
   public readonly struct TypeInfoRef : IEquatable<TypeInfoRef>
   {
@@ -35,7 +34,10 @@ namespace Xtensive.Orm.Model
     /// <summary>
     /// Creates reference for <see cref="TypeInfo"/>.
     /// </summary>
-    public static implicit operator TypeInfoRef (TypeInfo typeInfo) => new TypeInfoRef(typeInfo);
+    public static implicit operator TypeInfoRef(TypeInfo typeInfo)
+    {
+      return new TypeInfoRef(typeInfo);
+    }
 
     #region Equality members, ==, !=
 
@@ -47,7 +49,10 @@ namespace Xtensive.Orm.Model
     /// <returns>
     /// The result of the operator.
     /// </returns>
-    public static bool operator !=(TypeInfoRef x, TypeInfoRef y) => !Equals(x, y);
+    public static bool operator !=(TypeInfoRef x, TypeInfoRef y)
+    {
+      return !Equals(x, y);
+    }
 
     /// <summary>
     /// Implements the operator ==.
@@ -57,7 +62,10 @@ namespace Xtensive.Orm.Model
     /// <returns>
     /// The result of the operator.
     /// </returns>
-    public static bool operator ==(TypeInfoRef x, TypeInfoRef y) => Equals(x, y);
+    public static bool operator ==(TypeInfoRef x, TypeInfoRef y)
+    {
+      return Equals(x, y);
+    }
 
     /// <inheritdoc/>
     public bool Equals(TypeInfoRef other) =>

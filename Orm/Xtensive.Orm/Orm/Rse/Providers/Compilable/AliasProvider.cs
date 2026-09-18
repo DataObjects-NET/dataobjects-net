@@ -14,7 +14,6 @@ namespace Xtensive.Orm.Rse.Providers
   /// <summary>
   /// Aliases the <see cref="UnaryProvider.Source"/> with specified <see cref="Alias"/>.
   /// </summary>
-  [Serializable]
   public sealed class AliasProvider : UnaryProvider
   {
     /// <summary>
@@ -23,10 +22,7 @@ namespace Xtensive.Orm.Rse.Providers
     public string Alias { get; }
 
     /// <inheritdoc/>
-    protected override string ParametersToString()
-    {
-      return Alias;
-    }
+    protected override string ParametersToString() => Alias;
 
 
     // Constructors

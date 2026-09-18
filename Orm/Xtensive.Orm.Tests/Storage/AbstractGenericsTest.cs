@@ -86,11 +86,11 @@ namespace Xtensive.Orm.Tests.Storage
       config.Types.Register(typeof(Track<ComplexMedia>));
       config.Types.Register(typeof(SimpleTrack));
       config.Types.Register(typeof(ComplexTrack));
-      var domain = Domain.Build(config);
+      using (var domain = Domain.Build(config))
       using (var session = domain.OpenSession())
       using (var t = session.OpenTransaction()) {
-        new SimpleTrack(TimeSpan.FromMinutes(5), TimeSpan.FromMinutes(10), new SimpleMedia() {Description = "Simple", Foo = 23});
-        new ComplexTrack(TimeSpan.FromMinutes(6), TimeSpan.FromMinutes(15), new ComplexMedia() {Description = "Simple", Bar = DateTime.Now});
+        _ = new SimpleTrack(TimeSpan.FromMinutes(5), TimeSpan.FromMinutes(10), new SimpleMedia() { Description = "Simple", Foo = 23 });
+        _ = new ComplexTrack(TimeSpan.FromMinutes(6), TimeSpan.FromMinutes(15), new ComplexMedia() { Description = "Simple", Bar = DateTime.Now });
         var listSimpleMedia = session.Query.All<Track<SimpleMedia>>().ToList();
         var listComplexMedia = session.Query.All<Track<ComplexMedia>>().ToList();
         Assert.That(listSimpleMedia.Count, Is.EqualTo(1));

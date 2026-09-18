@@ -8,7 +8,6 @@ using System;
 
 namespace Xtensive.Orm.Tests.Storage.Performance.CrudModel
 {
-  [Serializable]
   [HierarchyRoot]
   public class PairedSimplestContainerItem : Entity
   {

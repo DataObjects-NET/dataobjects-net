@@ -13,13 +13,12 @@ namespace Xtensive.Orm.Model
   /// <summary>
   /// Describes a field that is a part of a primary key.
   /// </summary>
-  [Serializable]
   public sealed class KeyField : Node
   {
     /// <summary>
     /// Gets or sets the direction.
     /// </summary>
-    public Direction Direction { get; private set; }
+    public Direction Direction { get; }
 
     /// <inheritdoc/>
     public override int GetHashCode()

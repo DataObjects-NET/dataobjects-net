@@ -19,7 +19,6 @@ namespace Xtensive.Orm.Building.Definitions
   /// Defines a single index.
   /// </summary>
   [DebuggerDisplay("{Name}; Attributes = {Attributes}.")]
-  [Serializable]
   public sealed class IndexDef : MappedNode
   {
     /// <summary>
@@ -27,12 +26,13 @@ namespace Xtensive.Orm.Building.Definitions
     /// </summary>
     public const double DefaultFillFactor = 0.8;
 
+    private readonly DirectionCollection<string> keyFields = new();
+    private readonly Collection<string> includedFields = new();
+    private readonly Validator validator;
+
     private IndexAttributes attributes;
     private LambdaExpression filterExpression;
     private double fillFactor = DefaultFillFactor;
-    private readonly DirectionCollection<string> keyFields = new DirectionCollection<string>();
-    private Collection<string> includedFields = new Collection<string>();
-    private readonly Validator validator;
 
     /// <summary>
     /// Gets <see cref="Definitions.TypeDef"/> that this index is bound to.

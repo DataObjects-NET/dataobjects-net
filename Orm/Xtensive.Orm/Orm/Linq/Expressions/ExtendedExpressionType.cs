@@ -8,7 +8,6 @@ using System;
 
 namespace Xtensive.Orm.Linq.Expressions
 {
-  [Serializable]
   internal enum ExtendedExpressionType
   {
     Projection = 1000,

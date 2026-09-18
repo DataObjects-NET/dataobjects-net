@@ -8,15 +8,13 @@ using System;
 using System.Reflection;
 using System.Linq;
 using NUnit.Framework;
-using Xtensive.Core;
-using Xtensive.Orm.Tests;
 using Xtensive.Orm.Tests.Model.VersionInfoTests.ValidModel;
+
 
 #region Models
 
 namespace Xtensive.Orm.Tests.Model.VersionInfoTests.InvalidModel1
 {
-  [Serializable]
   [HierarchyRoot]
   public class Parent : Entity
   {
@@ -27,7 +25,6 @@ namespace Xtensive.Orm.Tests.Model.VersionInfoTests.InvalidModel1
     public string ParentVersionField { get; set; }
   }
 
-  [Serializable]
   public class Child : Parent
   {
     [Field, Version]
@@ -37,7 +34,6 @@ namespace Xtensive.Orm.Tests.Model.VersionInfoTests.InvalidModel1
 
 namespace Xtensive.Orm.Tests.Model.VersionInfoTests.InvalidModel2
 {
-  [Serializable]
   [HierarchyRoot]
   public class Parent : Entity
   {
@@ -48,7 +44,6 @@ namespace Xtensive.Orm.Tests.Model.VersionInfoTests.InvalidModel2
 
 namespace Xtensive.Orm.Tests.Model.VersionInfoTests.InvalidModel3
 {
-  [Serializable]
   [HierarchyRoot]
   public class Parent : Entity
   {
@@ -62,7 +57,6 @@ namespace Xtensive.Orm.Tests.Model.VersionInfoTests.InvalidModel3
 
 namespace Xtensive.Orm.Tests.Model.VersionInfoTests.ValidModel
 {
-  [Serializable]
   [HierarchyRoot]
   public class Parent : Entity
   {
@@ -76,14 +70,12 @@ namespace Xtensive.Orm.Tests.Model.VersionInfoTests.ValidModel
     public string ParentNonVersionField { get; set; }
   }
 
-  [Serializable]
   public class Child : Parent
   {
     [Field]
     public string ChildNonVersionField { get; set; }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class Simple : Entity
   {
@@ -112,7 +104,6 @@ namespace Xtensive.Orm.Tests.Model.VersionInfoTests.ValidModel
     public byte[] ByteArrayField { get; set; }
   }
 
-  [Serializable]
   public class SimpleStructure : Structure
   {
     [Field]
@@ -130,8 +121,6 @@ namespace Xtensive.Orm.Tests.Model.VersionInfoTests.ValidModel
 
 namespace Xtensive.Orm.Tests.Model
 {
-  
-
   [TestFixture]
   public class VersionInfoTest
   {
@@ -153,68 +142,47 @@ namespace Xtensive.Orm.Tests.Model
     public void DenyKeyFieldsTest()
     {
       AssertEx.Throws<DomainBuilderException>(() => 
-        BuildDomain("Xtensive.Orm.Tests.Model.VersionInfoTests.InvalidModel2"));
+        BuildDomain("Xtensive.Orm.Tests.Model.VersionInfoTests.InvalidModel2").Dispose());
     }
 
     [Test]
     public void DenyLazyLoadFieldsTest()
     {
       AssertEx.Throws<DomainBuilderException>(() => 
-        BuildDomain("Xtensive.Orm.Tests.Model.VersionInfoTests.InvalidModel3"));
+        BuildDomain("Xtensive.Orm.Tests.Model.VersionInfoTests.InvalidModel3").Dispose());
     }
 
     [Test]
     public void VersionFieldsTest()
     {
-      var domain = BuildDomain("Xtensive.Orm.Tests.Model.VersionInfoTests.ValidModel");
+      using var domain = BuildDomain("Xtensive.Orm.Tests.Model.VersionInfoTests.ValidModel");
       var model = domain.Model;
 
       var parentType = model.Types[typeof (Parent)];
-      Assert.That(parentType.GetVersionFields().Any(field => field==parentType.Fields["ParentVersionField"]), Is.True);
-      Assert.That(parentType.GetVersionFields().Any(field => field==parentType.Fields["ParentNonVersionField"]), Is.False);
+      var versionFields = parentType.GetVersionFields();
+      Assert.That(versionFields.Any(field => field == parentType.Fields["ParentVersionField"]), Is.True);
+      Assert.That(versionFields.Any(field => field == parentType.Fields["ParentNonVersionField"]), Is.False);
       
       var childType = model.Types[typeof (Child)];
-      Assert.That(childType.GetVersionFields().Any(field => field==childType.Fields["ParentVersionField"]), Is.True);
-      Assert.That(childType.GetVersionFields().Any(field => field==childType.Fields["ParentNonVersionField"]), Is.False);
-      Assert.That(childType.GetVersionFields().Any(field => field==childType.Fields["ChildNonVersionField"]), Is.False);
+      versionFields = childType.GetVersionFields();
+      Assert.That(versionFields.Any(field => field == childType.Fields["ParentVersionField"]), Is.True);
+      Assert.That(versionFields.Any(field => field == childType.Fields["ParentNonVersionField"]), Is.False);
+      Assert.That(versionFields.Any(field => field == childType.Fields["ChildNonVersionField"]), Is.False);
       
       var simpleType = model.Types[typeof (Simple)];
-      Assert.That(simpleType.GetVersionColumns().Any(pair => pair.Field==simpleType.Fields["NonLazyField1"]), Is.True);
-      Assert.That(simpleType.GetVersionColumns().Any(pair => pair.Field==simpleType.Fields["NonLazyField2"]), Is.True);
-      Assert.That(simpleType.GetVersionColumns().Any(pair => pair.Field==simpleType.Fields["ReferenceField.Id"]), Is.True);
-      Assert.That(simpleType.GetVersionColumns().Any(pair => pair.Field==simpleType.Fields["Id"]), Is.False);
-      Assert.That(simpleType.GetVersionColumns().Any(pair => pair.Field==simpleType.Fields["TypeId"]), Is.False);
-      Assert.That(simpleType.GetVersionColumns().Any(pair => pair.Field==simpleType.Fields["LazyField"]), Is.False);
-      Assert.That(simpleType.GetVersionColumns().Any(pair => pair.Field==simpleType.Fields["CollectionField"]), Is.False);
-      Assert.That(simpleType.GetVersionColumns().Any(pair => pair.Field==simpleType.Fields["StructureField"]), Is.False);
-      Assert.That(simpleType.GetVersionColumns().Any(pair => pair.Field==simpleType.Fields["StructureField.NonLazyField"]), Is.True);
-      Assert.That(simpleType.GetVersionColumns().Any(pair => pair.Field==simpleType.Fields["StructureField.LazyField"]), Is.False);
-      Assert.That(simpleType.GetVersionColumns().Any(pair => pair.Field==simpleType.Fields["StructureField.ReferenceField.Id"]), Is.True);
-      Assert.That(simpleType.GetVersionColumns().Any(pair => pair.Field==simpleType.Fields["ByteArrayField"]), Is.False);
-    }
-    
-    [Test]
-    public void SerializeVersionInfoTest()
-    {
-      var domain = BuildDomain("Xtensive.Orm.Tests.Model.VersionInfoTests.ValidModel");
-      VersionInfo version;
-
-      using (var session = domain.OpenSession()) {
-        using (var transactionScope = session.OpenTransaction()) {
-          var instance = new Simple();
-          instance.NonLazyField1 = "Value";
-          instance.NonLazyField2 = 123;
-          instance.StructureField = new SimpleStructure {NonLazyField = "Value"};
-          instance.ReferenceField = instance;
-          version = instance.VersionInfo;
-          transactionScope.Complete();
-        }
-      }
-
-      Assert.That(version.IsVoid, Is.False);
-      var versionClone = Cloner.Clone(version);
-      Assert.That(versionClone.IsVoid, Is.False);
-      Assert.That(versionClone, Is.EqualTo(version));
+      var versionColumns = simpleType.GetVersionColumns();
+      Assert.That(versionColumns.Any(pair => pair.Field == simpleType.Fields["NonLazyField1"]), Is.True);
+      Assert.That(versionColumns.Any(pair => pair.Field == simpleType.Fields["NonLazyField2"]), Is.True);
+      Assert.That(versionColumns.Any(pair => pair.Field == simpleType.Fields["ReferenceField.Id"]), Is.True);
+      Assert.That(versionColumns.Any(pair => pair.Field == simpleType.Fields["Id"]), Is.False);
+      Assert.That(versionColumns.Any(pair => pair.Field == simpleType.Fields["TypeId"]), Is.False);
+      Assert.That(versionColumns.Any(pair => pair.Field == simpleType.Fields["LazyField"]), Is.False);
+      Assert.That(versionColumns.Any(pair => pair.Field == simpleType.Fields["CollectionField"]), Is.False);
+      Assert.That(versionColumns.Any(pair => pair.Field == simpleType.Fields["StructureField"]), Is.False);
+      Assert.That(versionColumns.Any(pair => pair.Field == simpleType.Fields["StructureField.NonLazyField"]), Is.True);
+      Assert.That(versionColumns.Any(pair => pair.Field == simpleType.Fields["StructureField.LazyField"]), Is.False);
+      Assert.That(versionColumns.Any(pair => pair.Field == simpleType.Fields["StructureField.ReferenceField.Id"]), Is.True);
+      Assert.That(versionColumns.Any(pair => pair.Field == simpleType.Fields["ByteArrayField"]), Is.False);
     }
   }
 }

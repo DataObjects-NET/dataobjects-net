@@ -17,7 +17,6 @@ namespace Xtensive.Core
   /// A definition of segment with boundaries of type <typeparamref name="T"/>.
   /// </summary>
   /// <typeparam name="T">The type of segment boundaries.</typeparam>
-  [Serializable]
   [DebuggerDisplay("Offset = {Offset}, Length = {Length}")]
   public readonly struct Segment<T>
   {
@@ -36,11 +35,10 @@ namespace Xtensive.Core
     /// <summary>
     /// Gets <see cref="Offset"/>+<see cref="Length"/> value.
     /// </summary>
-    public T EndOffset {
+    public T EndOffset
+    {
       [DebuggerStepThrough]
-      get {
-        return arithmetic.Add(Offset, Length);
-      }
+      get => arithmetic.Add(Offset, Length);
     }
 
     /// <inheritdoc/>
@@ -100,10 +98,7 @@ namespace Xtensive.Core
     }
 
     /// <inheritdoc/>
-    public override string ToString()
-    {
-      return string.Format(Strings.SegmentFormat, Offset, Length);
-    }
+    public override string ToString() => string.Format(Strings.SegmentFormat, Offset, Length);
 
 
     // Constructors

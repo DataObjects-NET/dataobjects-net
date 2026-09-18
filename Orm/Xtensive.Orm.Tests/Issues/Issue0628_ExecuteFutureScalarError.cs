@@ -30,13 +30,12 @@ namespace Xtensive.Orm.Tests.Issues
     }
   }
 
-  [Serializable]
   public class Issue0628_ExecuteFutureScalarError : AutoBuildTest
   {
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.RegisterCaching(typeof(Item).Assembly, typeof(Item).Namespace);
+      config.Types.Register(typeof(Item));
       return config;
     }
 

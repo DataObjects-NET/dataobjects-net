@@ -14,7 +14,6 @@ namespace Xtensive.Orm.Tests.Issues
 {
   namespace Issue0307_EntitySetOfType_Model
   {
-    [Serializable]
     [HierarchyRoot]
     public class Company : Entity
     {
@@ -25,7 +24,6 @@ namespace Xtensive.Orm.Tests.Issues
       public EntitySet<Employee> Employees { get; private set; }
     }
 
-    [Serializable]
     public class Consultant : Employee
     {
       public Consultant(Company company, string firstName, string lastName, Skill mainSkill)
@@ -42,7 +40,6 @@ namespace Xtensive.Orm.Tests.Issues
       public EntitySet<Skill> Skills { get; private set; }
     }
 
-    [Serializable]
     [HierarchyRoot]
     public class Employee : Entity
     {
@@ -74,7 +71,6 @@ namespace Xtensive.Orm.Tests.Issues
       }
     }
 
-    [Serializable]
     [HierarchyRoot]
     public class Skill : Entity
     {
@@ -92,7 +88,6 @@ namespace Xtensive.Orm.Tests.Issues
   }
 
 
-  [Serializable]
   public class Issue0307_EntitySetOfType : AutoBuildTest
   {
     protected override DomainConfiguration BuildConfiguration()

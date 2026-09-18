@@ -32,7 +32,6 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0612_ReferenceFinderBugModel
     public TestA TestA { get; set; }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class TestC : Entity
   {

@@ -1,4 +1,4 @@
-// Copyright (C) 2021 Xtensive LLC.
+// Copyright (C) 2021-2026 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
@@ -6,10 +6,10 @@ using System;
 
 namespace Xtensive.Orm.Tests
 {
-  [Serializable]
-  internal class DateTimeOffsetInstanceGenerator : InstanceGeneratorBase<DateTimeOffset>
+  internal sealed class DateTimeOffsetInstanceGenerator(IInstanceGeneratorProvider provider)
+    : InstanceGeneratorBase<DateTimeOffset>(provider)
   {
-    private readonly IInstanceGenerator<DateTime> dateTimeInstanceGenerator;
+    private readonly IInstanceGenerator<DateTime> dateTimeInstanceGenerator = provider.GetInstanceGenerator<DateTime>();
 
     public override DateTimeOffset GetInstance(Random random)
     {
@@ -21,12 +21,6 @@ namespace Xtensive.Orm.Tests
         randomTimeSpan = randomTimeSpan.Negate();
 
       return new DateTimeOffset(randomDateTime, randomTimeSpan);
-    }
-
-    public DateTimeOffsetInstanceGenerator(IInstanceGeneratorProvider provider)
-      : base(provider)
-    {
-      dateTimeInstanceGenerator = provider.GetInstanceGenerator<DateTime>();
     }
   }
 }

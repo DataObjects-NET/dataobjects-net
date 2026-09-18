@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2013 Xtensive LLC.
+// Copyright (C) 2013 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -89,7 +89,7 @@ namespace Xtensive.Orm.Tests.Issues
       var configuration = DomainConfigurationFactory.Create();
       configuration.Types.Register(type);
       configuration.UpgradeMode = upgradeMode;
-      Domain.Build(configuration).Dispose();
+      using (Domain.Build(configuration)) { }
     }
   }
 }

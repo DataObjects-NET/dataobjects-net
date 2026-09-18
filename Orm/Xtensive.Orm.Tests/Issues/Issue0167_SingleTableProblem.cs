@@ -12,7 +12,6 @@ using Xtensive.Orm.Tests.Issues.Issue0167_SingleTableProblem_Model;
 
 namespace Xtensive.Orm.Tests.Issues.Issue0167_SingleTableProblem_Model
 {
-  [Serializable]
   [HierarchyRoot(InheritanceSchema = InheritanceSchema.SingleTable)]
   public class Ancestor : Entity
   {
@@ -20,7 +19,6 @@ namespace Xtensive.Orm.Tests.Issues.Issue0167_SingleTableProblem_Model
     public int Id { get; private set; }
   }
 
-  [Serializable]
   public class Descendant : Ancestor
   {
     [Field]
@@ -36,18 +34,18 @@ namespace Xtensive.Orm.Tests.Issues
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.RegisterCaching(typeof (Ancestor).Assembly, typeof (Ancestor).Namespace);
+      config.Types.Register(typeof(Ancestor));
+      config.Types.Register(typeof(Descendant));
       return config;
     }
 
     [Test]
     public void MainTest()
     {
-      using (var session = Domain.OpenSession()) {
-        using (var t = session.OpenTransaction()) {
-          new Ancestor();
-          t.Complete();
-        }
+      using (var session = Domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        _ = new Ancestor();
+        t.Complete();
       }
     }
   }

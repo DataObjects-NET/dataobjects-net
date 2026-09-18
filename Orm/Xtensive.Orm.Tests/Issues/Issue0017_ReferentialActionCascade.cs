@@ -11,9 +11,8 @@ using Xtensive.Orm.Tests.Issues.Issue0017_Model;
 
 namespace Xtensive.Orm.Tests.Issues.Issue0017_Model
 {
-  [Serializable]
   [HierarchyRoot]
-  public class Master:Entity
+  public class Master : Entity
   {
     [Field, Key]
     public long ID { get; private set; }
@@ -25,9 +24,8 @@ namespace Xtensive.Orm.Tests.Issues.Issue0017_Model
     public EntitySet<Slave> Slaves { get; private set; }
   }
 
-  [Serializable]
   [HierarchyRoot]
-  public class Slave:Entity
+  public class Slave : Entity
   {
     [Field, Key]
     public long ID { get; private set; }
@@ -54,18 +52,17 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void MainTest()
     {
-      using (var session = Domain.OpenSession()) {
-        using (var t = session.OpenTransaction()) {
-          var m1 = new Master();
-          var s1 = new Slave();
-          m1.Slave = s1;
-          Assert.That(s1.Master1, Is.EqualTo(m1));
-          m1.Remove();
-          Assert.That(m1.PersistenceState, Is.EqualTo(PersistenceState.Removed));
-          Assert.That(s1.PersistenceState, Is.EqualTo(PersistenceState.Removed));
-          Session.Current.SaveChanges();
-          // Rollback
-        }
+      using (var session = Domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var m1 = new Master();
+        var s1 = new Slave();
+        m1.Slave = s1;
+        Assert.That(s1.Master1, Is.EqualTo(m1));
+        m1.Remove();
+        Assert.That(m1.PersistenceState, Is.EqualTo(PersistenceState.Removed));
+        Assert.That(s1.PersistenceState, Is.EqualTo(PersistenceState.Removed));
+        session.SaveChanges();
+        // Rollback
       }
     }
   }

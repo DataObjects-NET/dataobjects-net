@@ -14,7 +14,6 @@ namespace Xtensive.Sql.Model
   /// </summary>
   /// <typeparam name="TOwner">Owner node type</typeparam>
   /// <typeparam name="TNode">Item node type</typeparam>
-  [Serializable]
   public class PairedNodeCollection<TOwner, TNode>: NodeCollection<TNode>
     where TOwner : Node
     where TNode : Node, IPairedNode<TOwner>

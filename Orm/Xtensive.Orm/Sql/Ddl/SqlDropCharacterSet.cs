@@ -7,7 +7,6 @@ using Xtensive.Sql.Model;
 
 namespace Xtensive.Sql.Ddl
 {
-  [Serializable]
   public class SqlDropCharacterSet : SqlStatement, ISqlCompileUnit
   {
     public CharacterSet CharacterSet { get; }

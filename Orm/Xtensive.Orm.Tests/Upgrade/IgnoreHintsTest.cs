@@ -179,7 +179,6 @@ namespace Xtensive.Orm.Tests.Upgrade
 
 namespace Xtensive.Orm.Tests.Upgrade.IgnoreHints.Model
 {
-  [Serializable]
   [HierarchyRoot]
   public class A : Entity
   {
@@ -193,7 +192,6 @@ namespace Xtensive.Orm.Tests.Upgrade.IgnoreHints.Model
     public string Y { get; set; }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class B : Entity
   {

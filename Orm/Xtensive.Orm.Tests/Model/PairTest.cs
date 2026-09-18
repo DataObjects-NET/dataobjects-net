@@ -11,7 +11,6 @@ using Xtensive.Orm.Tests.PairModel;
 
 namespace Xtensive.Orm.Tests.PairModel
 {
-  [Serializable]
   [HierarchyRoot]
   public class Master : Entity
   {
@@ -22,14 +21,13 @@ namespace Xtensive.Orm.Tests.PairModel
     public Slave Slave { get; set; }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class Slave : Entity
   {
     [Field, Key]
     public int Id { get; private set; }
 
-    [Field , Association(PairTo = "Slave")]
+    [Field , Association(PairTo = nameof(PairModel.Master.Slave))]
     public Master Master { get; set; }
   }
 
@@ -37,13 +35,14 @@ namespace Xtensive.Orm.Tests.PairModel
 
 namespace Xtensive.Orm.Tests.Model
 {
-  [TestFixture]
+  [TestFixture, Category("Model")]
   public class PairTest : AutoBuildTest
   {
     protected override Xtensive.Orm.Configuration.DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.RegisterCaching(Assembly.GetExecutingAssembly(), typeof(Master).Namespace);
+      config.Types.Register(typeof(Master));
+      config.Types.Register(typeof(Slave));
       return config;
     }
 

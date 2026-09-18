@@ -15,7 +15,6 @@ namespace Xtensive.Orm.Upgrade
   /// <summary>
   /// Change field type enforced (ignore type conversion verification) hint.
   /// </summary>
-  [Serializable]
   public sealed class ChangeFieldTypeHint : UpgradeHint,
     IEquatable<ChangeFieldTypeHint>
   {

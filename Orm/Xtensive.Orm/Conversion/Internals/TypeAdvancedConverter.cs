@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2003-2010 Xtensive LLC.
+// Copyright (C) 2003-2010 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alex Yakunin
@@ -8,21 +8,14 @@ using System;
 
 namespace Xtensive.Conversion
 {
-  [Serializable]
   internal class TypeAdvancedConverter :
     StrictAdvancedConverterBase<Type>,
     IAdvancedConverter<Type, string>,
     IAdvancedConverter<string, Type>
   {
-    string IAdvancedConverter<Type, string>.Convert(Type value)
-    {
-      return value.AssemblyQualifiedName;
-    }
+    string IAdvancedConverter<Type, string>.Convert(Type value) => value.AssemblyQualifiedName;
 
-    Type IAdvancedConverter<string, Type>.Convert(string value)
-    {
-      return Type.GetType(value, true, false);
-    }
+    Type IAdvancedConverter<string, Type>.Convert(string value) => Type.GetType(value, true, false);
 
 
     // Constructors

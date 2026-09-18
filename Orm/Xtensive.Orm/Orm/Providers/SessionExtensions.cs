@@ -4,6 +4,9 @@
 // Created by: Alex Yakunin
 // Created:    2009.10.14
 
+using System;
+using Xtensive.Orm.Operations;
+
 namespace Xtensive.Orm.Providers
 {
   /// <summary>
@@ -21,6 +24,20 @@ namespace Xtensive.Orm.Providers
     public static string ToStringSafely(this Session session)
     {
       return session==null ? Strings.NA : session.ToString();
+    }
+
+    internal static (IOperationRegistry operations, IOperationFactory operationsFactory, bool allowedRegistration) GetOperationsContext(this Session session)
+    {
+      var operations = session.Operations;
+      var allowRegistration = operations.IsRegistrationEnabled;
+      IOperationFactory operationsFactory = null;
+      if (allowRegistration) {
+        operationsFactory = session.Domain.Services.Get<IOperationFactory>();
+        if (operationsFactory is null)
+          throw new InvalidOperationException("Factory of operations can't be found.");
+      }
+
+      return(operations, operationsFactory, allowRegistration);
     }
   }
 }

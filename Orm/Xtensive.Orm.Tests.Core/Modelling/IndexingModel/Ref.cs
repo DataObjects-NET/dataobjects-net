@@ -16,7 +16,6 @@ namespace Xtensive.Orm.Tests.Core.Modelling.IndexingModel
   /// </summary>
   /// <typeparam name="TTarget">The type of the target node.</typeparam>
   /// <typeparam name="TParent">The type of the parent node.</typeparam>
-  [Serializable]
   public abstract class Ref<TTarget, TParent> : NodeBase<TParent>, 
     IUnnamedNode, 
     INodeReference

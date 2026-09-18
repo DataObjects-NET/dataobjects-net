@@ -16,7 +16,6 @@ namespace Xtensive.Orm.Tests.Core.Modelling.IndexingModel
   /// <summary>
   /// Type of table column.
   /// </summary>
-  [Serializable]
   public sealed class TypeInfo : IEquatable<TypeInfo>,
     IValidatable,
     ICloneable

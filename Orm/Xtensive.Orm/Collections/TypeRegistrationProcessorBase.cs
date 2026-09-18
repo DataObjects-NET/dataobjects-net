@@ -16,7 +16,6 @@ namespace Xtensive.Collections
   /// <summary>
   /// Abstract base class for <see cref="ITypeRegistrationProcessor"/> implementation.
   /// </summary>
-  [Serializable]
   public abstract class TypeRegistrationProcessorBase : ITypeRegistrationProcessor
   {
     /// <summary>
@@ -32,7 +31,7 @@ namespace Xtensive.Collections
     public virtual void Process(TypeRegistry registry, TypeRegistration registration)
     {
       var types =
-        registration.Type==null
+        registration.Type is null
           ? FindTypes(registration.Assembly, BaseType, (type, typeFilter) => IsAcceptable(registration, type))
           : IsAcceptable(registration, registration.Type)
             ? Enumerable.Repeat(registration.Type, 1)
@@ -48,9 +47,7 @@ namespace Xtensive.Collections
     /// <param name="registration">The registration.</param>
     /// <param name="type">The type.</param>
     protected virtual void Process(TypeRegistry registry, TypeRegistration registration, Type type)
-    {
-      registry.Register(type);
-    }
+      => registry.Register(type);
 
     /// <summary>
     /// Determines whether the specified type is acceptable for registration.
@@ -82,16 +79,16 @@ namespace Xtensive.Collections
           e);
       }
 
-      List<Type> types = new List<Type>(allTypes.Length);
+      var types = new List<Type>(allTypes.Length);
 
       for (int index = 0; index < allTypes.Length; index++) {
-        Type type = allTypes[index];
+        var type = allTypes[index];
 
         if (type != baseType && !(type.IsSubclassOf(baseType) || (baseType.IsInterface && baseType.IsAssignableFrom(type))))
           continue;
 
         if (baseType.IsAssignableFrom(type)) {
-          if (filter != null && !filter(type, null))
+          if (filter is not null && !filter(type, null))
             continue;
           types.Add(type);
         }

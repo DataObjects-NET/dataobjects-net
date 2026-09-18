@@ -1,4 +1,4 @@
-// Copyright (C) 2008-2021 Xtensive LLC.
+// Copyright (C) 2008-2026 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexey Gamzov
@@ -6,11 +6,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.Runtime.Serialization;
 
 namespace Xtensive.Comparison
 {
-  [Serializable]
   internal sealed class EnumerableInterfaceComparer<TEnumerable, T> : WrappingComparer<TEnumerable, T>,
     ISystemComparer<TEnumerable>
     where TEnumerable: class, IEnumerable<T>
@@ -107,11 +105,6 @@ namespace Xtensive.Comparison
       : base(provider, comparisonRules)
     {
       ValueRangeInfo = new ValueRangeInfo<TEnumerable>(true, null, false, null, false, null);
-    }
-
-    public EnumerableInterfaceComparer(SerializationInfo info, StreamingContext context)
-      : base(info, context)
-    {
     }
   }
 }

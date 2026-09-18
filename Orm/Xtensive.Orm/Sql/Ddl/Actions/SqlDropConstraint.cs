@@ -7,11 +7,10 @@ using Xtensive.Sql.Model;
 
 namespace Xtensive.Sql.Ddl
 {
-  [Serializable]
   public class SqlDropConstraint : SqlCascadableAction
   {
-    public Constraint Constraint { get; private set; }
-    
+    public Constraint Constraint { get; }
+
     internal override SqlDropConstraint Clone(SqlNodeCloneContext context) =>
       context.GetOrAdd(this, static (t, c) =>
         new SqlDropConstraint(t.Constraint, t.Cascade));

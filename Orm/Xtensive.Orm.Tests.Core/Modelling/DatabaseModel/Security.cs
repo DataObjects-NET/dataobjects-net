@@ -11,7 +11,6 @@ using Xtensive.Modelling.Attributes;
 
 namespace Xtensive.Orm.Tests.Core.Modelling.DatabaseModel
 {
-  [Serializable]
   public sealed class Security : NodeBase<Server>
   {
     [Property(Priority = 100)]

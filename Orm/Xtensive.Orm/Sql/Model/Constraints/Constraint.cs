@@ -11,7 +11,6 @@ namespace Xtensive.Sql.Model
   /// <summary>
   /// Represents integrity constraint object.
   /// </summary>
-  [Serializable]
   public class Constraint : Node
   {
     private bool? isDeferrable;
@@ -75,7 +74,6 @@ namespace Xtensive.Sql.Model
   /// <summary>
   /// Represents integrity constraint object.
   /// </summary>
-  [Serializable]
   public abstract class Constraint<T> : Constraint, IPairedNode<T> where T: Node, IConstrainable
   {
     private T owner;

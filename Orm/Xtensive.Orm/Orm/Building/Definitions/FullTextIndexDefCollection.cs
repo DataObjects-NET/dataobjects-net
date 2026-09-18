@@ -13,7 +13,6 @@ namespace Xtensive.Orm.Building.Definitions
   /// <summary>
   /// A collection of <see cref="FullTextIndexDef"/> items.
   /// </summary>
-  [Serializable]
   public class FullTextIndexDefCollection : CollectionBaseSlim<FullTextIndexDef>
   {
     /// <summary>

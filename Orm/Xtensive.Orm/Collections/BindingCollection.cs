@@ -18,7 +18,6 @@ namespace Xtensive.Collections
   /// Any binding is active while its binding result (<see cref="IDisposable"/> object)
   /// isn't disposed.
   /// </summary>
-  [Serializable]
   [DebuggerDisplay("Count = {Count}")]
   public class BindingCollection<TKey, TValue> : IReadOnlyCollection<KeyValuePair<TKey, TValue>>
   {
@@ -65,8 +64,8 @@ namespace Xtensive.Collections
     }
 
     [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
-    private readonly Dictionary<TKey, TValue> bindings = new Dictionary<TKey, TValue>();
-    private readonly HashSet<TKey> permanentBindings = new HashSet<TKey>();
+    private readonly Dictionary<TKey, TValue> bindings = new();
+    private readonly HashSet<TKey> permanentBindings = new();
 
     /// <summary>
     /// Gets the number of currently bound items.
@@ -112,7 +111,7 @@ namespace Xtensive.Collections
     public virtual void PermanentAdd(TKey key, TValue value)
     {
       bindings[key] = value;
-      permanentBindings.Add(key);
+      _ = permanentBindings.Add(key);
     }
 
     /// <summary>

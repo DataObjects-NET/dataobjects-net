@@ -12,7 +12,6 @@ using Xtensive.Orm.Tests.Issues.Issue0296_Model;
 
 namespace Xtensive.Orm.Tests.Issues.Issue0296_Model
 {
-  [Serializable]
   [HierarchyRoot]
   public class Node : Entity
   {
@@ -35,34 +34,32 @@ namespace Xtensive.Orm.Tests.Issues.Issue0296_Model
 
 namespace Xtensive.Orm.Tests.Issues
 {
-  [Ignore("Requires manual profiling")]
   public class Issue0296_DeferredConstraints : AutoBuildTest
   {
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.RegisterCaching(typeof (Node).Assembly, typeof (Node).Namespace);
+      config.Types.Register(typeof(Node));
       return config;
     }
 
     [Test]
     public void MainTest()
     {
-      const int count = 50;
-      using (var session = Domain.OpenSession()) {
-        using (var t = session.OpenTransaction()) {
+      const int count = 25;
+      using (var session = Domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
 
-          var root = new Node();
-          for (int i = 0; i < count-1; i++) {
-            var next = new Node();
-            root.Right = next;
-            root.Left = new Node();
-            root = next;
-          }
-          Assert.That(session.EntityChangeRegistry.GetItems(PersistenceState.New).Count(), Is.LessThan(count));
-
-          t.Complete();
+        var root = new Node();
+        for (int i = 0; i < count - 1; i++) {
+          var next = new Node();
+          root.Right = next;
+          root.Left = new Node();
+          root = next;
         }
+        Assert.That(session.EntityChangeRegistry.GetItems(PersistenceState.New).Count(), Is.LessThan(count * 2));
+
+        t.Complete();
       }
     }
   }

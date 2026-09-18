@@ -11,7 +11,6 @@ using Xtensive.Orm.Tests.Upgrade.LegacyUpgradeTest.Model;
 
 namespace Xtensive.Orm.Tests.Upgrade.LegacyUpgradeTest.Model
 {
-  [Serializable]
   [HierarchyRoot]
   public class A : Entity
   {
@@ -22,7 +21,6 @@ namespace Xtensive.Orm.Tests.Upgrade.LegacyUpgradeTest.Model
     public string Name { get; set; }
   }
 
-  [Serializable]
   public class B : A
   {
     [Field]
@@ -32,7 +30,6 @@ namespace Xtensive.Orm.Tests.Upgrade.LegacyUpgradeTest.Model
     public C C { get; set; }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class C : Entity
   {
@@ -197,9 +194,9 @@ namespace Xtensive.Orm.Tests.Upgrade.LegacyUpgrade
       config.UpgradeMode = DomainUpgradeMode.LegacyValidate;
       
       CreateDb(CreateInvalidDbScript1);
-      AssertEx.Throws<SchemaSynchronizationException>(() => Domain.Build(config));
+      AssertEx.Throws<SchemaSynchronizationException>(() => Domain.Build(config).Dispose());
       CreateDb(CreateInvalidDbScript2);
-      AssertEx.Throws<SchemaSynchronizationException>(() => Domain.Build(config));
+      AssertEx.Throws<SchemaSynchronizationException>(() => Domain.Build(config).Dispose());
     }
 
     [Test]

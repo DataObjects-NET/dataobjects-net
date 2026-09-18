@@ -16,15 +16,14 @@ namespace Xtensive.Comparison
   /// Represents a pair of smallest and largest values defined for <typeparamref name="T"/>.
   /// </summary>
   /// <typeparam name="T">the type of <typeparamref name="T"/>.</typeparam>
-  [Serializable]
   public sealed class ValueRangeInfo<T>
   {
-    private bool hasMaxValue;
-    private bool hasMinValue;
-    private bool hasDeltaValue;
-    private T maxValue;
-    private T minValue;
-    private T deltaValue;
+    private readonly bool hasMaxValue;
+    private readonly bool hasMinValue;
+    private readonly bool hasDeltaValue;
+    private readonly T maxValue;
+    private readonly T minValue;
+    private readonly T deltaValue;
 
     /// <summary>
     /// Gets a value indicating whether this instance has <see cref="MinValue"/>.
@@ -32,10 +31,7 @@ namespace Xtensive.Comparison
     /// <value>
     ///   <see langword="true"/> if this instance has <see cref="MinValue"/>; otherwise, <see langword="false"/>.
     /// </value>
-    public bool HasMinValue
-    {
-      get { return hasMinValue; }
-    }
+    public bool HasMinValue => hasMinValue;
 
     /// <summary>
     /// Gets a value indicating whether this instance has <see cref="MaxValue"/>.
@@ -43,10 +39,7 @@ namespace Xtensive.Comparison
     /// <value>
     ///   <see langword="true"/> if this instance has <see cref="MaxValue"/>; otherwise, <see langword="false"/>.
     /// </value>
-    public bool HasMaxValue
-    {
-      get { return hasMaxValue; }
-    }
+    public bool HasMaxValue => hasMaxValue;
 
     /// <summary>
     /// Gets a value indicating whether this instance has <see cref="DeltaValue"/>.
@@ -54,52 +47,25 @@ namespace Xtensive.Comparison
     /// <value>
     ///   <see langword="true"/> if this instance has <see cref="DeltaValue"/>; otherwise, <see langword="false"/>.
     /// </value>
-    public bool HasDeltaValue
-    {
-      get { return hasDeltaValue; }
-    }
+    public bool HasDeltaValue => hasDeltaValue;
 
     /// <summary>
     /// Represents the smallest possible value of a T.
     /// </summary>
     /// <value>The smallest possible value.</value>
-    public T MinValue
-    {
-      get
-      {
-        if (!hasMinValue)
-          throw new InvalidOperationException(Strings.ExValueIsNotAvailable);
-        return minValue;
-      }
-    }
+    public T MinValue => hasMinValue ? minValue : throw new InvalidOperationException(Strings.ExValueIsNotAvailable);
 
     /// <summary>
     /// Represents the largest possible value of a T.
     /// </summary>
     /// <value>The largest possible value.</value>
-    public T MaxValue
-    {
-      get
-      {
-        if (!hasMaxValue)
-          throw new InvalidOperationException(Strings.ExValueIsNotAvailable);
-        return maxValue;
-      }
-    }
+    public T MaxValue => hasMaxValue ? maxValue : throw new InvalidOperationException(Strings.ExValueIsNotAvailable);
 
     /// <summary>
     /// Represents the smallest possible delta value of a <typeparamref name="T"/>.
     /// </summary>
     /// <value>The smallest possible delta value.</value>
-    public T DeltaValue
-    {
-      get
-      {
-        if (!hasDeltaValue)
-          throw new InvalidOperationException(Strings.ExValueIsNotAvailable);
-        return deltaValue;
-      }
-    }
+    public T DeltaValue => hasDeltaValue ? deltaValue : throw new InvalidOperationException(Strings.ExValueIsNotAvailable);
 
     /// <summary>
     /// Inverts the instance of <see cref="ValueRangeInfo{T}"/>.

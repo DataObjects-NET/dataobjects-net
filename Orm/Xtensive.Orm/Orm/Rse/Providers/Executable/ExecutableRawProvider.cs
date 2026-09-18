@@ -16,7 +16,6 @@ namespace Xtensive.Orm.Rse.Providers
   /// <summary>
   /// Enumerates specified array of <see cref="Tuple"/> instances.
   /// </summary>
-  [Serializable]
   public sealed class ExecutableRawProvider : ExecutableProvider<Providers.RawProvider>
   {
     private const string CachedSourceName = "CachedSource";

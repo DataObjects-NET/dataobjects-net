@@ -1,57 +1,42 @@
-﻿// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2008-2026 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Roman Churakov
 // Created:    2008.01.25
 
 using System;
+using System.Collections.Generic;
 using NUnit.Framework;
-using Xtensive.Conversion;
-using Xtensive.Reflection;
 
 namespace Xtensive.Orm.Tests.Core.Conversion
 {
-  [TestFixture]
-  public class UInt16ConverterTest : ConverterTestBase
+  public class UInt16ConverterTest : ConverterTestBase<ushort>
   {
-    private readonly ushort[] constants = { 0, 1, 123, 0x7F, 0xFF, 0xFFFF, 0x7FFF };
-    private const int iterationCount = 100;
+    private readonly ushort[] constants = new ushort[] { 0, 1, 123, 0x7F, 0xFF, 0xFFFF, 0x7FFF };
+    private readonly HashSet<Type> allowedTargetTypes = new() {
+      // strict conversions
+      typeof(byte),
+      typeof(sbyte),
+      typeof(short),
+      typeof(int),
+      typeof(uint),
+      typeof(long),
+      typeof(ulong),
+      typeof(float),
+      typeof(double),
+      typeof(decimal),
+      typeof(DateTime),
+      typeof(TimeSpan),
+      typeof(string),
+      typeof(char),
+      // rough coversions
+      typeof(bool)
+    };
 
-    [Test]
-    public void CombinedTest()
-    {
-      foreach (ushort constant in constants)
-        OneValueTest<ushort, bool>(constant, iterationCount);
-      foreach (ushort constant in constants)
-        OneValueTest<ushort, byte>(constant, iterationCount);
-      foreach (ushort constant in constants)
-        OneValueTest<ushort, sbyte>(constant, iterationCount);
-      foreach (ushort constant in constants)
-        OneValueTest<ushort, short>(constant, iterationCount);
-      foreach (ushort constant in constants)
-        OneValueTest<ushort, ushort>(constant, iterationCount);
-      foreach (ushort constant in constants)
-        OneValueTest<ushort, int>(constant, iterationCount);
-      foreach (ushort constant in constants)
-        OneValueTest<ushort, uint>(constant, iterationCount);
-      foreach (ushort constant in constants)
-        OneValueTest<ushort, long>(constant, iterationCount);
-      foreach (ushort constant in constants)
-        OneValueTest<ushort, ulong>(constant, iterationCount);
-      foreach (ushort constant in constants)
-        OneValueTest<ushort, float>(constant, iterationCount);
-      foreach (ushort constant in constants)
-        OneValueTest<ushort, double>(constant, iterationCount);
-      foreach (ushort constant in constants)
-        OneValueTest<ushort, decimal>(constant, iterationCount);
-      foreach (ushort constant in constants)
-        OneValueTest<ushort, DateTime>(constant, iterationCount);
-      foreach (ushort constant in constants)
-        OneValueTest<ushort, Guid>(constant, iterationCount);
-      foreach (ushort constant in constants)
-        OneValueTest<ushort, string>(constant, iterationCount);
-      foreach (ushort constant in constants)
-        OneValueTest<ushort, char>(constant, iterationCount);
-    }
+    /// <inheritdoc/>
+    protected override ushort[] Constants => constants;
+
+    /// <inheritdoc/>
+    protected override HashSet<Type> AllowedTargetTypes => allowedTargetTypes;
   }
 }

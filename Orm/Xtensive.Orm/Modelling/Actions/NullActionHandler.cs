@@ -11,7 +11,6 @@ namespace Xtensive.Modelling.Actions
   /// <summary>
   /// An <see cref="ActionHandler"/> that does nothing.
   /// </summary>
-  [Serializable]
   public class NullActionHandler : ActionHandler
   {
     private static readonly NullActionHandler instance = new NullActionHandler();
@@ -19,9 +18,7 @@ namespace Xtensive.Modelling.Actions
     /// <summary>
     /// Gets the only instance of this class.
     /// </summary>
-    public static NullActionHandler Instance {
-      get { return instance; }
-    }
+    public static NullActionHandler Instance => instance;
 
     /// <inheritdoc/>
     public override void Execute(NodeAction action)

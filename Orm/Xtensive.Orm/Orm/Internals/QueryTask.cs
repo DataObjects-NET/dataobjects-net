@@ -17,7 +17,6 @@ namespace Xtensive.Orm.Internals
   /// Delayed query task. 
   /// Used internally to support delayed (future) queries.
   /// </summary>
-  [Serializable]
   public sealed class QueryTask : IEnumerable<Tuple>
   {
     /// <summary>

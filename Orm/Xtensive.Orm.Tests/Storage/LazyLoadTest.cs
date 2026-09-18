@@ -14,7 +14,6 @@ using Xtensive.Orm.Tests.Storage.BookAuthorModel;
 
 namespace Xtensive.Orm.Tests.Storage.BookAuthorModel
 {
-  [Serializable]
   [HierarchyRoot]
   public class Book : Entity
   {
@@ -31,7 +30,6 @@ namespace Xtensive.Orm.Tests.Storage.BookAuthorModel
     public Author Author { get; set; }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class Author : Entity
   {

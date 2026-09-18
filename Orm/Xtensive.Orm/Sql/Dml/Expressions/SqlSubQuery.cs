@@ -10,7 +10,6 @@ namespace Xtensive.Sql.Dml
   /// <summary>
   /// Represents sub query expression.
   /// </summary>
-  [Serializable]
   public class SqlSubQuery: SqlExpression
   {
     private ISqlQueryExpression query;

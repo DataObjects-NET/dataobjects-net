@@ -21,7 +21,6 @@ namespace Xtensive.Orm.Model
   /// Describes a single field.
   /// </summary>
   [DebuggerDisplay("{Name}; Attributes = {Attributes}")]
-  [Serializable]
   public sealed class FieldInfo : MappedNode,
     ICloneable
   {

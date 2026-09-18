@@ -5,7 +5,6 @@
 // Created:    2019.06.21
 
 using System.Linq;
-using System.Runtime.Serialization;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration;
@@ -41,11 +40,6 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0767_OfTypeForNonGenericSourcesMode
   {
     protected EntitySetOfTestEntity(Entity owner, FieldInfo field)
       : base(owner, field)
-    {
-    }
-
-    protected EntitySetOfTestEntity(SerializationInfo info, StreamingContext context)
-      : base(info, context)
     {
     }
   }

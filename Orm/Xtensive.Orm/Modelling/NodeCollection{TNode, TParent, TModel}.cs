@@ -17,7 +17,6 @@ namespace Xtensive.Modelling
   /// <typeparam name="TNode">The type of the node.</typeparam>
   /// <typeparam name="TParent">The type of the parent.</typeparam>
   /// <typeparam name="TModel">The type of the model.</typeparam>
-  [Serializable]
   public abstract class NodeCollection<TNode, TParent, TModel> : NodeCollection,
     INodeCollection<TNode>
     where TNode : Node

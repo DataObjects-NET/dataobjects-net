@@ -60,7 +60,6 @@ namespace Xtensive.Orm.Tests.Storage.DbTypeSupportModel
 
   #endregion
 
-  [Serializable]
   [HierarchyRoot]
   public class X : Entity
   {
@@ -391,8 +390,7 @@ namespace Xtensive.Orm.Tests.Storage
       var configuration = BuildConfiguration();
       configuration.UpgradeMode = DomainUpgradeMode.Validate;
       configuration.Types.Register(typeof (X));
-      var domain = Domain.Build(configuration);
-      domain.Dispose();
+      using var domain = Domain.Build(configuration);
     }
 
     [Test]

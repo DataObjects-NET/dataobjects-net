@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2008-2026 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Gamzov
 // Created:    2008.01.21
 
@@ -9,7 +9,6 @@ using System.Globalization;
 
 namespace Xtensive.Conversion
 {
-  [Serializable]
   internal class Int32AdvancedConverter :
     StrictAdvancedConverterBase<int>,
     IAdvancedConverter<int, byte>,
@@ -22,6 +21,7 @@ namespace Xtensive.Conversion
     IAdvancedConverter<int, double>,
     IAdvancedConverter<int, decimal>,
     IAdvancedConverter<int, DateTime>,
+    IAdvancedConverter<int, DateOnly>,
     IAdvancedConverter<int, TimeSpan>,
     IAdvancedConverter<int, string>,
     IAdvancedConverter<int, char>
@@ -63,10 +63,7 @@ namespace Xtensive.Conversion
       }
     }
 
-    long IAdvancedConverter<int, long>.Convert(int value)
-    {
-      return value;
-    }
+    long IAdvancedConverter<int, long>.Convert(int value) => value;
 
     ulong IAdvancedConverter<int, ulong>.Convert(int value)
     {
@@ -75,21 +72,20 @@ namespace Xtensive.Conversion
       }
     }
 
-    double IAdvancedConverter<int, double>.Convert(int value)
-    {
-      return System.Convert.ToDouble(value);
-    }
+    double IAdvancedConverter<int, double>.Convert(int value) => System.Convert.ToDouble(value);
 
-    decimal IAdvancedConverter<int, decimal>.Convert(int value)
-    {
-      return System.Convert.ToDecimal(value);
-    }
+    decimal IAdvancedConverter<int, decimal>.Convert(int value) => System.Convert.ToDecimal(value);
 
     DateTime IAdvancedConverter<int, DateTime>.Convert(int value)
     {
       checked{
         return new DateTime(value + baseDateTimeTicks, DateTimeKind.Utc);
       }
+    }
+
+    DateOnly IAdvancedConverter<int, DateOnly>.Convert(int value)
+    {
+      return DateOnly.FromDayNumber(value);
     }
 
     TimeSpan IAdvancedConverter<int, TimeSpan>.Convert(int value)
@@ -99,16 +95,9 @@ namespace Xtensive.Conversion
       }
     }
 
+    string IAdvancedConverter<int, string>.Convert(int value) => value.ToString(CultureInfo.InvariantCulture);
 
-    string IAdvancedConverter<int, string>.Convert(int value)
-    {
-      return value.ToString(CultureInfo.InvariantCulture);
-    }
-
-    char IAdvancedConverter<int, char>.Convert(int value)
-    {
-      return System.Convert.ToChar(value);
-    }
+    char IAdvancedConverter<int, char>.Convert(int value) => System.Convert.ToChar(value);
 
 
     // Constructors

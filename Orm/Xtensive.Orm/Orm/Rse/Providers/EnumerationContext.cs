@@ -8,20 +8,14 @@ using System;
 using System.Collections.Generic;
 using Xtensive.Core;
 
-
-using Xtensive.IoC;
-using Xtensive.Reflection;
-
 namespace Xtensive.Orm.Rse.Providers
 {
   /// <summary>
   /// The single enumeration attempt context for the <see cref="ExecutableProvider"/>.
   /// </summary>
-  [Serializable]
   public abstract class EnumerationContext
   {
-
-    private readonly Dictionary<Pair<object, string>, object> cache = new Dictionary<Pair<object, string>, object>();
+    private readonly Dictionary<Pair<object, string>, object> cache = new();
 
     /// <summary>
     /// Gets the options of this context.

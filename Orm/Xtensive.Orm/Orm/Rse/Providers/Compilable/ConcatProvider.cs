@@ -15,7 +15,6 @@ namespace Xtensive.Orm.Rse.Providers
   /// Produces concatenation between <see cref="BinaryProvider.Left"/> and 
   /// <see cref="BinaryProvider.Right"/> sources.
   /// </summary>
-  [Serializable]
   public sealed class ConcatProvider : BinaryProvider
   {
     #region Header build

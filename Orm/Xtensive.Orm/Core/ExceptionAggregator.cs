@@ -10,8 +10,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
-using Xtensive.Collections;
-using Xtensive.Core;
 
 
 namespace Xtensive.Core
@@ -19,14 +17,13 @@ namespace Xtensive.Core
   /// <summary>
   /// Provides exception aggregation support.
   /// </summary>
-  [Serializable]
   public class ExceptionAggregator : 
     IDisposable, 
     IEnumerable<Exception>
   {
+    private readonly string exceptionMessage;
     private Action<Exception> exceptionHandler;
     private List<Exception> exceptions;
-    private string exceptionMessage;
 
     private bool isCompleted = false;
     private bool isDisposed = false;
@@ -37,17 +34,18 @@ namespace Xtensive.Core
     public Action<Exception> ExceptionHandler
     {
       [DebuggerStepThrough]
-      get { return exceptionHandler; }
+      get => exceptionHandler;
       [DebuggerStepThrough]
-      set { exceptionHandler = value; }
+      set => exceptionHandler = value;
     }
 
     /// <summary>
     /// Gets the number of caught exceptions.
     /// </summary>
-    public int Count {
+    public int Count
+    {
       [DebuggerStepThrough]
-      get { return exceptions!=null ? exceptions.Count : 0; }
+      get => exceptions != null ? exceptions.Count : 0;
     }
 
     /// <summary>
@@ -55,9 +53,10 @@ namespace Xtensive.Core
     /// i.e. aggregated exceptions, if any, can be thrown on disposal.
     /// Set to <see langword="true" /> by <see cref="Complete"/> method call.
     /// </summary>
-    public bool IsCompleted {
+    public bool IsCompleted
+    {
       [DebuggerStepThrough]
-      get { return isCompleted; }
+      get => isCompleted;
     }
 
     /// <summary>
@@ -87,7 +86,7 @@ namespace Xtensive.Core
 
     private void InnerAdd(Exception exception)
     {
-      if (exceptions==null)
+      if (exceptions is null)
         exceptions = new List<Exception>();
       exceptions.Add(exception);
     }
@@ -343,7 +342,7 @@ namespace Xtensive.Core
     /// </remarks>
     protected virtual void HandleException(Exception exception)
     {
-      if (exceptionHandler!=null)
+      if (exceptionHandler is not null)
         exceptionHandler(exception);
       InnerAdd(exception);
     }

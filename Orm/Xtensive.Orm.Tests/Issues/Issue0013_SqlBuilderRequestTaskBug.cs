@@ -11,7 +11,6 @@ using Xtensive.Orm.Tests.Issues.Issue0013_Model;
 
 namespace Xtensive.Orm.Tests.Issues.Issue0013_Model
 {
-  [Serializable]
   [HierarchyRoot]
   public class SqlTaskEntity : Entity
   {
@@ -42,7 +41,7 @@ namespace Xtensive.Orm.Tests.Issues
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.RegisterCaching(typeof (SqlTaskEntity).Assembly, typeof (SqlTaskEntity).Namespace);
+      config.Types.Register(typeof(SqlTaskEntity));
       return config;
     }
 
@@ -51,21 +50,21 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (var session = Domain.OpenSession()) {
         SqlTaskEntity e1;
-        using (TransactionScope trs = session.OpenTransaction()) {
+        using (var trs = session.OpenTransaction()) {
           e1 = new SqlTaskEntity();
           //insert
-          Session.Current.SaveChanges();
+          session.SaveChanges();
           e1.Field5 = 5;
           //update
           trs.Complete();
         }
-        using (TransactionScope trs = session.OpenTransaction()) {
+        using (var trs = session.OpenTransaction()) {
           e1.Field1 = 1;
           e1.Field3 = 3;
           //update
           trs.Complete();
         }
-        using (TransactionScope trs = session.OpenTransaction()) {
+        using (var trs = session.OpenTransaction()) {
           Assert.That(e1.Field1, Is.EqualTo(1));
           Assert.That(e1.Field3, Is.EqualTo(3));
         }

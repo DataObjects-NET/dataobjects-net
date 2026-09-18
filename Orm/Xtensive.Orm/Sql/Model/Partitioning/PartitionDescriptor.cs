@@ -10,7 +10,6 @@ namespace Xtensive.Sql.Model
   /// <summary>
   /// Represents a set of information concerning object partitioning.
   /// </summary>
-  [Serializable]
   public class PartitionDescriptor : Node
   {
     private IPartitionable owner;

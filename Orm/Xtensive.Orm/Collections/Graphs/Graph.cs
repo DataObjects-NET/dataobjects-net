@@ -17,7 +17,6 @@ namespace Xtensive.Collections.Graphs
   /// </summary>
   /// <typeparam name="TNode">Node type.</typeparam>
   /// <typeparam name="TEdge">Edge type.</typeparam>
-  [Serializable]
   public class Graph<TNode, TEdge>
     where TNode : Node
     where TEdge : Edge
@@ -30,10 +29,7 @@ namespace Xtensive.Collections.Graphs
     /// <summary>
     /// Gets a sequence of graph edges.
     /// </summary>
-    public IEnumerable<TEdge> Edges
-    {
-      get { return Nodes.SelectMany(node => node.OutgoingEdges.Cast<TEdge>()); }
-    }
+    public IEnumerable<TEdge> Edges => Nodes.SelectMany(node => node.OutgoingEdges.Cast<TEdge>());
 
     /// <summary>
     /// Creates a mutable copy of the graph.

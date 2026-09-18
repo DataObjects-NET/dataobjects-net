@@ -15,7 +15,6 @@ namespace Xtensive.Orm.Upgrade.Model
   /// <summary>
   /// Primary index.
   /// </summary>
-  [Serializable]
   public sealed class PrimaryIndexInfo : StorageIndexInfo
   {
     /// <summary>
@@ -33,7 +32,7 @@ namespace Xtensive.Orm.Upgrade.Model
     {
       var keySet = KeyColumns.Select(kc => kc.Value).ToHashSet();
       foreach (var column in Parent.Columns.Where(c => !keySet.Contains(c)))
-        new ValueColumnRef(this, column);
+        _ = new ValueColumnRef(this, column);
     }
 
     /// <inheritdoc/>
@@ -42,30 +41,26 @@ namespace Xtensive.Orm.Upgrade.Model
     {
       using (var ea = new ExceptionAggregator()) {
         ea.Execute(base.ValidateState);
-        base.ValidateState();
 
         var tableColumns = Parent.Columns;
         var keys = KeyColumns.Select(keyRef => keyRef.Value).ToArray(KeyColumns.Count);
 
-        if (keys.Length==0)
-          ea.Execute(() => {
-            throw new ValidationException(Strings.ExEmptyKeyColumnsCollection, Path);
-          });
-        if (keys.Where(ci => ci.Type == null || ci.Type.IsNullable).Count() > 0)
-          ea.Execute(() => {
-            throw new ValidationException(Strings.ExPrimaryKeyColumnCanNotBeNullable, Path);
-          });
+        if (keys.Length == 0) {
+          ea.Add(new ValidationException(Strings.ExEmptyKeyColumnsCollection, Path), handle: true);
+        }
+        if (keys.Count(static ci => ci.Type is null || ci.Type.IsNullable) > 0) {
+          ea.Add(new ValidationException(Strings.ExPrimaryKeyColumnCanNotBeNullable, Path), handle: true);
+        }
 
         var values = ValueColumns.Select(valueRef => valueRef.Value).ToArray(ValueColumns.Count);
         var allCount = keys.Length + values.Length;
-        if (allCount!=tableColumns.Count)
-          ea.Execute(() => {
-            throw new ValidationException(Strings.ExInvalidPrimaryKeyStructure, Path);
-          });
-        if (keys.Concat(values).Zip(tableColumns, (column, tableColumn) => new Pair<StorageColumnInfo>(column, tableColumn)).Any(p => p.First!=p.Second))
-          ea.Execute(() => {
-            throw new ValidationException(Strings.ExInvalidPrimaryKeyStructure, Path);
-          });
+        if (allCount!=tableColumns.Count) {
+          ea.Add(new ValidationException(Strings.ExInvalidPrimaryKeyStructure, Path), handle: true);
+        }
+
+        if (keys.Concat(values).Zip(tableColumns, (column, tableColumn) => new Pair<StorageColumnInfo>(column, tableColumn)).Any(p => p.First!=p.Second)) {
+          ea.Add(new ValidationException(Strings.ExInvalidPrimaryKeyStructure, Path), handle: true);
+        }
 
         ea.Complete();
       }
@@ -81,7 +76,7 @@ namespace Xtensive.Orm.Upgrade.Model
     protected override void Initialize()
     {
       base.Initialize();
-      if (ValueColumns==null)
+      if (ValueColumns is null)
         ValueColumns = new ValueColumnRefCollection(this);
     }
 

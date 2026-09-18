@@ -91,7 +91,6 @@ namespace Xtensive.Orm.Tests.Issues
     var x = from e in Session.Query.All<MyEntity>() select new MyEntitiyViewModel(e.Status)*/
   }
 
-  [Serializable]
   public class IssueA413_KeyNotFoundException : AutoBuildTest
   {
     protected override DomainConfiguration BuildConfiguration()
@@ -106,14 +105,19 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (var session = Domain.OpenSession())
       using (var t = session.OpenTransaction()) {
-        new A {Tag = "Alpha", B = new B {Item = new Item {Name = "Item name"}}};
+        _ = new A {
+          Tag = "Alpha",
+          B = new B {
+            Item = new Item {Name = "Item name"}
+          }
+        };
         t.Complete();
       }
 
       using (var session = Domain.OpenSession())
       using (var t = session.OpenTransaction()) {
         var query = 
-          from a in Query.All<A>()
+          from a in session.Query.All<A>()
           where a.Tag == "Alpha"
           group a by a.B into g
           select new { g.Key.Item.Name, Count = g.Count() };
@@ -131,13 +135,13 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (var session = Domain.OpenSession())
       using (var t = session.OpenTransaction()) {
-        new My {Status = MyStatus.Closed};
+        _ = new My { Status = MyStatus.Closed };
         t.Complete();
       }
 
       using (var session = Domain.OpenSession())
       using (var t = session.OpenTransaction()) {
-        var x = from e in Query.All<My>()
+        var x = from e in session.Query.All<My>()
                 select new MyEntityViewModel(e.Status);
         var list = x.ToList();
         Assert.That(list.Count, Is.EqualTo(1));

@@ -13,7 +13,6 @@ namespace Xtensive.Orm.Upgrade.Model
   /// <summary>
   /// A collection of secondary indexes.
   /// </summary>
-  [Serializable]
   public sealed class SecondaryIndexInfoCollection : NodeCollectionBase<SecondaryIndexInfo, TableInfo>,
     IUnorderedNodeCollection
   {

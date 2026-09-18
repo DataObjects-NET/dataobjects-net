@@ -13,13 +13,12 @@ namespace Xtensive.Collections.Graphs
   /// <summary>
   /// A connection between two graph <see cref="Node"/>s.
   /// </summary>
-  [Serializable]
   public class Edge
   {
     /// <summary>
     /// Gets edge value.
     /// </summary>
-    public virtual object UntypedValue { get { return null; } }
+    public virtual object UntypedValue => null;
 
     /// <summary>
     /// Gets or sets edge source.
@@ -41,8 +40,8 @@ namespace Xtensive.Collections.Graphs
     /// </summary>
     public void Attach()
     {
-      Source.OutgoingEdges.Add(this);
-      Target.IncomingEdges.Add(this);
+      _ = Source.OutgoingEdges.Add(this);
+      _ = Target.IncomingEdges.Add(this);
       IsAttached = true;
     }
 
@@ -51,8 +50,8 @@ namespace Xtensive.Collections.Graphs
     /// </summary>
     public void Detach()
     {
-      Source.OutgoingEdges.Remove(this);
-      Target.IncomingEdges.Remove(this);
+      _ = Source.OutgoingEdges.Remove(this);
+      _ = Target.IncomingEdges.Remove(this);
       IsAttached = false;
     }
 

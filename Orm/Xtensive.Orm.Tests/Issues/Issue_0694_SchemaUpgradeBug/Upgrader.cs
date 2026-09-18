@@ -14,7 +14,6 @@ using M2 = Xtensive.Orm.Tests.Issues.Issue_0694_SchemaUpgradeBug.Model.Version2;
 
 namespace Xtensive.Orm.Tests.Issues.Issue_0694_SchemaUpgradeBug
 {
-  [Serializable]
   public class Upgrader : UpgradeHandler
   {
     private static bool isEnabled = false;

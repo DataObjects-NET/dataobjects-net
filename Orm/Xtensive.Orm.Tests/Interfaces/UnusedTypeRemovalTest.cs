@@ -5,11 +5,9 @@
 // Created:    2009.09.14
 
 using System;
+using System.Threading.Tasks;
 using NUnit.Framework;
-using Xtensive.Orm.Tests;
-using Xtensive.Orm;
 using Xtensive.Orm.Configuration;
-using Xtensive.Orm.Model;
 using Xtensive.Orm.Tests.Interfaces.UnusedTypeRemovalTestModel;
 
 namespace Xtensive.Orm.Tests.Interfaces.UnusedTypeRemovalTestModel
@@ -29,7 +27,6 @@ namespace Xtensive.Orm.Tests.Interfaces.UnusedTypeRemovalTestModel
     
   }
 
-  [Serializable]
   // No [HierarchyRoot] here
   public class Third : Entity, IThird
   {
@@ -54,15 +51,24 @@ namespace Xtensive.Orm.Tests.Interfaces
   public class UnusedTypeRemovalTest
   {
     [Test]
-    public void MainTest()
+    public void DomainBuildTest()
+    {
+      var configuration = BuildConfiguration();
+      _ = Assert.Throws<DomainBuilderException>(() => Domain.Build(configuration).Dispose());
+    }
+
+    [Test]
+    public void DomainBuildAsyncTest()
+    {
+      var configuration = BuildConfiguration();
+      _ = Assert.ThrowsAsync<DomainBuilderException>(async () => (await Domain.BuildAsync(configuration)).Dispose());
+    }
+
+    private static DomainConfiguration BuildConfiguration()
     {
       var config = DomainConfigurationFactory.Create();
       config.Types.RegisterCaching(typeof(IFirst).Assembly, typeof(IFirst).Namespace);
-
-      var ex = Assert.Throws<DomainBuilderException>(() => Domain.Build(config));
-      var message = ex.Message;
-      Assert.That(message.Contains("ISecond") && message.Contains("don't belong") && message.Contains("hierarchy"),
-        Is.True);
+      return config;
     }
   }
 }

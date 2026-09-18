@@ -10,7 +10,6 @@ using System.Linq.Expressions;
 
 namespace Xtensive.Orm.Linq
 {
-  [Serializable]
   internal class RemapContext
   {
     public ParameterExpression SubqueryParameterExpression { get; set; }

@@ -11,7 +11,6 @@ namespace Xtensive.Sql.Model
   /// Represents a function in the current catalog that maps the rows of a table or index
   /// into partitions based on the values of a specified column.
   /// </summary>
-  [Serializable]
   public class PartitionFunction : CatalogNode
   {
     private SqlValueType dataType;

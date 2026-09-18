@@ -1,16 +1,14 @@
-// Copyright (C) 2008-2021 Xtensive LLC.
+// Copyright (C) 2008-2026 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alex Yakunin
 // Created:    2008.01.22
 
 using System;
-using System.Runtime.Serialization;
 using Xtensive.Core;
 
 namespace Xtensive.Comparison
 {
-  [Serializable]
   internal sealed class PairComparer<T1, T2>: WrappingComparer<Pair<T1, T2>, T1, T2>
   {
     protected override PairComparer<T1, T2> CreateNew(ComparisonRules rules) => new(Provider, ComparisonRules.Combine(rules));
@@ -33,7 +31,10 @@ namespace Xtensive.Comparison
     public override Pair<T1, T2> GetNearestValue(Pair<T1, T2> value, Direction direction)
       => new Pair<T1, T2>(value.First, BaseComparer2.GetNearestValue(value.Second, direction));
 
-    private void Initialize()
+    // Constructors
+
+    public PairComparer(IComparerProvider provider, ComparisonRules comparisonRules)
+      : base(provider, comparisonRules)
     {
       Pair<T1, T2> minValue, maxValue, deltaValue;
       bool hasMinValue = false, hasMaxValue = false, hasDeltaValue = false;
@@ -52,21 +53,6 @@ namespace Xtensive.Comparison
         hasDeltaValue = true;
       }
       ValueRangeInfo = new ValueRangeInfo<Pair<T1, T2>>(hasMinValue, minValue, hasMaxValue, maxValue, hasDeltaValue, deltaValue);
-    }
-
-
-    // Constructors
-
-    public PairComparer(IComparerProvider provider, ComparisonRules comparisonRules)
-      : base(provider, comparisonRules)
-    {
-      Initialize();
-    }
-
-    public PairComparer(SerializationInfo info, StreamingContext context)
-      : base(info, context)
-    {
-      Initialize();
     }
   }
 }

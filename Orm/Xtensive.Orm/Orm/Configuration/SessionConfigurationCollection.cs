@@ -15,7 +15,6 @@ namespace Xtensive.Orm.Configuration
   /// <summary>
   /// <see cref="SessionConfiguration"/> collection.
   /// </summary>
-  [Serializable]
   public class SessionConfigurationCollection : CollectionBaseSlim<SessionConfiguration>, 
     ICloneable
   {
@@ -29,34 +28,22 @@ namespace Xtensive.Orm.Configuration
     ///<summary>
     /// Gets the default session configuration.
     ///</summary>
-    public SessionConfiguration Default
-    {
-      get { return GetConfiguration(WellKnown.Sessions.Default, @default); }
-    }
+    public SessionConfiguration Default => GetConfiguration(WellKnown.Sessions.Default, @default);
 
     ///<summary>
     /// Gets the system session configuration.
     ///</summary>
-    public SessionConfiguration System
-    {
-      get { return GetConfiguration(WellKnown.Sessions.System, system); }
-    }
+    public SessionConfiguration System => GetConfiguration(WellKnown.Sessions.System, system);
 
     ///<summary>
     /// Gets the service session configuration.
     ///</summary>
-    public SessionConfiguration Service
-    {
-      get { return GetConfiguration(WellKnown.Sessions.Service, service); }
-    }
+    public SessionConfiguration Service => GetConfiguration(WellKnown.Sessions.Service, service);
 
     ///<summary>
     /// Gets the key generator session configuration.
     ///</summary>
-    public SessionConfiguration KeyGenerator
-    {
-      get { return GetConfiguration(WellKnown.Sessions.KeyGenerator, keyGenerator); }
-    }
+    public SessionConfiguration KeyGenerator => GetConfiguration(WellKnown.Sessions.KeyGenerator, keyGenerator);
 
     ///<summary>
     /// Gets the element with the specified name.
@@ -93,7 +80,7 @@ namespace Xtensive.Orm.Configuration
     {
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(item.Name, "SessionConfiguration.Name");
       var current = this[item.Name];
-      if (current != null)
+      if (current is not null)
         throw new InvalidOperationException(string.Format(Strings.ExConfigurationWithXNameAlreadyRegistered, current.Name));
     }
 
@@ -165,14 +152,12 @@ namespace Xtensive.Orm.Configuration
     }
 
     private SessionConfiguration GetConfiguration(string name, SessionConfiguration fallback)
-    {
-      return !IsLocked ? this[name] : fallback;
-    }
+      => !IsLocked ? this[name] : fallback;
 
     private SessionConfiguration BuildConfiguration(string name)
     {
       var result = this[name];
-      if (result!=null)
+      if (result is not null)
         return result;
 
       result = new SessionConfiguration(name);

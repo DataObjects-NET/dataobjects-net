@@ -13,7 +13,6 @@ namespace Xtensive.Orm.Upgrade.Model
   /// <summary>
   /// A collection of full-text indexes.
   /// </summary>
-  [Serializable]
   public class FullTextIndexInfoCollection: NodeCollectionBase<StorageFullTextIndexInfo, TableInfo>,
     IUnorderedNodeCollection
   {

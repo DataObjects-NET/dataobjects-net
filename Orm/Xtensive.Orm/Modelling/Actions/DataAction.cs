@@ -13,7 +13,6 @@ namespace Xtensive.Modelling.Actions
   /// <summary>
   /// Change data action.
   /// </summary>
-  [Serializable]
   public class DataAction : NodeAction
   {
     private DataHint dataHint;

@@ -5,7 +5,6 @@
 // Created:    2008.01.24
 
 using System;
-using System.Runtime.Serialization;
 
 
 namespace Xtensive.Tuples
@@ -13,8 +12,6 @@ namespace Xtensive.Tuples
   /// <summary>
   /// Base class for any regular tuple.
   /// </summary>
-  [DataContract]
-  [Serializable]
   public abstract class RegularTuple : Tuple
   {
     // Constructors

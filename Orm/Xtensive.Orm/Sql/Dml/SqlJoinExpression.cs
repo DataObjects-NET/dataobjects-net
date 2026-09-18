@@ -7,7 +7,6 @@ using System.Collections.Generic;
 
 namespace Xtensive.Sql.Dml
 {
-  [Serializable]
   public class SqlJoinExpression : SqlNode
   {
     /// <summary>

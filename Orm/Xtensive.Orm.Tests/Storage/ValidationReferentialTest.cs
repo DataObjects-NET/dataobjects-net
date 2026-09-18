@@ -13,7 +13,6 @@ using Xtensive.Orm.Validation;
 
 namespace Xtensive.Orm.Tests.Storage.ValidationReferentialTestModel
 {
-  [Serializable]
   [HierarchyRoot]
   public class Company : Entity
   {
@@ -25,7 +24,6 @@ namespace Xtensive.Orm.Tests.Storage.ValidationReferentialTestModel
 
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class Contact : Entity
   {

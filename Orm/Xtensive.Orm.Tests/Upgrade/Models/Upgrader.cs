@@ -12,7 +12,6 @@ using Xtensive.Orm.Tests.Upgrade.Models.Version2;
 
 namespace Xtensive.Orm.Tests.Upgrade.Models
 {
-  [Serializable]
   public class Upgrader : UpgradeHandler
   {
     [Flags]

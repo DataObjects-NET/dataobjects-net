@@ -7,27 +7,15 @@ using Xtensive.Sql.Model;
 
 namespace Xtensive.Sql.Ddl
 {
-  [Serializable]
   public class SqlAlterDomain : SqlStatement, ISqlCompileUnit
   {
-    private SqlAction action;
-    private Domain domain;
+    public SqlAction Action { get; }
 
-    public SqlAction Action {
-      get {
-        return action;
-      }
-    }
-
-    public Domain Domain {
-      get {
-        return domain;
-      }
-    }
+    public Domain Domain { get; }
 
     internal override SqlAlterDomain Clone(SqlNodeCloneContext context) =>
       context.GetOrAdd(this, static (t, c) =>
-        new SqlAlterDomain(t.domain, (SqlAction)t.action.Clone(c)));
+        new SqlAlterDomain(t.Domain, (SqlAction)t.Action.Clone(c)));
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {
@@ -37,8 +25,8 @@ namespace Xtensive.Sql.Ddl
     internal SqlAlterDomain(Domain domain, SqlAction action)
       : base(SqlNodeType.Alter)
     {
-      this.action = action;
-      this.domain = domain;
+      Action = action;
+      Domain = domain;
     }
   }
 }

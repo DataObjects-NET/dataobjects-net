@@ -43,6 +43,7 @@ namespace Xtensive.Orm.Tests.Model
     }
   }
 
+  [TestFixture, Category("Model")]
   public class RemoveDotsAndHypensTest : AutoBuildTest
   {
     protected override DomainConfiguration BuildConfiguration()

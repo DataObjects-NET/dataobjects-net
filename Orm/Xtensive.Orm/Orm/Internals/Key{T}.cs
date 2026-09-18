@@ -14,7 +14,6 @@ using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Internals
 {
-  [Serializable]
   internal sealed class Key<T> : Key
   {
     private static readonly Predicate<T, T> EqualityComparer1 =

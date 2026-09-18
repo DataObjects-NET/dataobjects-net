@@ -12,7 +12,6 @@ namespace Xtensive.Orm.Model
   /// <summary>
   /// Describes a single full-text index.
   /// </summary>
-  [Serializable]
   public sealed class FullTextIndexInfo : Node 
   {
     private readonly IndexInfo primaryIndex;
@@ -21,18 +20,12 @@ namespace Xtensive.Orm.Model
     /// <summary>
     /// Gets the primary index.
     /// </summary>
-    public IndexInfo PrimaryIndex
-    {
-      get { return primaryIndex; }
-    }
+    public IndexInfo PrimaryIndex => primaryIndex;
 
     /// <summary>
     /// Gets the full-text index columns.
     /// </summary>
-    public FullTextColumnInfoCollection Columns
-    {
-      get { return columns; }
-    }
+    public FullTextColumnInfoCollection Columns => columns;
 
     /// <inheritdoc/>
     public override void Lock(bool recursive)

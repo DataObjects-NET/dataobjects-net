@@ -8,7 +8,6 @@ using System;
 
 namespace Xtensive.Sql.Dml
 {
-  [Serializable]
   public abstract class SqlLiteral : SqlExpression
   {
     public abstract Type LiteralType { get; }

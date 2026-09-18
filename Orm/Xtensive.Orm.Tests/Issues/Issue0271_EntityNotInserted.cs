@@ -13,49 +13,46 @@ using Xtensive.Orm.Tests.Issues.Issue0271_Model;
 
 namespace Xtensive.Orm.Tests.Issues.Issue0271_Model
 {
-    [Serializable]
-    [HierarchyRoot]
-    public class Address : Entity
-    {
-      [Field, Key]
-      public long Id { get; private set; }
-    }
+  [HierarchyRoot]
+  public class Address : Entity
+  {
+    [Field, Key]
+    public long Id { get; private set; }
+  }
 
-    [Serializable]
-    [HierarchyRoot]
-    public class User : Entity
-    {
-      [Field, Key]
-      public long Id { get; private set; }
+  [HierarchyRoot]
+  public class User : Entity
+  {
+    [Field, Key]
+    public long Id { get; private set; }
 
-      [Field]
-      public Address Address { get; set; }
+    [Field]
+    public Address Address { get; set; }
 
-      [Field, Association("User", OnOwnerRemove = OnRemoveAction.Cascade, OnTargetRemove = OnRemoveAction.Deny)]
-      public Account Account { get; set; }
-    }
+    [Field, Association("User", OnOwnerRemove = OnRemoveAction.Cascade, OnTargetRemove = OnRemoveAction.Deny)]
+    public Account Account { get; set; }
+  }
 
-    [Serializable]
-    [HierarchyRoot]
-    public class Account : Entity
-    {
-      [Field, Key]
-      public long Id { get; private set; }
+  [HierarchyRoot]
+  public class Account : Entity
+  {
+    [Field, Key]
+    public long Id { get; private set; }
 
-      [Field]
-      public User User { get; set; }
-    }
+    [Field]
+    public User User { get; set; }
+  }
 }
+
 namespace Xtensive.Orm.Tests.Issues
 {
   [TestFixture]
   public class Issue0271_EntityNotInserted : AutoBuildTest
   {
-
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.RegisterCaching(Assembly.GetExecutingAssembly(), typeof (Issue0271_Model.Address).Namespace);
+      config.Types.RegisterCaching(Assembly.GetExecutingAssembly(), typeof (Address).Namespace);
       return config;
     }
 
@@ -63,14 +60,14 @@ namespace Xtensive.Orm.Tests.Issues
     public void EntityNotInsertedTest()
     {
       using (var session = Domain.OpenSession())
-      using (TransactionScope t = session.OpenTransaction()) {
+      using (var tx = session.OpenTransaction()) {
         var a = new Address();
         var u = new User();
         var ac = new Account();
         u.Address = a;
         u.Account = ac;
 
-        t.Complete();
+        tx.Complete();
       }
     }
   }

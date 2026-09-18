@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2012 Xtensive LLC.
+// Copyright (C) 2012 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -12,7 +12,6 @@ namespace Xtensive.Orm.Model
   /// <summary>
   /// A <see cref="Node"/> that is mapped to existing database schema node.
   /// </summary>
-  [Serializable]
   public abstract class SchemaMappedNode : MappedNode
   {
     private string mappingDatabase;
@@ -23,9 +22,8 @@ namespace Xtensive.Orm.Model
     /// </summary>
     public string MappingDatabase
     {
-      get { return mappingDatabase; }
-      set
-      {
+      get => mappingDatabase;
+      set {
         EnsureNotLocked();
         mappingDatabase = value;
       }
@@ -36,9 +34,8 @@ namespace Xtensive.Orm.Model
     /// </summary>
     public string MappingSchema
     {
-      get { return mappingSchema; }
-      set
-      {
+      get => mappingSchema;
+      set {
         EnsureNotLocked();
         mappingSchema = value;
       }

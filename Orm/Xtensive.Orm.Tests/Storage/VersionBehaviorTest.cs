@@ -202,7 +202,8 @@ namespace Xtensive.Orm.Tests.Storage
       config.Types.Register(typeof (Base));
       config.Types.Register(typeof (Default));
       config.Types.Register(typeof (DefaultInheritor));
-      var domain = Domain.Build(config);
+
+      using var domain = Domain.Build(config);
       var defaultTypeInfo = domain.Model.Types[typeof(Default)];
       var defaultInheritorTypeInfo = domain.Model.Types[typeof(DefaultInheritor)];
       Assert.That(defaultTypeInfo.GetVersionColumns().Count(), Is.EqualTo(3));
@@ -270,7 +271,8 @@ namespace Xtensive.Orm.Tests.Storage
       config.Types.Register(typeof (AnotherManual));
       config.Types.Register(typeof (ManualInheritor));
       config.Types.Register(typeof (AnotherManualInheritor));
-      var domain = Domain.Build(config);
+
+      using var domain = Domain.Build(config);
       var manualTypeInfo = domain.Model.Types[typeof(Manual)];
       var anotherManualTypeInfo = domain.Model.Types[typeof(AnotherManual)];
       var manualInheritorTypeInfo = domain.Model.Types[typeof(ManualInheritor)];
@@ -340,7 +342,8 @@ namespace Xtensive.Orm.Tests.Storage
       config.Types.Register(typeof (Base));
       config.Types.Register(typeof (DateTimeVersionAuto));
       config.Types.Register(typeof (DateTimeAutoInheritor));
-      var domain = Domain.Build(config);
+
+      using var domain = Domain.Build(config);
       var autoTypeInfo = domain.Model.Types[typeof(DateTimeVersionAuto)];
       var autoInheritorTypeInfo = domain.Model.Types[typeof(DateTimeAutoInheritor)];
       Assert.That(autoTypeInfo.GetVersionColumns().Count, Is.EqualTo(1));
@@ -416,7 +419,8 @@ namespace Xtensive.Orm.Tests.Storage
       config.Types.Register(typeof(Base));
       config.Types.Register(typeof(LongVersionAuto));
       config.Types.Register(typeof(LongAutoInheritor));
-      var domain = Domain.Build(config);
+
+      using var domain = Domain.Build(config);
       var autoTypeInfo = domain.Model.Types[typeof(LongVersionAuto)];
       var autoInheritorTypeInfo = domain.Model.Types[typeof(LongAutoInheritor)];
       Assert.That(autoTypeInfo.GetVersionColumns().Count, Is.EqualTo(1));
@@ -493,7 +497,8 @@ namespace Xtensive.Orm.Tests.Storage
       config.Types.Register(typeof (Version));
       config.Types.Register(typeof (HasVersion));
       config.Types.Register(typeof (HasSkipVersion));
-      var domain = Domain.Build(config);
+
+      using var domain = Domain.Build(config);
       var skipTypeInfo = domain.Model.Types[typeof(Skip)];
       var hasVersionTypeInfo = domain.Model.Types[typeof(HasVersion)];
       var hasSkipVersionTypeInfo = domain.Model.Types[typeof(HasSkipVersion)];
@@ -574,7 +579,7 @@ namespace Xtensive.Orm.Tests.Storage
       config.Types.Register(typeof(Base));
       config.Types.Register(typeof(VersionBehavior.Model.Version));
       config.Types.Register(typeof(HasManualVersion));
-      Assert.Throws<DomainBuilderException>(() => Domain.Build(config));
+      _ = Assert.Throws<DomainBuilderException>(() => Domain.Build(config).Dispose());
     }
 
     [Test]
@@ -584,7 +589,7 @@ namespace Xtensive.Orm.Tests.Storage
       config.Types.Register(typeof(Base));
       config.Types.Register(typeof(VersionBehavior.Model.Version));
       config.Types.Register(typeof(HasAutoVersion));
-      Assert.Throws<DomainBuilderException>(() => Domain.Build(config));
+      _ = Assert.Throws<DomainBuilderException>(() => Domain.Build(config).Dispose());
     }
   }
 }
