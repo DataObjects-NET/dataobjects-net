@@ -45,7 +45,7 @@ namespace Xtensive.Sql.Drivers.MySql
       EnsureIsNotDisposed();
       EnsureTransactionIsNotActive();
 
-      activeTransaction = underlyingConnection.BeginTransaction(SqlHelper.ReduceIsolationLevel(isolationLevel));
+      activeTransaction = underlyingConnection.BeginTransaction(MySqlSqlHelper.ReduceIsolationLevel(isolationLevel));
     }
 
     /// <inheritdoc/>
