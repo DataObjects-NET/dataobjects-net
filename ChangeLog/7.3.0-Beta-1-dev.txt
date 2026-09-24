@@ -24,9 +24,13 @@
 [firebird] Support for Firebird 2.5 ended due to end-of-life state
 [mysql] Switch to .NET8/.NET10-only support, nuget packages actualized
 [mysql] Support for MySQL older than 5.7 ended due to end-of-life state
+[mysql] Allowed native Repeatable Read isolation level
+[mysql] IMPORTANT. Repeatable Read NO LONGER elevates to Serializable. Change of default isolation level may require if Serializable level required
 [oracle] Switch to .NET8/.NET10-only support
 [postgresql] Switch to .NET8/.NET10-only support, nuget packages actualized
 [postgresql] Support for PostgreSQL older than v11 ended due to end-of-life state
+[postgresql] Allowed native Repeatable Read isolation level
+[postgresql] IMPORTANT. Repeatable Read NO LONGER elevates to Serializable. Change of default isolation level may require if Serializable level required
 [sqlserver] Switch to .NET8/.NET10-only support, nuget packages actualized
 [sqlserver] Support for MS SQL Server older than 2016 ended due to end-of-life state
 [bulkoperations] Switch to .NET8/.NET10-only support
