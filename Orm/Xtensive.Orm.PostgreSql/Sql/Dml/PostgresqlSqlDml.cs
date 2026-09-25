@@ -9,7 +9,7 @@ using Xtensive.Core;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 
-namespace Xtensive.Orm.Providers.PostgreSql
+namespace Xtensive.Sql.Dml.PostgreSql
 {
   /// <summary>
   /// A factory for SQL DML operations for Postgresql DBMS.

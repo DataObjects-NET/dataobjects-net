@@ -6,7 +6,7 @@
 
 using Xtensive.Sql.Dml;
 
-namespace Xtensive.Orm.Providers.PostgreSql
+namespace Xtensive.Sql.Dml.PostgreSql
 {
  /// <summary>
   /// Contains additional provider-specific SQL functions.

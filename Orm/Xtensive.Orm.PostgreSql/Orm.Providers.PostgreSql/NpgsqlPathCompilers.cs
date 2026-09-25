@@ -6,6 +6,7 @@
 
 using NpgsqlTypes;
 using Xtensive.Sql.Dml;
+using Xtensive.Sql.Dml.PostgreSql;
 
 namespace Xtensive.Orm.Providers.PostgreSql
 {

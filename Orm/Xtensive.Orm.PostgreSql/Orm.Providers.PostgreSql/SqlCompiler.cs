@@ -14,6 +14,7 @@ using Xtensive.Orm.Rse.Providers;
 using Xtensive.Reflection.PostgreSql;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
+using Xtensive.Sql.Dml.PostgreSql;
 
 namespace Xtensive.Orm.Providers.PostgreSql
 {

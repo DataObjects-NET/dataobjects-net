@@ -1,4 +1,4 @@
-// Copyright (C) 2014-2020 Xtensive LLC.
+// Copyright (C) 2014-2026 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alena Mikshina
@@ -6,6 +6,7 @@
 
 using NpgsqlTypes;
 using Xtensive.Sql.Dml;
+using Xtensive.Sql.Dml.PostgreSql;
 using Operator = Xtensive.Reflection.WellKnown.Operator;
 
 namespace Xtensive.Orm.Providers.PostgreSql
