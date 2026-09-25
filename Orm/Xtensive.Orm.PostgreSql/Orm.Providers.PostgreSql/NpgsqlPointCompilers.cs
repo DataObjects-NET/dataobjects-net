@@ -16,13 +16,13 @@ namespace Xtensive.Orm.Providers.PostgreSql
   {
     #region Extractors
 
-    [Compiler(typeof(NpgsqlPoint), "X", TargetKind.PropertyGet)]
+    [Compiler(typeof(NpgsqlPoint), nameof(NpgsqlPoint.X), TargetKind.PropertyGet)]
     public static SqlExpression NpgsqlPointExtractX(SqlExpression _this)
     {
       return PostgresqlSqlDml.NpgsqlPointExtractX(_this);
     }
 
-    [Compiler(typeof(NpgsqlPoint), "Y", TargetKind.PropertyGet)]
+    [Compiler(typeof(NpgsqlPoint), nameof(NpgsqlPoint.Y), TargetKind.PropertyGet)]
     public static SqlExpression NpgsqlPointExtractY(SqlExpression _this)
     {
       return PostgresqlSqlDml.NpgsqlPointExtractY(_this);

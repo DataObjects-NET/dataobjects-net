@@ -14,13 +14,13 @@ namespace Xtensive.Orm.Providers.PostgreSql
   [CompilerContainer(typeof(SqlExpression))]
   internal class NpgsqlPolygonCompilers
   {
-    [Compiler(typeof(NpgsqlPolygon), "Count", TargetKind.PropertyGet)]
+    [Compiler(typeof(NpgsqlPolygon), nameof(NpgsqlPolygon.Count), TargetKind.PropertyGet)]
     public static SqlExpression NpgsqlPolygonCount(SqlExpression _this)
     {
       return PostgresqlSqlDml.NpgsqlPathAndPolygonCount(_this);
     }
 
-    [Compiler(typeof(NpgsqlPolygon), "Contains", TargetKind.Method)]
+    [Compiler(typeof(NpgsqlPolygon), nameof(NpgsqlPolygon.Contains), TargetKind.Method)]
     public static SqlExpression NpgsqlPolygonContains(SqlExpression _this,
       [Type(typeof(NpgsqlPoint))] SqlExpression point)
     {

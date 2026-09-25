@@ -16,13 +16,13 @@ namespace Xtensive.Orm.Providers.PostgreSql
   {
     #region Extractors
 
-    [Compiler(typeof(NpgsqlCircle), "Center", TargetKind.PropertyGet)]
+    [Compiler(typeof(NpgsqlCircle), nameof(NpgsqlCircle.Center), TargetKind.PropertyGet)]
     public static SqlExpression NpgsqlCircleExtractCenterPoint(SqlExpression _this)
     {
       return PostgresqlSqlDml.NpgsqlCircleExtractCenter(_this);
     }
 
-    [Compiler(typeof(NpgsqlCircle), "Radius", TargetKind.PropertyGet)]
+    [Compiler(typeof(NpgsqlCircle), nameof(NpgsqlCircle.Radius), TargetKind.PropertyGet)]
     public static SqlExpression NpgsqlCircleExtractRadius(SqlExpression _this)
     {
       return PostgresqlSqlDml.NpgsqlCircleExtractRadius(_this);

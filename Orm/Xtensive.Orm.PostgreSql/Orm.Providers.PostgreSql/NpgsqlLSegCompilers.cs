@@ -16,13 +16,13 @@ namespace Xtensive.Orm.Providers.PostgreSql
   {
     #region Extractors
 
-    [Compiler(typeof(NpgsqlLSeg), "Start", TargetKind.PropertyGet)]
+    [Compiler(typeof(NpgsqlLSeg), nameof(NpgsqlLSeg.Start), TargetKind.PropertyGet)]
     public static SqlExpression NpgsqlLSegExtractStartPoint(SqlExpression _this)
     {
       return PostgresqlSqlDml.NpgsqlTypeExtractPoint(_this, 0);
     }
 
-    [Compiler(typeof(NpgsqlLSeg), "End", TargetKind.PropertyGet)]
+    [Compiler(typeof(NpgsqlLSeg), nameof(NpgsqlLSeg.End), TargetKind.PropertyGet)]
     public static SqlExpression NpgsqlLSegExtractEndPoint(SqlExpression _this)
     {
       return PostgresqlSqlDml.NpgsqlTypeExtractPoint(_this, 1);
