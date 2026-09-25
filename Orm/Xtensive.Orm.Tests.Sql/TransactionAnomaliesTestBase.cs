@@ -39,6 +39,8 @@ namespace Xtensive.Orm.Tests.Sql
 
     protected override void TestFixtureTearDown()
     {
+      if (Connection is null)
+        return;
       try {
         Connection.Open();
         if (defaultSchema.Tables.Any(t => t.DbName == TestTableName)) {
