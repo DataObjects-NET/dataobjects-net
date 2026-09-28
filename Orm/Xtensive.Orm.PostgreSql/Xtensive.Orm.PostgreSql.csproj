@@ -36,12 +36,13 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Sql.Drivers.PostgreSql\Resources\Strings.resx">
+    <None Include="Sql\Drivers.PostgreSql\Resources\Strings.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <SubType>Designer</SubType>
       <LastGenOutput>Strings.Designer.cs</LastGenOutput>
+      <CustomToolNamespace>Xtensive.Sql.Drivers.PostgreSql.Resources</CustomToolNamespace>
     </None>
-    <Compile Update="Sql.Drivers.PostgreSql\Resources\Strings.Designer.cs">
+    <Compile Update="Sql\Drivers.PostgreSql\Resources\Strings.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
       <DependentUpon>Strings.resx</DependentUpon>

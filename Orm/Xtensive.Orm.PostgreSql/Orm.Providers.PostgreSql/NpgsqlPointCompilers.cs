@@ -1,4 +1,4 @@
-// Copyright (C) 2014-2020 Xtensive LLC.
+// Copyright (C) 2014-2026 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alena Mikshina
@@ -6,6 +6,7 @@
 
 using NpgsqlTypes;
 using Xtensive.Sql.Dml;
+using Xtensive.Sql.Dml.PostgreSql;
 using Operator = Xtensive.Reflection.WellKnown.Operator;
 
 namespace Xtensive.Orm.Providers.PostgreSql
@@ -15,13 +16,13 @@ namespace Xtensive.Orm.Providers.PostgreSql
   {
     #region Extractors
 
-    [Compiler(typeof(NpgsqlPoint), "X", TargetKind.PropertyGet)]
+    [Compiler(typeof(NpgsqlPoint), nameof(NpgsqlPoint.X), TargetKind.PropertyGet)]
     public static SqlExpression NpgsqlPointExtractX(SqlExpression _this)
     {
       return PostgresqlSqlDml.NpgsqlPointExtractX(_this);
     }
 
-    [Compiler(typeof(NpgsqlPoint), "Y", TargetKind.PropertyGet)]
+    [Compiler(typeof(NpgsqlPoint), nameof(NpgsqlPoint.Y), TargetKind.PropertyGet)]
     public static SqlExpression NpgsqlPointExtractY(SqlExpression _this)
     {
       return PostgresqlSqlDml.NpgsqlPointExtractY(_this);

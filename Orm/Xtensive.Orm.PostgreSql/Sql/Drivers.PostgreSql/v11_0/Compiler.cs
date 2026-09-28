@@ -8,9 +8,8 @@ using System.Collections.Generic;
 using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Ddl;
 using Xtensive.Sql.Dml;
+using Xtensive.Sql.Dml.PostgreSql;
 using Xtensive.Sql.Model;
-using Xtensive.Sql.Drivers.PostgreSql.Resources;
-using Xtensive.Orm.Providers.PostgreSql;
 using SqlCompiler = Xtensive.Sql.Compiler.SqlCompiler;
 
 namespace Xtensive.Sql.Drivers.PostgreSql.v11_0
@@ -789,7 +788,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v11_0
     public override void Visit(SqlFreeTextTable node)
     {
       if (node.TargetColumns.Count != 1 || node.TargetColumns[0] != node.TargetTable.Asterisk) {
-        throw new NotSupportedException(Strings.ExFreeTextSearchOnCustomColumnsNotSupported);
+        throw new NotSupportedException(Resources.Strings.ExFreeTextSearchOnCustomColumnsNotSupported);
       }
 
       var fullTextIndex = node.TargetTable.DataTable.Indexes.OfType<FullTextIndex>().Single();

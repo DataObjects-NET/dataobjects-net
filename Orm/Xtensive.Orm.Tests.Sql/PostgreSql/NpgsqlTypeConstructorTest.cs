@@ -1,14 +1,14 @@
-// Copyright (C) 2013 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2014-2026 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alena Mikshina
 // Created:    2014.05.14
 
 using System;
 using NUnit.Framework;
-using Xtensive.Orm.Providers.PostgreSql;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
+using Xtensive.Sql.Dml.PostgreSql;
 
 namespace Xtensive.Orm.Tests.Sql.PostgreSql
 {
