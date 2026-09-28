@@ -40,6 +40,7 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <SubType>Designer</SubType>
       <LastGenOutput>Strings.Designer.cs</LastGenOutput>
+      <CustomToolNamespace>Xtensive.Sql.Drivers.PostgreSql.Resources</CustomToolNamespace>
     </None>
     <Compile Update="Sql\Drivers.PostgreSql\Resources\Strings.Designer.cs">
       <DesignTime>True</DesignTime>
