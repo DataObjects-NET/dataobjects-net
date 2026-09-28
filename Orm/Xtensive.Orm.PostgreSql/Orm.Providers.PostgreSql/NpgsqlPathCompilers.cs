@@ -37,16 +37,16 @@ namespace Xtensive.Orm.Providers.PostgreSql
 
     [Compiler(typeof(NpgsqlPath), Operator.Equality, TargetKind.Operator)]
     public static SqlExpression NpgsqlPathOperatorEquality(
-      [Type(typeof(NpgsqlLSeg))] SqlExpression left,
-      [Type(typeof(NpgsqlLSeg))] SqlExpression right)
+      [Type(typeof(NpgsqlPath))] SqlExpression left,
+      [Type(typeof(NpgsqlPath))] SqlExpression right)
     {
       return PostgresqlSqlDml.NpgsqlTypeOperatorEquality(left, right);
     }
 
     [Compiler(typeof(NpgsqlPath), Operator.Inequality, TargetKind.Operator)]
     public static SqlExpression NpgsqlPathOperatorInequality(
-      [Type(typeof(NpgsqlLSeg))] SqlExpression left,
-      [Type(typeof(NpgsqlLSeg))] SqlExpression right)
+      [Type(typeof(NpgsqlPath))] SqlExpression left,
+      [Type(typeof(NpgsqlPath))] SqlExpression right)
     {
       return !NpgsqlPathOperatorEquality(left, right);
     }
