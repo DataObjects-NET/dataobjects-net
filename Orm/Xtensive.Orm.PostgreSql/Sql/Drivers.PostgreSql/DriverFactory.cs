@@ -124,7 +124,11 @@ namespace Xtensive.Sql.Drivers.PostgreSql
 
       return version.Major switch {
         11 => new v11_0.Driver(coreServerInfo, pgsqlServerInfo),
-        _ => new v12_0.Driver(coreServerInfo, pgsqlServerInfo)
+        12 => new v12_0.Driver(coreServerInfo, pgsqlServerInfo),
+        13 => new v13.Driver(coreServerInfo, pgsqlServerInfo),
+        14 => new v14.Driver(coreServerInfo, pgsqlServerInfo),
+        15 => new v15.Driver(coreServerInfo, pgsqlServerInfo),
+        _ => new v15.Driver(coreServerInfo, pgsqlServerInfo)
       };
     }
 
