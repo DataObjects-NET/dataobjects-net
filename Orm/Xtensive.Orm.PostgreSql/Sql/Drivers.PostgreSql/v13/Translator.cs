@@ -7,7 +7,7 @@ using Xtensive.Sql.Ddl;
 
 namespace Xtensive.Sql.Drivers.PostgreSql.v13
 {
-  internal class Translator : v12_0.Translator
+  internal class Translator : v12.Translator
   {
 
     // Constructors

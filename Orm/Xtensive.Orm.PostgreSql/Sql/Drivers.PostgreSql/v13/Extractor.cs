@@ -6,7 +6,7 @@ using System;
 
 namespace Xtensive.Sql.Drivers.PostgreSql.v13
 {
-  internal class Extractor : v12_0.Extractor
+  internal class Extractor : v12.Extractor
   {
 
     // Constructors

@@ -6,7 +6,7 @@ using Xtensive.Sql.Info;
 
 namespace Xtensive.Sql.Drivers.PostgreSql.v13
 {
-  internal class ServerInfoProvider : v12_0.ServerInfoProvider
+  internal class ServerInfoProvider : v12.ServerInfoProvider
   {
 
     // Constructors

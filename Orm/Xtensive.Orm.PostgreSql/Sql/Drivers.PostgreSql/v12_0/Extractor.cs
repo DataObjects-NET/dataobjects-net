@@ -1,4 +1,4 @@
-// Copyright (C) 2020 Xtensive LLC.
+// Copyright (C) 2020-2026 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
@@ -8,9 +8,9 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using Xtensive.Sql.Model;
 
-namespace Xtensive.Sql.Drivers.PostgreSql.v12_0
+namespace Xtensive.Sql.Drivers.PostgreSql.v12
 {
-  internal class Extractor : v11_0.Extractor
+  internal class Extractor : v11.Extractor
   {
     /// <inheritdoc/>
     protected override void BuildPgCatalogSchema(Schema schema)

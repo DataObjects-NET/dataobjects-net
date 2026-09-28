@@ -4,7 +4,7 @@
 
 namespace Xtensive.Sql.Drivers.PostgreSql.v13
 {
-  internal class Compiler : v12_0.Compiler
+  internal class Compiler : v12.Compiler
   {
     // Constructors
 

@@ -1,13 +1,13 @@
-// Copyright (C) 2020 Xtensive LLC.
+// Copyright (C) 2020-2026 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
 using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Info;
 
-namespace Xtensive.Sql.Drivers.PostgreSql.v12_0
+namespace Xtensive.Sql.Drivers.PostgreSql.v12
 {
-  internal class Driver : v11_0.Driver
+  internal class Driver : v11.Driver
   {
     protected override Sql.TypeMapper CreateTypeMapper() => new TypeMapper(this);
 
