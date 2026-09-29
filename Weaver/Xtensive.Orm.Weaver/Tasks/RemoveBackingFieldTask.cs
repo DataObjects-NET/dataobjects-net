@@ -18,7 +18,10 @@ namespace Xtensive.Orm.Weaver.Tasks
     public override ActionResult Execute(ProcessorContext context)
     {
       var fieldName = GetBackingFieldName();
-      if (fieldName!=null && type.Fields.Remove(fieldName))
+      if (string.IsNullOrEmpty(fieldName)) {
+        return ActionResult.Success;
+      }
+      if (type.Fields.Remove(fieldName))
         return ActionResult.Success;
       context.Logger.Write(MessageCode.ErrorUnableToRemoveBackingField,
         $"type: {type.FullName}, property: {property.Name}, field: {fieldName}");
