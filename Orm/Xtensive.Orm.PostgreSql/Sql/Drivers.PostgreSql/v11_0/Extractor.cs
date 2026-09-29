@@ -280,6 +280,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v11
       CreateTextColumn(t, "indexprs");
       CreateTextColumn(t, "indpred");
       CreateInt2Column(t, "indnatts");
+      CreateInt2Column(t, "indnkeyatts");
 
       t = schema.CreateTable("pg_attribute");
       CreateOidColumn(t);
@@ -899,6 +900,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v11
       select.Columns.Add(indexTable["indkey"]);
       select.Columns.Add(tableSpacesTable["spcname"]);
       select.Columns.Add(indexTable["indnatts"]);
+      select.Columns.Add(indexTable["indnkeyatts"]);
       select.Columns.Add(SqlDml.FunctionCall("pg_get_expr", indexTable["indexprs"], indexTable["indrelid"], true),
         "indexprstext");
       select.Columns.Add(SqlDml.FunctionCall("pg_get_expr", indexTable["indpred"], indexTable["indrelid"], true),
@@ -965,15 +967,22 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v11
           maxColumnNumber = dataReader.GetInt16(dataReader.GetOrdinal("indnatts"));
         }
         else {
+          var keyColumnNumber = dataReader.GetInt16(dataReader.GetOrdinal("indnkeyatts"));
           for (int j = 0; j < indexKey.Length; j++) {
-            int colIndex = indexKey[j];
-            if (colIndex > 0) {
-              _ = index.CreateIndexColumn(tableColumns[tableIdentifier][colIndex], true);
+            if (j < keyColumnNumber) {
+              int colIndex = indexKey[j];
+              if (colIndex > 0) {
+                _ = index.CreateIndexColumn(tableColumns[tableIdentifier][colIndex], true);
+              }
+              else {
+                //column index is 0
+                //this means that this index column is an expression
+                //which is not possible with SqlDom tables
+              }
             }
             else {
-              //column index is 0
-              //this means that this index column is an expression
-              //which is not possible with SqlDom tables
+              int colIndex = indexKey[j];
+              index.NonkeyColumns.Add(tableColumns[tableIdentifier][colIndex]);
             }
           }
         }

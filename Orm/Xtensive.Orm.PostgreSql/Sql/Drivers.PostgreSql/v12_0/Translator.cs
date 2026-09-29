@@ -9,27 +9,6 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v12
 {
   internal class Translator : v11.Translator
   {
-    public override void Translate(SqlCompilerContext context, SqlCreateIndex node, CreateIndexSection section)
-    {
-      var index = node.Index;
-      if (!index.IsFullText) {
-        var output = context.Output;
-        switch (section) {
-          case CreateIndexSection.NonkeyColumnsEnter:
-            _ = output.AppendOpeningPunctuation("INCLUDE (");
-            break;
-          case CreateIndexSection.NonkeyColumnsExit:
-            _ = output.AppendClosingPunctuation(")");
-            break;
-          default:
-            base.Translate(context, node, section);
-            break;
-        }
-      }
-      else {
-        base.Translate(context, node, section);
-      }
-    }
 
     // Constructors
 

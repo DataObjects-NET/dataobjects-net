@@ -23,7 +23,8 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v11
       IndexFeatures.Expressions |
       IndexFeatures.FillFactor |
       IndexFeatures.SortOrder |
-      IndexFeatures.FullText;
+      IndexFeatures.FullText |
+      IndexFeatures.NonKeyColumns;
 
     protected virtual int GetMaxTextLength() => MaxTextLength;
 

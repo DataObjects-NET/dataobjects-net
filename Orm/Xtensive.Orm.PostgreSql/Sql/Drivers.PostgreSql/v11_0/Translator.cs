@@ -206,8 +206,10 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v11
           _ = output.Append(")");
           break;
         case CreateIndexSection.NonkeyColumnsEnter:
+          _ = output.AppendOpeningPunctuation("INCLUDE (");
           break;
         case CreateIndexSection.NonkeyColumnsExit:
+          _ = output.AppendClosingPunctuation(")");
           break;
         case CreateIndexSection.StorageOptions:
           AppendIndexStorageParameters(output, index);

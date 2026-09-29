@@ -8,8 +8,6 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v12
 {
   internal class ServerInfoProvider : v11.ServerInfoProvider
   {
-    protected override IndexFeatures GetIndexFeatures() => base.GetIndexFeatures() | IndexFeatures.NonKeyColumns;
-
     // Constructors
 
     public ServerInfoProvider(SqlDriver driver)
