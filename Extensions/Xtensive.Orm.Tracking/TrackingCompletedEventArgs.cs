@@ -13,7 +13,7 @@ namespace Xtensive.Orm.Tracking
   public readonly struct TrackingCompletedEventArgs
   {
     /// <summary>
-    /// Gets session this changes occured in.
+    /// Gets session this changes occurred in.
     /// </summary>
     public Session Session { get; }
 

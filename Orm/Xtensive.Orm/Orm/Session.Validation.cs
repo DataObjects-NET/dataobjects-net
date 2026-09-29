@@ -28,7 +28,7 @@ namespace Xtensive.Orm
     /// Validates all registered entities similar to <see cref="Validate"/> method
     /// and returns all validation errors.
     /// </summary>
-    /// <returns>List errors occured during validation.</returns>
+    /// <returns>List errors occurred during validation.</returns>
     public IList<EntityErrorInfo> ValidateAndGetErrors() => ValidationContext.ValidateAndGetErrors();
   }
 }
