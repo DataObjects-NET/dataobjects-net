@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2013 Xtensive LLC.
+// Copyright (C) 2013 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -44,6 +44,7 @@ namespace Xtensive.Orm.Weaver.Tasks
       il.Emit(OpCodes.Ldarg_0);
       il.Emit(OpCodes.Ldstr, persistentName);
       il.Emit(OpCodes.Ldarg_1);
+      il.Emit(OpCodes.Tail);
       il.Emit(OpCodes.Call, accessor);
       il.Emit(OpCodes.Ret);
     }
@@ -57,6 +58,7 @@ namespace Xtensive.Orm.Weaver.Tasks
       var il = body.GetILProcessor();
       il.Emit(OpCodes.Ldarg_0);
       il.Emit(OpCodes.Ldstr, persistentName);
+      il.Emit(OpCodes.Tail);
       il.Emit(OpCodes.Call, accessor);
       il.Emit(OpCodes.Ret);
     }
