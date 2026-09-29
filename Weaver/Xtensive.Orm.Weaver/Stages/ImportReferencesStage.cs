@@ -25,6 +25,7 @@ namespace Xtensive.Orm.Weaver.Stages
       }
       registry.OrmAssembly = ormAssembly;
 
+      var intType = context.TargetModule.TypeSystem.Int32;
       var stringType = context.TargetModule.TypeSystem.String;
       var voidType = context.TargetModule.TypeSystem.Void;
 
@@ -59,13 +60,13 @@ namespace Xtensive.Orm.Weaver.Stages
       var persistentGetter = new MethodReference("GetFieldValue", voidType, persistentType) {HasThis = true};
       var getterType = new GenericParameter("!!T", persistentGetter);
       persistentGetter.ReturnType = getterType;
-      persistentGetter.Parameters.Add(new ParameterDefinition(stringType));
+      persistentGetter.Parameters.Add(new ParameterDefinition(intType));
       persistentGetter.GenericParameters.Add(getterType);
       registry.PersistentGetterDefinition = context.TargetModule.ImportReference(persistentGetter);
 
       var persistentSetter = new MethodReference("SetFieldValue", voidType, persistentType) {HasThis = true};
       var setterType = new GenericParameter("!!T", persistentSetter);
-      persistentSetter.Parameters.Add(new ParameterDefinition(stringType));
+      persistentSetter.Parameters.Add(new ParameterDefinition(intType));
       persistentSetter.Parameters.Add(new ParameterDefinition(setterType));
       persistentSetter.GenericParameters.Add(setterType);
       registry.PersistentSetterDefinition = context.TargetModule.ImportReference(persistentSetter);
