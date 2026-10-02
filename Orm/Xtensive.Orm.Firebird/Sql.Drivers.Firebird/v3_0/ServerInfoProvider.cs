@@ -146,6 +146,10 @@ namespace Xtensive.Sql.Drivers.Firebird.v3_0
       indexInfo.MaxNumberOfColumns = 10; // just my opinion
       indexInfo.MaxLength = 4096; // PageSize/4/CharacterSetSizeInByte
       indexInfo.PartitionMethods = PartitionMethods.None;
+
+      // Unique index of 1 column treats NULL values differently from
+      // multi-column unique index, so policy is inconsistent.
+      indexInfo.NullDistinctByDefault = null;
       return indexInfo;
     }
 

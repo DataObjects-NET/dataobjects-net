@@ -75,6 +75,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v11
       info.Features = GetIndexFeatures();
       info.MaxNumberOfColumns = MaxIndexKeys;
       info.MaxIdentifierLength = MaxIdentifierLength;
+      info.NullDistinctByDefault = true;
       // Pg 8.2: 8191 byte
       info.MaxLength = 2000;
       return info;

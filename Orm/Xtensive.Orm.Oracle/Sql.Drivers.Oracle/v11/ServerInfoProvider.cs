@@ -10,7 +10,15 @@ namespace Xtensive.Sql.Drivers.Oracle.v11
 {
   internal class ServerInfoProvider : v10.ServerInfoProvider
   {
-    // Constructors
+    public override IndexInfo GetIndexInfo()
+    {
+      var indexInfo = base.GetIndexInfo();
+      // Unique index of 1 column treats NULL values differently from
+      // multi-column unique index, even direction of index change nulls treatment,
+      // so policy is inconsistent.
+      indexInfo.NullDistinctByDefault = null;
+      return indexInfo;
+    }
 
     public override DataTypeCollection GetDataTypesInfo()
     {
@@ -28,6 +36,8 @@ namespace Xtensive.Sql.Drivers.Oracle.v11
       return baseCollection;
     }
 
+
+    // Constructors
 
     public ServerInfoProvider(SqlDriver driver)
       : base(driver)

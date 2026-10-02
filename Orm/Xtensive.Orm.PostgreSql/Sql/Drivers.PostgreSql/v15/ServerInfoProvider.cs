@@ -8,6 +8,9 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v15
 {
   internal class ServerInfoProvider : v14.ServerInfoProvider
   {
+    /// <inheritdoc/>
+    protected override IndexFeatures GetIndexFeatures() => base.GetIndexFeatures() | IndexFeatures.UniqueNullTreatment;
+
 
     // Constructors
 

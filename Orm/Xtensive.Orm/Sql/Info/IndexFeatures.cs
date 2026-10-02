@@ -63,6 +63,11 @@ namespace Xtensive.Sql.Info
     /// <summary>
     /// Indicates that RDBMS supports indexes, based on expressions.
     /// </summary>
-    Expressions = 0x100
+    Expressions = 0x100,
+
+    /// <summary>
+    /// Indicates that RDBMS supports setting of NULL values uniqueness for unique indexes.
+    /// </summary>
+    UniqueNullTreatment = 0x200,
   }
 }

@@ -170,7 +170,8 @@ namespace Xtensive.Sql.Drivers.MySql.v5_7
         MaxLength = 900,
         AllowedDdlStatements = DdlStatements.All,
         Features = IndexFeatures.Unique | IndexFeatures.FullText,
-        PartitionMethods = PartitionMethods.None
+        PartitionMethods = PartitionMethods.None,
+        NullDistinctByDefault = true,
       };
       return indexInfo;
     }

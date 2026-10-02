@@ -148,6 +148,7 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
       // Also extract is incapable of extracting such information anyway
       indexInfo.Features = IndexFeatures.Unique;
       indexInfo.PartitionMethods = PartitionMethods.None;
+      indexInfo.NullDistinctByDefault = true;
       return indexInfo;
     }
 

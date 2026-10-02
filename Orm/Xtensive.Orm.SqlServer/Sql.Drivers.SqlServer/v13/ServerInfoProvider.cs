@@ -171,7 +171,8 @@ namespace Xtensive.Sql.Drivers.SqlServer.v13
           IndexFeatures.SortOrder |
           IndexFeatures.FullText |
           IndexFeatures.Filtered,
-        PartitionMethods = PartitionMethods.Range
+        PartitionMethods = PartitionMethods.Range,
+        NullDistinctByDefault = false,
       };
       return indexInfo;
     }
