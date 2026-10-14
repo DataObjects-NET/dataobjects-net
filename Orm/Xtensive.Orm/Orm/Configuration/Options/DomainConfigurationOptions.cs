@@ -1,4 +1,4 @@
-// Copyright (C) 2024 Xtensive LLC.
+// Copyright (C) 2024-2026 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
@@ -197,7 +197,17 @@ namespace Xtensive.Orm.Configuration.Options
     public TagsLocation TagsLocation { get; set; } = DomainConfiguration.DefaultTagLocation;
 
     /// <summary>
-    /// 
+    /// Defines prefered way for secondary unique indexes to treat NULL values, if such option is supported by storage.
+    /// Otherwise, any value except for <see cref="UniqueNullTreatment.Unspecified"/> (default value) is ignored.
+    /// </summary>
+    /// <remarks>
+    /// The option correlates with SQL:2023 (ISO/IEC 9075:2023) item ID106; majority of supported providers
+    /// don't implement the standard regarding this option, apart from PostgreSQL 15 or newer.
+    /// </remarks>
+    public UniqueNullTreatment UniqueNullTreatment { get; set; } = DomainConfiguration.DefaultUniqueNullTreatment;
+
+    /// <summary>
+    /// Converts the instance to <see cref="DomainConfiguration"/>.
     /// </summary>
     /// <param name="connectionStrings"></param>
     /// <returns></returns>
@@ -233,11 +243,12 @@ namespace Xtensive.Orm.Configuration.Options
         PreferTypeIdsAsQueryParameters = PreferTypeIdsAsQueryParameters,
         FullTextChangeTrackingMode = FullTextChangeTrackingMode,
         TagsLocation = TagsLocation,
+        UniqueNullTreatment = UniqueNullTreatment,
       };
 
-      if (NamingConventionRaw != null)
+      if (NamingConventionRaw is not null)
         config.NamingConvention = NamingConventionRaw.ToNative();
-      if (VersioningConvention != null)
+      if (VersioningConvention is not null)
         config.VersioningConvention = VersioningConvention.ToNative();
       
       foreach (var element in Types) {

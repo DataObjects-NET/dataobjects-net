@@ -234,6 +234,41 @@ namespace Xtensive.Orm.Tests.Configuration
       Assert.That(configuration.FullTextChangeTrackingMode, Is.EqualTo(FullTextChangeTrackingMode.Default));
     }
 
+    [Test]
+    public void TagLocationTest()
+    {
+      var configuration = LoadDomainConfiguration("AppConfigTest", "TagLocationDefault");
+      Assert.That(configuration.TagsLocation, Is.EqualTo(TagsLocation.Default));
+
+      configuration = LoadDomainConfiguration("AppConfigTest", "TagLocationBefore");
+      Assert.That(configuration.TagsLocation, Is.EqualTo(TagsLocation.BeforeStatement));
+
+      configuration = LoadDomainConfiguration("AppConfigTest", "TagLocationWithin");
+      Assert.That(configuration.TagsLocation, Is.EqualTo(TagsLocation.WithinStatement));
+
+      configuration = LoadDomainConfiguration("AppConfigTest", "TagLocationAfter");
+      Assert.That(configuration.TagsLocation, Is.EqualTo(TagsLocation.AfterStatement));
+
+      configuration = LoadDomainConfiguration("AppConfigTest", "TagLocationNowhere");
+      Assert.That(configuration.TagsLocation, Is.EqualTo(TagsLocation.Nowhere));
+    }
+
+    [Test]
+    public void UniqueNullTreatmentTest()
+    {
+      var configuration = LoadDomainConfiguration("AppConfigTest", "NullTreatmentDefault");
+      Assert.That(configuration.UniqueNullTreatment, Is.EqualTo(UniqueNullTreatment.Default));
+
+      configuration = LoadDomainConfiguration("AppConfigTest", "NullTreatmentUnspecified");
+      Assert.That(configuration.UniqueNullTreatment, Is.EqualTo(UniqueNullTreatment.Unspecified));
+
+      configuration = LoadDomainConfiguration("AppConfigTest", "NullTreatmentDistinct");
+      Assert.That(configuration.UniqueNullTreatment, Is.EqualTo(UniqueNullTreatment.Distinct));
+
+      configuration = LoadDomainConfiguration("AppConfigTest", "NullTreatmentNotDistinct");
+      Assert.That(configuration.UniqueNullTreatment, Is.EqualTo(UniqueNullTreatment.NotDistinct));
+    }
+
 
     private void ValidateConnectionString(string expected, ConnectionInfo actual)
     {
@@ -283,6 +318,7 @@ namespace Xtensive.Orm.Tests.Configuration
       Assert.That(actual.ShareStorageSchemaOverNodes, Is.EqualTo(expected.ShareStorageSchemaOverNodes));
       Assert.That(actual.PreferTypeIdsAsQueryParameters, Is.EqualTo(expected.PreferTypeIdsAsQueryParameters));
       Assert.That(actual.TagsLocation, Is.EqualTo(expected.TagsLocation));
+      Assert.That(actual.UniqueNullTreatment, Is.EqualTo(expected.UniqueNullTreatment));
       Assert.That(actual.MaxNumberOfConditions, Is.EqualTo(expected.MaxNumberOfConditions));
     }
 

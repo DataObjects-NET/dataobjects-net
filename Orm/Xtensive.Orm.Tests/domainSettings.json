@@ -213,6 +213,27 @@
         "TagsLocation": "Defauit"
       },
 
+      "DomainWithNullTreatmentUnspecified": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "UniqueNullTreatment": "Unspecified"
+      },
+      "DomainWithNullTreatmentDefault": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "UniqueNullTreatment": "Default"
+      },
+      "DomainWithNullTreatmentDistinct": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "UniqueNullTreatment": "Distinct"
+      },
+      "DomainWithNullTreatmentNotDistinct": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "UniqueNullTreatment": "NotDistinct"
+      },
+      "DomainWithNullTreatmentInvalid": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "UniqueNullTreatment": "Defauit"
+      },
+
       "DomainWithForcedServerVersion": {
         "ConnectionUrl": "sqlserver://localhost/",
         "ForcedServerVersion": "16.0.0.0"

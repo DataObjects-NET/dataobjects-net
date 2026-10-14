@@ -530,6 +530,54 @@ namespace Xtensive.Orm.Tests.Configuration
     [Test]
     [TestCase(true)]
     [TestCase(false)]
+    public void UniqueNullTreatmentUnspecifiedTest(bool useRoot)
+    {
+      var domainConfig = LoadDomainConfiguration("DomainWithNullTreatmentUnspecified", useRoot);
+      ValidateAllDefaultExcept(domainConfig,
+        ((d) => d.UniqueNullTreatment, UniqueNullTreatment.Unspecified));
+    }
+
+    [Test]
+    [TestCase(true)]
+    [TestCase(false)]
+    public void UniqueNullsTreatmentDefaultTest(bool useRoot)
+    {
+      var domainConfig = LoadDomainConfiguration("DomainWithNullTreatmentDefault", useRoot);
+      ValidateAllDefaultExcept(domainConfig,
+        ((d) => d.UniqueNullTreatment, UniqueNullTreatment.Default));
+    }
+
+    [Test]
+    [TestCase(true)]
+    [TestCase(false)]
+    public void UniqueNullsTreatmentDistinctTest(bool useRoot)
+    {
+      var domainConfig = LoadDomainConfiguration("DomainWithNullTreatmentDistinct", useRoot);
+      ValidateAllDefaultExcept(domainConfig,
+        ((d) => d.UniqueNullTreatment, UniqueNullTreatment.Distinct));
+    }
+
+    [Test]
+    [TestCase(true)]
+    [TestCase(false)]
+    public void UniqueNullsTreatmentNotDistinctTest(bool useRoot)
+    {
+      var domainConfig = LoadDomainConfiguration("DomainWithNullTreatmentNotDistinct", useRoot);
+      ValidateAllDefaultExcept(domainConfig,
+        ((d) => d.UniqueNullTreatment, UniqueNullTreatment.NotDistinct));
+    }
+
+    [Test]
+    [TestCase(true)]
+    [TestCase(false)]
+    public void InvalidUniqueNullsTreatmentTest(bool useRoot)
+    {
+      _ = Assert.Throws<InvalidOperationException>(() => LoadDomainConfiguration("DomainWithNullTreatmentInvalid", useRoot));
+    }
+
+    [Test]
+    [TestCase(true)]
+    [TestCase(false)]
     public void ForcedServerVersionTest(bool useRoot)
     {
       var domainConfig = LoadDomainConfiguration("DomainWithForcedServerVersion", useRoot);
@@ -2040,6 +2088,7 @@ namespace Xtensive.Orm.Tests.Configuration
       Assert.That(domainConfiguration.SchemaSyncExceptionFormat, Is.EqualTo(DomainConfiguration.DefaultSchemaSyncExceptionFormat));
       Assert.That(domainConfiguration.ShareStorageSchemaOverNodes, Is.EqualTo(DomainConfiguration.DefaultShareStorageSchemaOverNodes));
       Assert.That(domainConfiguration.TagsLocation, Is.EqualTo(DomainConfiguration.DefaultTagLocation));
+      Assert.That(domainConfiguration.UniqueNullTreatment, Is.EqualTo(DomainConfiguration.DefaultUniqueNullTreatment));
       Assert.That(domainConfiguration.UpgradeMode, Is.EqualTo(DomainConfiguration.DefaultUpgradeMode));
     }
 

@@ -1,4 +1,4 @@
-// Copyright (C) 2008-2024 Xtensive LLC.
+// Copyright (C) 2008-2026 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Aleksey Gamzov
@@ -52,6 +52,7 @@ namespace Xtensive.Orm.Configuration.Elements
     private const string EnsureConnectionIsAliveElementName = "ensureConnectionIsAlive";
     private const string PreferTypeIdsAsQueryParametersElementName = "preferTypeIdsAsQueryParameters";
     private const string TagsLocationElementName = "tagsLocation";
+    private const string UniqueNullTreatmentElementName = "uniqueNullTreatment";
     private const string MaxNumberOfConditionsElementName = "maxNumberOfConditions";
 
 
@@ -407,6 +408,16 @@ namespace Xtensive.Orm.Configuration.Elements
     }
 
     /// <summary>
+    /// <see cref="DomainConfiguration.UniqueNullTreatment"/>.
+    /// </summary>
+    [ConfigurationProperty(UniqueNullTreatmentElementName, DefaultValue = "Default")]
+    public string UniqueNullTreatment
+    {
+      get => (string) this[UniqueNullTreatmentElementName];
+      set => this[UniqueNullTreatmentElementName] = value;
+    }
+
+    /// <summary>
     /// <see cref="DomainConfiguration.PreferTypeIdsAsQueryParameters"/>
     /// </summary>
     [ConfigurationProperty(PreferTypeIdsAsQueryParametersElementName, DefaultValue = true)]
@@ -460,7 +471,8 @@ namespace Xtensive.Orm.Configuration.Elements
         PreferTypeIdsAsQueryParameters = PreferTypeIdsAsQueryParameters,
         FullTextChangeTrackingMode = ParseEnum<FullTextChangeTrackingMode>(FullTextChangeTrackingMode),
         VersioningConvention = VersioningConvention.ToNative(),
-        TagsLocation = (TagsLocation) Enum.Parse(typeof(TagsLocation), TagsLocation, true),
+        TagsLocation = ParseEnum<TagsLocation>(TagsLocation),
+        UniqueNullTreatment = ParseEnum<UniqueNullTreatment>(UniqueNullTreatment),
         MaxNumberOfConditions = MaxNumberOfConditions,
       };
 
@@ -481,8 +493,9 @@ namespace Xtensive.Orm.Configuration.Elements
     }
 
     private static T ParseEnum<T>(string value)
+      where T : struct
     {
-      return (T) Enum.Parse(typeof (T), value, true);
+      return Enum.Parse<T>(value, true);
     }
   }
 }

@@ -56,7 +56,8 @@
                   <xs:attribute name="connectionInitializationSql" type="xs:string" use="optional"/>
                   <xs:attribute name="shareStorageSchemaOverNodes" type="xs:boolean" default="false" use="optional"/>
                   <xs:attribute name="ensureConnectionIsAlive" type="xs:boolean" default="true" use="optional"/>
-                  <xs:attribute name="tagLocation" type="tagLocation" default="Default" use="optional"/>
+                  <xs:attribute name="tagsLocation" type="tagLocation" default="Default" use="optional"/>
+                  <xs:attribute name="uniqueNullTreatment" type="uniqueNullTreatment" default="Default" use="optional"/>
                   <xs:attribute name="maxNumberOfConditions" type="numberOfConditions" default="256" use="optional"/>
                 </xs:complexType>
               </xs:element>
@@ -343,6 +344,14 @@
       <xs:enumeration value="BeforeStatement" />
       <xs:enumeration value="WithinStatement" />
       <xs:enumeration value="AfterStatement" />
+      <xs:enumeration value="Default" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="uniqueNullTreatment">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Unspecified" />
+      <xs:enumeration value="Distinct" />
+      <xs:enumeration value="NotDistinct" />
       <xs:enumeration value="Default" />
     </xs:restriction>
   </xs:simpleType>

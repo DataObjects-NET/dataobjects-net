@@ -1,13 +1,11 @@
-// Copyright (C) 2007-2024 Xtensive LLC.
+// Copyright (C) 2007-2026 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
 // Created:    2007.08.03
 
 using System;
-using System.Configuration;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.Extensions.Configuration;
 using Xtensive.Core;
 using Xtensive.Orm.Internals;
@@ -109,7 +107,12 @@ namespace Xtensive.Orm.Configuration
     /// Default <see cref="TagsLocation"/> value.
     /// </summary>
     public const TagsLocation DefaultTagLocation = TagsLocation.Default;
-    
+
+    /// <summary>
+    /// Default <see cref="UniqueNullTreatment"/>.
+    /// </summary>
+    public const UniqueNullTreatment DefaultUniqueNullTreatment = UniqueNullTreatment.Default;
+
     /// <summary>
     /// Default <see cref="PreferTypeIdsAsQueryParameters"/> value: <see langword="true" />.
     /// </summary>
@@ -154,6 +157,7 @@ namespace Xtensive.Orm.Configuration
     private DomainOptions options = DefaultDomainOptions;
     private SchemaSyncExceptionFormat schemaSyncExceptionFormat = DefaultSchemaSyncExceptionFormat;
     private TagsLocation tagsLocation = DefaultTagLocation;
+    private UniqueNullTreatment uniqueNullTreatment = DefaultUniqueNullTreatment;
 
     private bool? isMultidatabase;
     private bool? isMultischema;
@@ -646,6 +650,24 @@ namespace Xtensive.Orm.Configuration
     }
 
     /// <summary>
+    /// Defines prefered way for secondary unique indexes to treat NULL values, if such option is supported by storage.
+    /// Otherwise, any value except for <see cref="UniqueNullTreatment.Unspecified"/> (default value) is ignored.
+    /// </summary>
+    /// <remarks>
+    /// The option correlates with SQL:2023 (ISO/IEC 9075:2023) item ID106; majority of supported providers
+    /// don't implement the standard regarding this option, apart from PostgreSQL 15 or newer.
+    /// </remarks>
+    public UniqueNullTreatment UniqueNullTreatment
+    {
+      get => uniqueNullTreatment;
+      set {
+        EnsureNotLocked();
+        uniqueNullTreatment = value;
+      }
+    }
+
+
+    /// <summary>
     /// Maximam number of filtering values in IN clause which are
     /// to be placed inside a resulted SQL command (as boolean predicate).
     /// Affects only <see cref="QueryableExtensionsEx.In{T}(T, T[])"/> group of methods with 
@@ -807,6 +829,8 @@ namespace Xtensive.Orm.Configuration
       versioningConvention = configuration.VersioningConvention.Clone();
       preferTypeIdsAsQueryParameters = configuration.PreferTypeIdsAsQueryParameters;
       maxNumberOfConditons = configuration.MaxNumberOfConditions;
+      tagsLocation = configuration.TagsLocation;
+      uniqueNullTreatment = configuration.UniqueNullTreatment;
       extensionConfigurations = configuration.ExtensionConfigurations.Clone();
     }
 
