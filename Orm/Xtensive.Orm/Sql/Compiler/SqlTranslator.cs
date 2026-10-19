@@ -708,9 +708,9 @@ namespace Xtensive.Sql.Compiler
     public virtual void Translate(SqlCompilerContext context, SqlCreateIndex node, CreateIndexSection section)
     {
       var output = context.Output;
+      var index = node.Index;
       switch (section) {
         case CreateIndexSection.Entry:
-          var index = node.Index;
           if (index.IsFullText) {
             _ = output.Append("CREATE FULLTEXT INDEX ON ");
             Translate(context, index.DataTable);
@@ -749,11 +749,13 @@ namespace Xtensive.Sql.Compiler
         case CreateIndexSection.NonkeyColumnsExit:
           _ = output.AppendClosingPunctuation(")");
           break;
+        case CreateIndexSection.NullsTreatment:
+          Translate(output, index.NullTreatment);
+          break;
         case CreateIndexSection.Where:
           _ = output.Append("WHERE");
           break;
         case CreateIndexSection.Exit:
-          index = node.Index;
           if (index.FillFactor.HasValue) {
             _ = output.Append($"WITH (FILLFACTOR = {index.FillFactor.Value})");
           }
@@ -2400,6 +2402,11 @@ namespace Xtensive.Sql.Compiler
       return string.Empty;
     }
 
+    public virtual void Translate(IOutput output, UniqueNullTreatment nullValuesTreatment)
+    {
+      if (nullValuesTreatment != UniqueNullTreatment.Unspecified)
+        throw new NotSupportedException(Strings.ExStorageDoesNotSupportUniqueNullTreatment);
+    }
     #endregion
 
     #region Other types that can be written directly to output

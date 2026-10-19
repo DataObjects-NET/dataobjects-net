@@ -211,6 +211,9 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v11
         case CreateIndexSection.NonkeyColumnsExit:
           _ = output.AppendClosingPunctuation(")");
           break;
+        case CreateIndexSection.NullsTreatment:
+          Translate(output, index.NullTreatment);
+          break;
         case CreateIndexSection.StorageOptions:
           AppendIndexStorageParameters(output, index);
           if (!string.IsNullOrEmpty(index.Filegroup)) {

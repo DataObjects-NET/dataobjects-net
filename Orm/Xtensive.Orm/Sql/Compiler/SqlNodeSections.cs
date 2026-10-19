@@ -86,8 +86,9 @@ namespace Xtensive.Sql.Compiler
     ColumnsExit = 3,
     NonkeyColumnsEnter = 4,
     NonkeyColumnsExit = 5,
-    StorageOptions = 6,
-    Where = 7,
+    NullsTreatment = 6,
+    StorageOptions = 7,
+    Where = 8,
   }
 
   public enum CreateTableSection

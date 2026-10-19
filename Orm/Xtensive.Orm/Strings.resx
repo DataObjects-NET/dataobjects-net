@@ -2621,4 +2621,7 @@ Error: {1}</value>
   <data name="ExPersistentChangesAreNotAllowed" xml:space="preserve">
     <value>Changes of persistent objects are not allowed at this point due to possibility of changes not saved to database.</value>
   </data>
+  <data name="ExStorageDoesNotSupportUniqueNullTreatment" xml:space="preserve">
+    <value>Storage does not support Unique null treatment option. Use default setting.</value>
+  </data>
 </root>

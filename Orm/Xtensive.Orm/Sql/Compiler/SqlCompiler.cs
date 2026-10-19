@@ -27,6 +27,7 @@ namespace Xtensive.Sql.Compiler
 
     protected readonly SqlValueType decimalType;
     protected readonly SqlTranslator translator;
+    protected readonly bool uniqueNullsTreatmentSupport;
 
     protected SqlCompilerConfiguration configuration;
     protected SqlCompilerContext context;
@@ -598,7 +599,16 @@ namespace Xtensive.Sql.Compiler
         }
         translator.Translate(context, node, CreateIndexSection.NonkeyColumnsExit);
       }
-
+      if (uniqueNullsTreatmentSupport) {
+        // SQL 2023 declares unique null treatement section for unique indexes only
+        if (node.Index.IsUnique)
+          AppendTranslated(node, CreateIndexSection.NullsTreatment);
+      }
+      else {
+        // Our code should make this exception impossible but user changes of sql model can be wrong
+        if (node.Index.NullTreatment != UniqueNullTreatment.Unspecified)
+          throw new NotSupportedException(Strings.ExStorageDoesNotSupportUniqueNullTreatment);
+      }
       AppendTranslated(node, CreateIndexSection.StorageOptions);
 
       if (node.Index.Where is not null && CheckFeature(IndexFeatures.Filtered)) {
@@ -2929,6 +2939,7 @@ namespace Xtensive.Sql.Compiler
       translator = driver.Translator;
       decimalType = driver.TypeMappings[WellKnownTypes.Decimal].MapType();
       queryFeatures = Driver.ServerInfo.Query.Features;
+      uniqueNullsTreatmentSupport = Driver.ServerInfo.Index.Features.HasFlag(IndexFeatures.UniqueNullTreatment);
     }
   }
 }
