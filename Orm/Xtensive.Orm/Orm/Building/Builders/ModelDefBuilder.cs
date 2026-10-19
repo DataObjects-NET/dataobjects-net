@@ -345,6 +345,8 @@ namespace Xtensive.Orm.Building.Builders
         index.Name = context.NameBuilder.BuildIndexName(typeDef, index);
       }
 
+      ApplyNullTreatment(index);
+
       return index;
     }
 
@@ -370,6 +372,17 @@ namespace Xtensive.Orm.Building.Builders
 
     private bool IsFieldAvailable(PropertyInfo property) =>
       context.BuilderConfiguration.ModelFilter.IsFieldAvailable(property);
+
+    private void ApplyNullTreatment(IndexDef index)
+    {
+      if (index.IsSecondary && index.IsUnique && context.SupportsNullTreatmentOption) {
+        index.IsNullDistinct = context.Configuration.UniqueNullTreatment switch {
+          UniqueNullTreatment.Distinct => true,
+          UniqueNullTreatment.NotDistinct => false,
+          _ => null
+        };
+      }
+    }
 
     #endregion
 

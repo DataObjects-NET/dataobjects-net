@@ -154,6 +154,8 @@ namespace Xtensive.Orm.Building.Definitions
 
     internal bool IsInherited { get; set; }
 
+    internal bool? IsNullDistinct { get; set; }
+
     /// <summary>
     /// Performs additional custom processes before setting new name to this instance.
     /// </summary>

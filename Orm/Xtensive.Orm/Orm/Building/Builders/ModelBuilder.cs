@@ -75,6 +75,8 @@ namespace Xtensive.Orm.Building.Builders
       ApplyCustomDefinitions();
       // Clean-up
       RemoveTemporaryDefinitions();
+      // Private index corrections and validations, in case of changes by reflection
+      CorrectIndexNullTreatment();
       // Inspecting model definition
       ModelInspector.Run(context);
 
@@ -137,6 +139,43 @@ namespace Xtensive.Orm.Building.Builders
       var ientityDef = modelDef.Types.TryGetValue(WellKnownOrmInterfaces.Entity);
       if (ientityDef != null)
         modelDef.Types.Remove(ientityDef);
+    }
+
+    private void CorrectIndexNullTreatment()
+    {
+      // If indexDef.IsNullDistinct becomes public per-index setting,
+      // this should be implemented as model inspector step with proper fixup actions
+      // and BuildLog entries for every correction.
+
+      var modelDef = context.ModelDef;
+      var affectedIndexes = modelDef.Types.SelectMany(IndexSelector).Where(NotNullFilter);
+
+      if (context.NonDefaultNullTreatmentRequested) {
+        var settingSupported = context.SupportsNullTreatmentOption;
+
+        foreach( var idx in affectedIndexes) {
+          if (idx.IsSecondary && idx.IsUnique && settingSupported)
+            continue;
+          else 
+            idx.IsNullDistinct = null;
+        }
+      }
+      else {
+        foreach (var idx in affectedIndexes) {
+          idx.IsNullDistinct = null;
+        }
+      }
+
+
+      static IEnumerable<IndexDef> IndexSelector(TypeDef t)
+      {
+        return t.Indexes;
+      }
+
+      static bool NotNullFilter(IndexDef i)
+      {
+        return i.IsNullDistinct.HasValue;
+      }
     }
 
     private void BuildModel()

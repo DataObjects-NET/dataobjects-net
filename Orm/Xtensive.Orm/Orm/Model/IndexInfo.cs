@@ -279,6 +279,8 @@ namespace Xtensive.Orm.Model
       get => (attributes & IndexAttributes.Clustered) > 0;
     }
 
+    internal bool? IsNullDistinct { get; set; }
+
     /// <inheritdoc/>
     public override void UpdateState()
     {
@@ -391,6 +393,8 @@ namespace Xtensive.Orm.Model
       filterExpression = ancestorIndex.FilterExpression;
       DeclaringIndex = ancestorIndex.DeclaringIndex;
       shortName = ancestorIndex.ShortName;
+      if (!IsVirtual && IsSecondary)
+        IsNullDistinct = ancestorIndex.IsNullDistinct;
 
       if (addAncestorToUnderlyings) {
         UnderlyingIndexes.Add(ancestorIndex);

@@ -73,6 +73,10 @@ namespace Xtensive.Orm.Building
 
     internal DefaultSchemaInfo DefaultSchemaInfo { get; private set; }
 
+    internal bool SupportsNullTreatmentOption { get; private set; }
+
+    internal bool NonDefaultNullTreatmentRequested { get; private set; }
+
     // Constructors
 
     internal BuildingContext(DomainBuilderConfiguration builderConfiguration)
@@ -83,11 +87,13 @@ namespace Xtensive.Orm.Building
       ModelInspectionResult = new ModelInspectionResult();
       DependencyGraph = new Graph<TypeDef>();
 
-      
       Modules = BuilderConfiguration.Services.Modules.ToList(BuilderConfiguration.Services.Modules.Count).AsReadOnly();
       Modules2 = Modules.OfType<IModule2>().ToList().AsReadOnly();
       Validator = new Validator(BuilderConfiguration.Services.ProviderInfo.SupportedTypes);
       DefaultSchemaInfo = BuilderConfiguration.DefaultSchemaInfo;
+
+      SupportsNullTreatmentOption = builderConfiguration.Services.ProviderInfo.Supports(ProviderFeatures.UniqueNullTreatment);
+      NonDefaultNullTreatmentRequested = Configuration.UniqueNullTreatment is not UniqueNullTreatment.Default;
     }
   }
 }

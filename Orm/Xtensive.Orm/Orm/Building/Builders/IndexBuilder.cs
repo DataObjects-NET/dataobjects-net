@@ -11,6 +11,7 @@ using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Orm.Building.Definitions;
 using Xtensive.Orm.Model;
+using System.Runtime.CompilerServices;
 
 namespace Xtensive.Orm.Building.Builders
 {
@@ -384,6 +385,7 @@ namespace Xtensive.Orm.Building.Builders
 
       result.Name = context.NameBuilder.BuildIndexName(typeInfo, result);
       result.Group = BuildColumnGroup(result);
+      ApplyNullsTreatment(result, indexDef);
       if (skipTypeId)
         untypedIndexes.Add(result);
 
@@ -622,7 +624,7 @@ namespace Xtensive.Orm.Building.Builders
 
       var columnsToAdd = new List<ColumnInfo>();
       var valueColumnMapping = new List<Pair<int, List<int>>>();
-      foreach(var item in orderedIndexes) {
+      foreach (var item in orderedIndexes) {
         if (valueColumnMapping.Count == 0)
           item.columns.InsertRange(0, Enumerable.Range(0, result.IncludedColumns.Count));
         foreach (var columnIndex in item.columns) {
@@ -786,7 +788,7 @@ namespace Xtensive.Orm.Building.Builders
     {
       var nameBuilder = context.NameBuilder;
       var valueColumns = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-      foreach (var column in columns)  {
+      foreach (var column in columns) {
         if (valueColumns.Add(column.Name)) {
           yield return column;
         }
@@ -933,6 +935,15 @@ namespace Xtensive.Orm.Building.Builders
       foreach (var index in context.Model.RealIndexes.Where(static index => index.FilterExpression != null)) {
         PartialIndexFilterBuilder.BuildFilter(index);
       }
+    }
+
+    private void ApplyNullsTreatment(IndexInfo index, IndexDef indexDef)
+    {
+      index.IsNullDistinct =
+        ((index.Attributes & (IndexAttributes.Virtual | IndexAttributes.Primary)) != 0
+          || !indexDef.IsNullDistinct.HasValue)
+        ? null
+        : indexDef.IsNullDistinct;
     }
 
     #endregion
