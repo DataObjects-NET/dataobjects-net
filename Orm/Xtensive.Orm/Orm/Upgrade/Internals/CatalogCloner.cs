@@ -279,6 +279,7 @@ namespace Xtensive.Orm.Upgrade.Internals
       index.Filegroup = sourceIndex.Filegroup;
       index.FillFactor = sourceIndex.FillFactor;
       index.IsUnique = sourceIndex.IsUnique;
+      index.NullTreatment = sourceIndex.NullTreatment;
       index.IsClustered = sourceIndex.IsClustered;
       if (sourceIndex.Where is not null)
         index.Where = sourceIndex.Where.Clone();
