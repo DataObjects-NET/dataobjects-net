@@ -957,6 +957,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v11
         index.IsBitmap = false;
         index.IsUnique = isUnique;
         index.Filegroup = tablespaceName;
+        index.NullTreatment = UniqueNullTreatment.Unspecified;
         if (!string.IsNullOrEmpty(filterExpression))
           index.Where = SqlDml.Native(filterExpression);
 

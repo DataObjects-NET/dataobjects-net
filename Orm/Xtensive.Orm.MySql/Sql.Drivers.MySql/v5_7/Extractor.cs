@@ -514,6 +514,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_7
         else {
           state.Index = state.Table.CreateIndex(reader.GetString(2));
           state.Index.IsUnique = reader.GetInt32(3) == 0;
+          state.Index.NullTreatment = UniqueNullTreatment.Unspecified;
         }
       }
 

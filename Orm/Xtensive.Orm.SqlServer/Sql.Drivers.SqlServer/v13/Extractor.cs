@@ -666,6 +666,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v13
           else {
             index = table.Table.CreateIndex(indexName);
             index.IsUnique = reader.GetBoolean(7);
+            index.NullTreatment =  UniqueNullTreatment.Unspecified;
             if (Driver.ServerInfo.Index.Features.Supports(IndexFeatures.Clustered)) {
               index.IsClustered = reader.GetByte(5) == 1;
             }

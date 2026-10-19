@@ -465,6 +465,7 @@ namespace Xtensive.Sql.Drivers.Firebird.v3_0
         state.Index.IsUnique = ReadBool(reader, 5);
         state.Index.IsBitmap = false;
         state.Index.IsClustered = false;
+        state.Index.NullTreatment = UniqueNullTreatment.Unspecified;
         if (!reader.IsDBNull(8)) {
           // expression index
           expression = SqlDml.Native(reader.GetString(8).Trim());

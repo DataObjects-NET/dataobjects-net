@@ -475,6 +475,7 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
         state.Index = state.Table.CreateIndex(reader.GetString(2));
         state.Index.IsUnique = ReadBool(reader, 3);
         state.Index.IsBitmap = reader.GetString(4).EndsWith("BITMAP");
+        state.Index.NullTreatment = UniqueNullTreatment.Unspecified;
         if (!reader.IsDBNull(5)) {
           var pctFree = ReadInt(reader, 5);
           state.Index.FillFactor = (byte) (100 - pctFree);

@@ -333,6 +333,7 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
       var unique = reader.GetBoolean(2);
       index = table.CreateIndex(indexName);
       index.IsUnique = unique;
+      index.NullTreatment = UniqueNullTreatment.Unspecified;
       return true;
     }
 
