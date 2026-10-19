@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2026 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
 // Created:    2009.08.31
 
@@ -14,14 +14,16 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
 {
   public class IndexTest2005 : IndexTest
   {
-    protected override void CreateTable()
+    protected override void CheckRequirements() => Require.ProviderIs(StorageProvider.SqlServer);
+
+    protected override void CreateExpressionIndexTable(Schema schema)
     {
       Table t;
-      t = schema.CreateTable(TableName);
-      t.CreateColumn("first", new SqlValueType(SqlType.VarChar, 50));
-      t.CreateColumn("second", new SqlValueType(SqlType.VarChar, 50));
-      var c1 =t.CreateColumn("third", new SqlValueType(SqlType.VarChar));
-      var c2 =t.CreateColumn("forth", new SqlValueType(SqlType.VarChar));
+      t = schema.CreateTable(ExpressionIndexTableName);
+      _ = t.CreateColumn("first", new SqlValueType(SqlType.VarChar, 50));
+      _ = t.CreateColumn("second", new SqlValueType(SqlType.VarChar, 50));
+      var c1 = t.CreateColumn("third", new SqlValueType(SqlType.VarChar));
+      var c2 = t.CreateColumn("forth", new SqlValueType(SqlType.VarChar));
 
       var tr = SqlDml.TableRef(t);
       c1.Expression = SqlDml.Concat(tr["first"], " ", tr["second"]);
@@ -32,40 +34,31 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       c2.IsPersisted = false;
       c2.IsNullable = true;
 
-      ExecuteNonQuery(SqlDdl.Create(t));
-    }
-
-    protected override void CheckRequirements()
-    {
-      Require.ProviderIs(StorageProvider.SqlServer);
+      _ = ExecuteNonQuery(SqlDdl.Create(t));
     }
 
     [Test]
     public override void CreateExpressionIndexTest()
     {
+      base.CreateExpressionIndexTest();
+
       // Creating index
-      var t = schema.Tables[TableName];
+      var t = ExpressionIndexTable;
       var i = t.CreateIndex(ExpressionIndexName);
-      i.CreateIndexColumn(t.TableColumns["third"]);
-      i.CreateIndexColumn(t.TableColumns["forth"]);
-      ExecuteNonQuery(SqlDdl.Create(i));
+      _ = i.CreateIndexColumn(t.TableColumns["third"]);
+      _ = i.CreateIndexColumn(t.TableColumns["forth"]);
+      _ = ExecuteNonQuery(SqlDdl.Create(i));
 
       // Extracting index and checking its properties
       var c2 = ExtractCatalog();
       var s2 = c2.DefaultSchema;
-      var t2 = s2.Tables[TableName];
+      var t2 = s2.Tables[ExpressionIndexTableName];
       var i2 = t2.Indexes[ExpressionIndexName];
       Assert.That(i2, Is.Not.Null);
       Assert.That(i2.Columns.Count, Is.EqualTo(2));
 
       Assert.That(t2.TableColumns["third"].Expression is not null, Is.True);
       Assert.That(t2.TableColumns["forth"].Expression is not null, Is.True);
-    }
-
-    public override void CreateFilteredIndexTest()
-    {
-      if (GetType() == typeof(IndexTest2005))
-        Assert.Ignore("Filtered indexes are not supported.");
     }
   }
 }
