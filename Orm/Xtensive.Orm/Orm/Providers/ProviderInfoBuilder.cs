@@ -41,6 +41,8 @@ namespace Xtensive.Orm.Providers
         f |= ProviderFeatures.IncludedColumns;
       if (indexFeatures.Supports(IndexFeatures.SortOrder))
         f |= ProviderFeatures.KeyColumnSortOrder;
+      if (indexFeatures.Supports(IndexFeatures.UniqueNullTreatment))
+        f |= ProviderFeatures.UniqueNullTreatment;
       if (serverInfo.Sequence!=null)
         f |= ProviderFeatures.Sequences;
       else {
