@@ -99,7 +99,8 @@ namespace Xtensive.Sql.Drivers.MySql.v5_7
                        s.column_name,
                        s.cardinality,
                        s.sub_part,
-                       s.nullable
+                       s.nullable,
+                       s.collation
                 FROM 
                        information_schema.statistics s
                 WHERE

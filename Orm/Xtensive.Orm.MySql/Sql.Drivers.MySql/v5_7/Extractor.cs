@@ -501,7 +501,8 @@ namespace Xtensive.Sql.Drivers.MySql.v5_7
     //  6       column_name,
     //  7       cardinality,
     //  8       sub_part,
-    //  9       nullable
+    //  9       nullable,
+    //  10      collation (A - ascending, D - descending)
     private static void ReadIndexColumnData(DbDataReader reader, ref IndexColumnReaderState state)
     {
       var columnIndex = ReadInt(reader, 5);
@@ -519,7 +520,11 @@ namespace Xtensive.Sql.Drivers.MySql.v5_7
       }
 
       var column = state.Table.TableColumns[reader.GetString(6)];
-      _ = state.Index.CreateIndexColumn(column);
+      var ixc = state.Index.CreateIndexColumn(column);
+
+      // default is A, for 5.7 it always A, DESC is ignored by RDBMS even if set
+      // but setting exists and this code will work for newer drivers where it makes sense.
+      ixc.Ascending = reader.GetString(10) != "D";
 
       state.LastColumnIndex = columnIndex;
     }
