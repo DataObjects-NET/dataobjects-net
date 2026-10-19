@@ -1,4 +1,4 @@
-// Copyright (C) 2010-2023 Xtensive LLC.
+// Copyright (C) 2010-2026 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexey Gamzov
@@ -90,27 +90,41 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
       "\n drop table \"B2\";" +
       "\n drop table \"B3\";";
 
-    protected override string GetIndexExtractionPrepareScript(string tableName)
+    protected override string GetIndexExtractionPrepareScript(string mainTableName, string addionalTableName = null)
     {
       // CREATE TABLE table1 (column1 int,  column2 int);
       // CREATE INDEX table1_index1_desc_asc on table1 (column1 desc, column2 asc);
       // CREATE UNIQUE INDEX table1_index1_u_asc_desc on table1 (column1 asc, column2 desc);
       // CREATE UNIQUE INDEX table1_index_with_included_columns on table1 (column1 asc) include (column2);
-      if (NonKeyColumnsSupported) {
-        return
-          $"CREATE TABLE \"{tableName}\" (\"column1\" int, \"column2\" int);" +
-          $"\n CREATE INDEX \"{tableName}_index1_desc_asc\" on \"{tableName}\" (\"column1\" desc, \"column2\" asc);" +
-          $"\n CREATE UNIQUE INDEX \"{tableName}_index1_u_asc_desc\" on \"{tableName}\" (\"column1\" asc, \"column2\" desc);" +
-          $"\n CREATE UNIQUE INDEX \"{tableName}_index_with_included_columns\" on \"{tableName}\" (\"column1\" asc) include (\"column2\");";
+
+      // For storages that support setting nulls treatment for unique indexes, test expects additional table
+      // CREATE TABLE table2 (column1 int, column2 int not null);
+      // CREATE UNIQUE INDEX table2_index1_distinct on table1 (column1 asc, column2 asc) NULLS DISTINCT;
+      // CREATE UNIQUE INDEX table2_index2_not_distinct on table1 (column1 asc, column2 asc) NULLS NOT DISTINCT;
+
+      var baseQuery =
+          $"CREATE TABLE \"{mainTableName}\" (\"column1\" int, \"column2\" int);" +
+          $"\n CREATE INDEX \"{mainTableName}_index1_desc_asc\" on \"{mainTableName}\" (\"column1\" desc, \"column2\" asc);" +
+          $"\n CREATE UNIQUE INDEX \"{mainTableName}_index1_u_asc_desc\" on \"{mainTableName}\" (\"column1\" asc, \"column2\" desc);" +
+          $"\n CREATE UNIQUE INDEX \"{mainTableName}_index_with_included_columns\" on \"{mainTableName}\" (\"column1\" asc) include (\"column2\");";
+
+      if (UniqueNullsTreatmentSupported && !string.IsNullOrEmpty(addionalTableName)) {
+        return baseQuery +
+          $"\nCREATE TABLE \"{addionalTableName}\" (\"column1\" int, \"column2\" int not null);" +
+          $"\nCREATE UNIQUE INDEX \"{addionalTableName}_index1_distinct\" on \"{addionalTableName}\" (\"column1\" asc, \"column2\" asc) NULLS DISTINCT;" +
+          $"\nCREATE UNIQUE INDEX \"{addionalTableName}_index2_not_distinct\" on \"{addionalTableName}\" (\"column1\" asc, \"column2\" asc) NULLS NOT DISTINCT;";
       }
       else {
-        return
-          $"CREATE TABLE \"{tableName}\" (\"column1\" int, \"column2\" int);" +
-          $"\n CREATE INDEX \"{tableName}_index1_desc_asc\" on \"{tableName}\" (\"column1\" desc, \"column2\" asc);" +
-          $"\n CREATE UNIQUE INDEX \"{tableName}_index1_u_asc_desc\" on \"{tableName}\" (\"column1\" asc, \"column2\" desc);";
+        return baseQuery;
       }
     }
-    protected override string GetIndexExtractionCleanUpScript(string tableName) => $"drop table \"{tableName}\";";
+    protected override string GetIndexExtractionCleanUpScript(string mainTableName, string addionalTableName = null)
+    {
+      if (UniqueNullsTreatmentSupported)
+        return $"drop table \"{mainTableName}\"; drop table \"{addionalTableName}\";";
+      else
+        return $"drop table \"{mainTableName}\";";
+    }
 
     protected override string GetPartialIndexExtractionPrepareScript(string tableName)
     {

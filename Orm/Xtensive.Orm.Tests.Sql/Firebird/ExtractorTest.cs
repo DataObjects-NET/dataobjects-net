@@ -1,10 +1,9 @@
-// Copyright (C) 2011-2023 Xtensive LLC.
+// Copyright (C) 2011-2026 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Csaba Beer
 // Created:    2011.01.13
 
-using NUnit.Framework;
 using System;
 using System.Text;
 using Xtensive.Sql;
@@ -70,15 +69,15 @@ namespace Xtensive.Orm.Tests.Sql.Firebird
       "\n drop table B3;";
 
 
-    protected override string GetIndexExtractionPrepareScript(string tableName)
+    protected override string GetIndexExtractionPrepareScript(string mainTableName, string addionalTableName = null)
     {
       return
-         $"CREATE TABLE {tableName} (column1 integer,  column2 integer);" +
-         $"\n CREATE ASC INDEX {tableName}_index1_desc_asc on {tableName} (column1, column2);" +
-         $"\n CREATE UNIQUE ASC INDEX {tableName}_index1_u_asc_desc on {tableName} (column1, column2);";
+         $"CREATE TABLE {mainTableName} (column1 integer,  column2 integer);" +
+         $"\n CREATE ASC INDEX {mainTableName}_index1_desc_asc on {mainTableName} (column1, column2);" +
+         $"\n CREATE UNIQUE ASC INDEX {mainTableName}_index1_u_asc_desc on {mainTableName} (column1, column2);";
     }
 
-    protected override string GetIndexExtractionCleanUpScript(string tableName) => $"drop table {tableName};";
+    protected override string GetIndexExtractionCleanUpScript(string mainTableName, string addionalTableName = null) => $"drop table {mainTableName};";
 
 
     protected override string GetUniqueConstraintExtractionPrepareScript(string tableName)

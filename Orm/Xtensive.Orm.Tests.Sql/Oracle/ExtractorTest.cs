@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2023 Xtensive LLC.
+// Copyright (C) 2009-2026 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -71,14 +71,14 @@ namespace Xtensive.Orm.Tests.Sql.Oracle
       "\n drop table \"B2\";" +
       "\n drop table \"B3\";";
 
-    protected override string GetIndexExtractionPrepareScript(string tableName)
+    protected override string GetIndexExtractionPrepareScript(string mainTableName, string addionalTableName = null)
     {
       return
-        $"CREATE TABLE \"{tableName}\" (\"column1\" int,  \"column2\" int);" +
-        $"\n CREATE INDEX \"{tableName}_index1_desc_asc\" on \"{tableName}\" (\"column1\" desc, \"column2\" asc);" +
-        $"\n CREATE UNIQUE INDEX \"{tableName}_index1_u_asc_desc\" on \"{tableName}\" (\"column1\" asc, \"column2\" desc);";
+        $"CREATE TABLE \"{mainTableName}\" (\"column1\" int,  \"column2\" int);" +
+        $"\n CREATE INDEX \"{mainTableName}_index1_desc_asc\" on \"{mainTableName}\" (\"column1\" desc, \"column2\" asc);" +
+        $"\n CREATE UNIQUE INDEX \"{mainTableName}_index1_u_asc_desc\" on \"{mainTableName}\" (\"column1\" asc, \"column2\" desc);";
     }
-    protected override string GetIndexExtractionCleanUpScript(string tableName) => $"drop table \"{tableName}\";";
+    protected override string GetIndexExtractionCleanUpScript(string mainTableName, string addionalTableName = null) => $"drop table \"{mainTableName}\";";
 
     protected override string GetFulltextIndexExtractionPrepareScript(string tableName)
     {

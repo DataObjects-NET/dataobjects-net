@@ -77,15 +77,15 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       "\n drop table B2" +
       "\n drop table B3";
 
-    protected override string GetIndexExtractionPrepareScript(string tableName)
+    protected override string GetIndexExtractionPrepareScript(string mainTableName, string addionalTableName = null)
     {
       return
-        $"CREATE TABLE {tableName} (column1 int,  column2 int);" +
-        $"\n CREATE INDEX {tableName}_index1_desc_asc on {tableName} (column1 desc, column2 asc);" +
-        $"\n CREATE UNIQUE INDEX {tableName}_index1_u_asc_desc on {tableName} (column1 asc, column2 desc);" +
-        $"\n CREATE UNIQUE INDEX {tableName}_index_with_included_columns on {tableName} (column1 asc) include (column2);";
+        $"CREATE TABLE {mainTableName} (column1 int,  column2 int);" +
+        $"\n CREATE INDEX {mainTableName}_index1_desc_asc on {mainTableName} (column1 desc, column2 asc);" +
+        $"\n CREATE UNIQUE INDEX {mainTableName}_index1_u_asc_desc on {mainTableName} (column1 asc, column2 desc);" +
+        $"\n CREATE UNIQUE INDEX {mainTableName}_index_with_included_columns on {mainTableName} (column1 asc) include (column2);";
     }
-    protected override string GetIndexExtractionCleanUpScript(string tableName) => $"drop table {tableName};";
+    protected override string GetIndexExtractionCleanUpScript(string mainTableName, string addionalTableName = null) => $"drop table {mainTableName};";
 
     protected override string GetPartialIndexExtractionPrepareScript(string tableName)
     {

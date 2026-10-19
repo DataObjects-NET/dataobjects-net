@@ -39,6 +39,7 @@ namespace Xtensive.Orm.Tests.Sql
     protected bool PartialIndexesSupported => Driver.ServerInfo.Index.Features.HasFlag(IndexFeatures.Filtered);
     protected bool FulltextIndexesSupported => Driver.ServerInfo.Index.Features.HasFlag(IndexFeatures.FullText);
     protected bool SortOrderSupported => Driver.ServerInfo.Index.Features.HasFlag(IndexFeatures.SortOrder);
+    protected bool UniqueNullsTreatmentSupported => Driver.ServerInfo.Index.Features.HasFlag(IndexFeatures.UniqueNullTreatment);
 
 
     protected override void TestFixtureSetUp()
@@ -54,13 +55,24 @@ namespace Xtensive.Orm.Tests.Sql
 
     protected override void TestFixtureTearDown()
     {
-      if (!IgnoreTests) {
+      if (!IgnoreTests && cleanups.Count > 0) {
         foreach (var query in cleanups) {
           ExecuteQueryLineByLine(query, true);
         }
       }
 
       base.TestFixtureTearDown();
+    }
+
+    public override void TearDown()
+    {
+      if (!IgnoreTests && cleanups.Count > 0) {
+        foreach (var query in cleanups) {
+          ExecuteQueryLineByLine(query, true);
+        }
+      }
+
+      base.TearDown();
     }
 
     [Test]
@@ -196,8 +208,8 @@ namespace Xtensive.Orm.Tests.Sql
     }
 
 
-    protected abstract string GetIndexExtractionPrepareScript(string tableName);
-    protected abstract string GetIndexExtractionCleanUpScript(string tableName);
+    protected abstract string GetIndexExtractionPrepareScript(string mainTableName, string addionalTableName = null);
+    protected abstract string GetIndexExtractionCleanUpScript(string mainTableName, string addionalTableName = null);
 
     // Test expects storage variant of following structure
     // CREATE TABLE table1 (column1 int,  column2 int);
@@ -205,52 +217,96 @@ namespace Xtensive.Orm.Tests.Sql
     // CREATE UNIQUE INDEX table1_index1_u_asc_desc on table1 (column1 asc, column2 desc);
     // CREATE UNIQUE INDEX table1_index_with_included_columns on table1 (column1 asc) include (column2);
     //
-    // if  non-key columns are not supported then skip their declaration.
+    // if non-key columns are not supported then skip their declaration.
+    //
+    // For storages that support setting nulls treatment for unique indexes, test expects additional table
+    // CREATE TABLE table2 (column1 int, column2 int not null);
+    // CREATE UNIQUE INDEX table2_index1_distinct on table2 (column1 asc, column2 asc) NULLS DISTINCT;
+    // CREATE UNIQUE INDEX table2_index2_not_distinct on table2 (column1 asc, column2 asc) NULLS NOT DISTINCT;
+
     [Test]
     public void IndexExtractionTest()
     {
-      var query = GetIndexExtractionPrepareScript("table1");
-      RegisterCleanupScript(GetIndexExtractionCleanUpScript, "table1");
-      ExecuteQuery(query);
+      string preparationQuery;
+      if (UniqueNullsTreatmentSupported) {
+        preparationQuery = GetIndexExtractionPrepareScript("table1", "table2");
+        RegisterCleanupScript(GetIndexExtractionCleanUpScript, "table1", "table2");
+      }
+      else {
+        preparationQuery = GetIndexExtractionPrepareScript("table1");
+        RegisterCleanupScript(GetIndexExtractionCleanUpScript, "table1");
+      }
+
+      ExecuteQuery(preparationQuery);
 
       var schema = ExtractDefaultSchema();
 
-      Assert.That(schema.Tables["table1"] != null, Is.True);
-      Assert.That(schema.Tables["table1"].Indexes["table1_index1_desc_asc"], Is.Not.Null);
-      Assert.That(schema.Tables["table1"].Indexes["table1_index1_desc_asc"].Columns.Count == 2, Is.True);
-      Assert.That(schema.Tables["table1"].Indexes["table1_index1_desc_asc"].Columns[0].Name.Equals("column1", StringComparison.OrdinalIgnoreCase), Is.True);
-      Assert.That(schema.Tables["table1"].Indexes["table1_index1_desc_asc"].Columns[1].Name.Equals("column2", StringComparison.OrdinalIgnoreCase), Is.True);
+      Assert.That(schema.Tables["table1"], Is.Not.Null);
+
+      var index = schema.Tables["table1"].Indexes["table1_index1_desc_asc"];
+      Assert.That(index, Is.Not.Null);
+      Assert.That(index.IsUnique, Is.False);
+      Assert.That(index.NullTreatment, Is.EqualTo(Xtensive.Sql.Model.UniqueNullTreatment.Unspecified));
+
+      Assert.That(index.Columns.Count == 2, Is.True);
+      Assert.That(index.Columns[0].Name.Equals("column1", StringComparison.OrdinalIgnoreCase), Is.True);
+      Assert.That(index.Columns[1].Name.Equals("column2", StringComparison.OrdinalIgnoreCase), Is.True);
       if (SortOrderSupported) {
-        Assert.That(!schema.Tables["table1"].Indexes["table1_index1_desc_asc"].Columns[0].Ascending, Is.True);
-        Assert.That(schema.Tables["table1"].Indexes["table1_index1_desc_asc"].Columns[1].Ascending, Is.True);
+        Assert.That(index.Columns[0].Ascending, Is.False);
+        Assert.That(index.Columns[1].Ascending, Is.True);
       }
       else {
-        Assert.That(schema.Tables["table1"].Indexes["table1_index1_desc_asc"].Columns[0].Ascending, Is.True);
-        Assert.That(schema.Tables["table1"].Indexes["table1_index1_desc_asc"].Columns[1].Ascending, Is.True);
+        Assert.That(index.Columns[0].Ascending, Is.True);
+        Assert.That(index.Columns[1].Ascending, Is.True);
       }
 
-
-      Assert.That(schema.Tables["table1"].Indexes["table1_index1_u_asc_desc"], Is.Not.Null);
-      Assert.That(schema.Tables["table1"].Indexes["table1_index1_u_asc_desc"].Columns.Count == 2, Is.True);
-      Assert.That(schema.Tables["table1"].Indexes["table1_index1_u_asc_desc"].Columns[0].Name.Equals("column1", StringComparison.OrdinalIgnoreCase), Is.True);
-      Assert.That(schema.Tables["table1"].Indexes["table1_index1_u_asc_desc"].Columns[1].Name.Equals("column2", StringComparison.OrdinalIgnoreCase), Is.True);
-
-      if (SortOrderSupported) {
-        Assert.That(schema.Tables["table1"].Indexes["table1_index1_u_asc_desc"].Columns[0].Ascending, Is.True);
-        Assert.That(!schema.Tables["table1"].Indexes["table1_index1_u_asc_desc"].Columns[1].Ascending, Is.True);
+      index = schema.Tables["table1"].Indexes["table1_index1_u_asc_desc"];
+      Assert.That(index, Is.Not.Null);
+      Assert.That(index.IsUnique, Is.True);
+      if (UniqueNullsTreatmentSupported && index.IsUnique) {
+        Assert.That(index.NullTreatment, Is.Not.EqualTo(Xtensive.Sql.Model.UniqueNullTreatment.Unspecified));
       }
       else {
-        Assert.That(schema.Tables["table1"].Indexes["table1_index1_u_asc_desc"].Columns[0].Ascending, Is.True);
-        Assert.That(schema.Tables["table1"].Indexes["table1_index1_u_asc_desc"].Columns[1].Ascending, Is.True);
+        Assert.That(index.NullTreatment, Is.EqualTo(Xtensive.Sql.Model.UniqueNullTreatment.Unspecified));
+      }
+      Assert.That(index.Columns.Count == 2, Is.True);
+      Assert.That(index.Columns[0].Name.Equals("column1", StringComparison.OrdinalIgnoreCase), Is.True);
+      Assert.That(index.Columns[1].Name.Equals("column2", StringComparison.OrdinalIgnoreCase), Is.True);
+
+      if (SortOrderSupported) {
+        Assert.That(index.Columns[0].Ascending, Is.True);
+        Assert.That(index.Columns[1].Ascending, Is.False);
+      }
+      else {
+        Assert.That(index.Columns[0].Ascending, Is.True);
+        Assert.That(index.Columns[1].Ascending, Is.True);
       }
 
       if (NonKeyColumnsSupported) {
-        Assert.That(schema.Tables["table1"].Indexes["table1_index_with_included_columns"], Is.Not.Null);
-        Assert.That(schema.Tables["table1"].Indexes["table1_index_with_included_columns"].Columns.Count, Is.EqualTo(1),
-          "Key columns");
+        index = schema.Tables["table1"].Indexes["table1_index_with_included_columns"];
+        Assert.That(index, Is.Not.Null);
+        Assert.That(index.IsUnique, Is.True);
+        
+        Assert.That(index.Columns.Count, Is.EqualTo(1), "Key columns");
+        Assert.That(index.NonkeyColumns.Count, Is.EqualTo(1), "Included columns");
 
-        Assert.That(schema.Tables["table1"].Indexes["table1_index_with_included_columns"].NonkeyColumns.Count, Is.EqualTo(1),
-          "Included columns");
+        if (UniqueNullsTreatmentSupported && index.IsUnique) {
+          Assert.That(index.NullTreatment, Is.Not.EqualTo(Xtensive.Sql.Model.UniqueNullTreatment.Unspecified));
+        }
+        else {
+          Assert.That(index.NullTreatment, Is.EqualTo(Xtensive.Sql.Model.UniqueNullTreatment.Unspecified));
+        }
+      }
+
+      if (UniqueNullsTreatmentSupported) {
+        Assert.That(schema.Tables["table2"], Is.Not.Null);
+        index = schema.Tables["table2"].Indexes["table2_index1_distinct"];
+        Assert.That(index, Is.Not.Null);
+        Assert.That(index.NullTreatment, Is.EqualTo(Xtensive.Sql.Model.UniqueNullTreatment.Distinct));
+
+        index = schema.Tables["table2"].Indexes["table2_index2_not_distinct"];
+        Assert.That(index, Is.Not.Null);
+        Assert.That(index.NullTreatment, Is.EqualTo(Xtensive.Sql.Model.UniqueNullTreatment.NotDistinct));
       }
     }
 
@@ -516,6 +572,7 @@ namespace Xtensive.Orm.Tests.Sql
     }
 
     protected void RegisterCleanupScript(Func<string> func) => cleanups.Add(func());
-    protected void RegisterCleanupScript(Func<string, string> func, string param) => cleanups.Add(func(param));
+    protected void RegisterCleanupScript(Func<string, string> func, string param1) => cleanups.Add(func(param1));
+    protected void RegisterCleanupScript(Func<string, string, string> func, string param1, string param2 = null) => cleanups.Add(func(param1, param2));
   }
 }
