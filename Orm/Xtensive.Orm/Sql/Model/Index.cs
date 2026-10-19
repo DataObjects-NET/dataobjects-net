@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2026 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
@@ -13,8 +13,8 @@ namespace Xtensive.Sql.Model
   /// </summary>
   public class Index : DataTableNode, IPartitionable
   {
-    private PairedNodeCollection<Index, IndexColumn> columns;
-    private NodeCollection<DataTableColumn> nonkeyColumns;
+    private readonly PairedNodeCollection<Index, IndexColumn> columns;
+    private readonly NodeCollection<DataTableColumn> nonkeyColumns;
     private bool isUnique;
     private bool isBitmap;
     private bool isClustered;
@@ -22,6 +22,7 @@ namespace Xtensive.Sql.Model
     private string filegroup;
     private PartitionDescriptor partitionDescriptor;
     private SqlExpression where;
+    private UniqueNullTreatment nullsTreatment;
 
     /// <summary>
     /// Creates the index column.
@@ -159,6 +160,25 @@ namespace Xtensive.Sql.Model
     }
 
     /// <summary>
+    /// Gets or set null treatment by unique index. Default value is <see cref="UniqueNullTreatment.Unspecified"/>.
+    /// Any For non-unique it has default value.
+    /// </summary>
+    /// <remarks>
+    /// If a storage does not have option to define the treatment the value will be <see cref="UniqueNullTreatment.Unspecified"/>.
+    /// If a storage supports the option then default value will be resolved to default treatment for the storage.
+    /// If not sure, leave it default value.
+    /// </remarks>
+    public UniqueNullTreatment NullTreatment
+    {
+      get { return nullsTreatment; }
+      set {
+        EnsureNotLocked();
+        EnsureNullTreatmentIsAppropriate(value);
+        nullsTreatment = value;
+      }
+    }
+
+    /// <summary>
     /// Specifies a percentage that indicates how full the database server should make the leaf level 
     /// of each index page during index creation or rebuild. 
     /// </summary>
@@ -238,12 +258,20 @@ namespace Xtensive.Sql.Model
 
     #endregion
 
+    private void EnsureNullTreatmentIsAppropriate(UniqueNullTreatment newValue)
+    {
+      if (newValue is not UniqueNullTreatment.Unspecified && !isUnique) {
+        throw new ArgumentException($"UniqueNullTreatment can't be set to {newValue.ToString()} for non-unique indexes.");
+      }
+    }
+
     #region Constructors
 
     internal Index(DataTable dataTable, string name) : base(dataTable, name)
     {
       nonkeyColumns = new NodeCollection<DataTableColumn>();
       columns = new PairedNodeCollection<Index, IndexColumn>(this, "Columns");
+      nullsTreatment = UniqueNullTreatment.Unspecified;
     }
 
     #endregion
