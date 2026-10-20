@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2026 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Ivan Galkin
@@ -40,6 +40,7 @@ namespace Xtensive.Orm.Upgrade
     private readonly DomainConfiguration configuration;
     private readonly PartialIndexFilterCompiler compiler;
     private readonly IFullTextCatalogNameBuilder fulltextCatalogNameBuilder;
+    private readonly bool nullTreatmentSupported;
 
     private StorageModel targetModel;
     private TableInfo currentTable;
@@ -153,6 +154,23 @@ namespace Xtensive.Orm.Upgrade
       secondaryIndex.IsUnique = index.IsUnique;
       var isClustered = index.IsClustered && providerInfo.Supports(ProviderFeatures.ClusteredIndexes);
       secondaryIndex.IsClustered = isClustered;
+      secondaryIndex.NullDistinct = index.IsNullDistinct;
+
+      if (index.IsUnique && providerInfo.Supports(ProviderFeatures.UniqueNullTreatment)) {
+        // If storage supports SQL 2023 unique nulls treatment, but no value set for NullDistinct
+        // it means default settings are used in domain configuration, and we should try to resolve it
+        // into default treatment for storage via driver to not have changes on models comparison.
+        // We expect that default behaviour will be defined as either distinct or not distinct.
+        if (!secondaryIndex.NullDistinct.HasValue)
+          secondaryIndex.NullDistinct = driver.ServerInfo.Index.NullDistinctByDefault;
+      }
+      else if (secondaryIndex.NullDistinct.HasValue) {
+        // Should never happen, if so then something is wrong with model building.
+        // If null treatment option ever becomes public per-index setting
+        // then an exception should be thrown here, but now we late-fix value to correct one.
+        secondaryIndex.NullDistinct = null;
+      }
+
       foreach (KeyValuePair<ColumnInfo, Direction> pair in index.KeyColumns) {
         var columName = GetPrimaryIndexColumnName(primaryIndex, pair.Key);
         var column = table.Columns[columName];
@@ -632,6 +650,7 @@ namespace Xtensive.Orm.Upgrade
       providerInfo = handlers.ProviderInfo;
       driver = handlers.StorageDriver;
       nameBuilder = handlers.NameBuilder;
+      nullTreatmentSupported = providerInfo.Supports(ProviderFeatures.UniqueNullTreatment);
       FieldMapping = new Dictionary<StoredFieldInfo, StoredFieldInfo>();
       StorageModel = null;
       CurrentModelTypes = new Dictionary<string, StoredTypeInfo>();

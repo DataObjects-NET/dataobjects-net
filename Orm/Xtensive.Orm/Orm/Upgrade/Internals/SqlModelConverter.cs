@@ -31,6 +31,7 @@ namespace Xtensive.Orm.Upgrade
     private readonly ProviderInfo providerInfo;
     private readonly PartialIndexInfoMap partialIndexMap;
     private readonly StorageDriver driver;
+    private readonly bool nullTreatmentSupported;
 
     private StorageModel targetModel;
     private TableInfo currentTable;
@@ -184,6 +185,17 @@ namespace Xtensive.Orm.Upgrade
         IsClustered = index.IsClustered,
         Filter = GetFilter(index),
       };
+
+      if (index.IsUnique && nullTreatmentSupported) {
+        // if option is supported then there is no such thing as unspecified treatment,
+        // index has to have either 'distinct' or 'not distinct' null treatment
+        secondaryIndexInfo.NullDistinct = index.NullTreatment == Sql.Model.UniqueNullTreatment.Distinct;
+      }
+      else {
+        // for non unique indexes or if no support - index should have null
+        secondaryIndexInfo.NullDistinct = null;
+      }
+
 
       foreach (var keyColumn in index.Columns) {
         var columnInfo = tableInfo.Columns[keyColumn.Column.Name];
@@ -342,6 +354,7 @@ namespace Xtensive.Orm.Upgrade
       resolver = services.MappingResolver;
       providerInfo = services.ProviderInfo;
       driver = services.StorageDriver;
+      nullTreatmentSupported = providerInfo.Supports(ProviderFeatures.UniqueNullTreatment);
 
       partialIndexMap = new PartialIndexInfoMap(resolver, partialIndexes);
     }

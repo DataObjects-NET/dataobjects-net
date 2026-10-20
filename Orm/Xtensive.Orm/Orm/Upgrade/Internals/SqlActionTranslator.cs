@@ -1073,6 +1073,12 @@ namespace Xtensive.Orm.Upgrade
       var index = table.CreateIndex(indexInfo.Name);
       index.IsUnique = indexInfo.IsUnique;
       index.IsClustered = indexInfo.IsClustered;
+      index.NullTreatment = indexInfo.NullDistinct switch {
+        null => Sql.Model.UniqueNullTreatment.Unspecified,
+        true => Sql.Model.UniqueNullTreatment.Distinct,
+        false => Sql.Model.UniqueNullTreatment.NotDistinct
+      };
+
       foreach (var keyColumn in indexInfo.KeyColumns)
         _ = index.CreateIndexColumn(
           FindColumn(table, keyColumn.Value.Name),

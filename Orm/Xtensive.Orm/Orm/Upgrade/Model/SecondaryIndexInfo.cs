@@ -18,6 +18,7 @@ namespace Xtensive.Orm.Upgrade.Model
   public sealed class SecondaryIndexInfo : StorageIndexInfo
   {
     private PartialIndexFilterInfo filter;
+    private bool? nullDistinct;
 
     /// <summary>
     /// Gets value columns.
@@ -45,6 +46,23 @@ namespace Xtensive.Orm.Upgrade.Model
     }
 
     /// <summary>
+    /// Gets whether unique index treats null values as distinct.
+    /// </summary>
+    /// <remarks>
+    /// <para>Valid only for unique indexes. For other indexes it has no effect and must be <see langword="null"/></para>
+    /// <para><see langword="null">Null</see> means behavior no exact value set and it us up to default storage behavior.</para>
+    /// </remarks>
+    [Property(Priority = -80)]
+    public bool? NullDistinct
+    {
+      get => nullDistinct;
+      set {
+        EnsureIsEditable();
+        nullDistinct = value;
+      }
+    }
+
+    /// <summary>
     /// Populates <see cref="PrimaryKeyColumns"/> collection by
     /// copying them from primary index.
     /// </summary>
@@ -52,8 +70,9 @@ namespace Xtensive.Orm.Upgrade.Model
     {
       if (Parent.PrimaryIndex == null)
         return;
-      foreach (var kcr in Parent.PrimaryIndex.KeyColumns)
+      foreach (var kcr in Parent.PrimaryIndex.KeyColumns) {
         _ = new PrimaryKeyColumnRef(this, kcr.Value, kcr.Direction);
+      }
     }
 
     /// <inheritdoc/>
@@ -108,6 +127,10 @@ namespace Xtensive.Orm.Upgrade.Model
             new ValidationException(
               string.Format(Strings.ExMoreThenOneIncludedColumnReferenceToColumnX, group.Key.Name), Path),
             handle: true);
+        }
+
+        if (!IsUnique && NullDistinct.HasValue) {
+          ea.Add(new ValidationException("Non-unique indexes can't declare NullDistinct as true or false", Path), handle: true);
         }
 
         ea.Complete();
