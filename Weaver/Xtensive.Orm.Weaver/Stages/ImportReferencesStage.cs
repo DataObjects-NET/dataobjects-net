@@ -32,8 +32,6 @@ namespace Xtensive.Orm.Weaver.Stages
       var typeType = registry.Type = ImportType(context, mscorlibAssembly, "System.Type");
       var exceptionType = registry.Exception = ImportType(context, mscorlibAssembly, "System.Exception");
       var runtimeTypeHandleType = registry.RuntimeTypeHandle = ImportType(context, mscorlibAssembly, "System.RuntimeTypeHandle", true);
-      registry.SerializationInfo = ImportType(context, mscorlibAssembly, "System.Runtime.Serialization.SerializationInfo");
-      registry.StreamingContext = ImportType(context, mscorlibAssembly, "System.Runtime.Serialization.StreamingContext", true);
       registry.TypeGetTypeFromHandle = ImportMethod(context, typeType, "GetTypeFromHandle", false, typeType, runtimeTypeHandleType);
       registry.CompilerGeneratedAttributeConstructor = ImportConstructor(context, mscorlibAssembly, WellKnown.CompilerGeneratedAttribute);
 

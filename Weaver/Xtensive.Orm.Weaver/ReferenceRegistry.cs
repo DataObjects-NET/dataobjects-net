@@ -17,8 +17,6 @@ namespace Xtensive.Orm.Weaver
     public TypeReference Type { get; set; }
     public TypeReference Exception { get; set; }
     public TypeReference RuntimeTypeHandle { get; set; }
-    public TypeReference StreamingContext { get; set; }
-    public TypeReference SerializationInfo { get; set; }
 
     public MethodReference TypeGetTypeFromHandle { get; set; }
     public MethodReference CompilerGeneratedAttributeConstructor { get; set; }
