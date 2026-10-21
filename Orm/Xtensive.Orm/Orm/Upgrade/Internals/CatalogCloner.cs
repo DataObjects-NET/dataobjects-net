@@ -1,4 +1,4 @@
-// Copyright (C) 2016-2020 Xtensive LLC.
+// Copyright (C) 2016-2026 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
 using Xtensive.Orm.Providers;
-using Xtensive.Sql.Dml;
 using Xtensive.Sql.Model;
 using Index = Xtensive.Sql.Model.Index;
 

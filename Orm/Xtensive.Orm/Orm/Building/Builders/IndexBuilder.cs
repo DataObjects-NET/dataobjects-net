@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2024 Xtensive LLC.
+// Copyright (C) 2007-2026 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
@@ -11,7 +11,6 @@ using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Orm.Building.Definitions;
 using Xtensive.Orm.Model;
-using System.Runtime.CompilerServices;
 
 namespace Xtensive.Orm.Building.Builders
 {
