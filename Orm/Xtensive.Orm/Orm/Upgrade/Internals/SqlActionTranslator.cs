@@ -1073,7 +1073,7 @@ namespace Xtensive.Orm.Upgrade
       var index = table.CreateIndex(indexInfo.Name);
       index.IsUnique = indexInfo.IsUnique;
       index.IsClustered = indexInfo.IsClustered;
-      index.NullTreatment = indexInfo.NullDistinct switch {
+      index.NullTreatment = indexInfo.AreNullsDistinct switch {
         null => Sql.Model.UniqueNullTreatment.Unspecified,
         true => Sql.Model.UniqueNullTreatment.Distinct,
         false => Sql.Model.UniqueNullTreatment.NotDistinct

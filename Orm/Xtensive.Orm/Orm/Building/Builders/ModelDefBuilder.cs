@@ -376,7 +376,7 @@ namespace Xtensive.Orm.Building.Builders
     private void ApplyNullTreatment(IndexDef index)
     {
       if (index.IsSecondary && index.IsUnique && context.SupportsNullTreatmentOption) {
-        index.IsNullDistinct = context.Configuration.UniqueNullTreatment switch {
+        index.AreNullsDistinct = context.Configuration.UniqueNullTreatment switch {
           UniqueNullTreatment.Distinct => true,
           UniqueNullTreatment.NotDistinct => false,
           _ => null

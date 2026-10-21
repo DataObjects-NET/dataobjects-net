@@ -939,11 +939,11 @@ namespace Xtensive.Orm.Building.Builders
 
     private void ApplyNullsTreatment(IndexInfo index, IndexDef indexDef)
     {
-      index.IsNullDistinct =
+      index.AreNullsDistinct =
         ((index.Attributes & (IndexAttributes.Virtual | IndexAttributes.Primary)) != 0
-          || !indexDef.IsNullDistinct.HasValue)
+          || !indexDef.AreNullsDistinct.HasValue)
         ? null
-        : indexDef.IsNullDistinct;
+        : indexDef.AreNullsDistinct;
     }
 
     #endregion

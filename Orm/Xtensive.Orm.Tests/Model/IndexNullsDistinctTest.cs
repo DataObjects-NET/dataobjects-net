@@ -198,18 +198,18 @@ namespace Xtensive.Orm.Tests.Model
         var aClass = model.Types[typeof(RealNonUniqueIndex.A)];
         Assert.That(aClass.Indexes.Count, Is.EqualTo(4));
         var pk = aClass.Indexes.First(i => i.IsPrimary);
-        Assert.That(pk.IsNullDistinct, Is.Null);
+        Assert.That(pk.AreNullsDistinct, Is.Null);
         Assert.That(aClass.Indexes.Any(i => i.IsSecondary && !i.IsVirtual), Is.True);
-        Assert.That(aClass.Indexes.Where(i => i.IsSecondary).All(i => !i.IsUnique && i.IsNullDistinct is null), Is.True);
+        Assert.That(aClass.Indexes.Where(i => i.IsSecondary).All(i => !i.IsUnique && i.AreNullsDistinct is null), Is.True);
       };
       Action<DomainModelDef> definitionsValidator = static (modelDefs) => {
         var aClass = modelDefs.Types[typeof(RealNonUniqueIndex.A)];
         Assert.That(aClass.Indexes.Count, Is.EqualTo(2));
         var pk = aClass.Indexes.First(i => i.IsPrimary);
-        Assert.That(pk.IsNullDistinct, Is.Null);
+        Assert.That(pk.AreNullsDistinct, Is.Null);
         var idx = aClass.Indexes.First(i => i.IsSecondary);
         Assert.That(idx.IsUnique, Is.False);
-        Assert.That(idx.IsNullDistinct, Is.Null);
+        Assert.That(idx.AreNullsDistinct, Is.Null);
       };
 
       var configuration = DomainConfigurationFactory.Create();
@@ -239,19 +239,19 @@ namespace Xtensive.Orm.Tests.Model
         var aClass = model.Types[typeof(RealNonUniqueIndex.A)];
         Assert.That(aClass.Indexes.Count, Is.EqualTo(4));
         var pk = aClass.Indexes.First(i => i.IsPrimary);
-        Assert.That(pk.IsNullDistinct, Is.Null);
+        Assert.That(pk.AreNullsDistinct, Is.Null);
         Assert.That(aClass.Indexes.Any(i => i.IsSecondary && !i.IsVirtual), Is.True);
-        Assert.That(aClass.Indexes.Where(i => i.IsSecondary).All(i => !i.IsUnique && i.IsNullDistinct is null), Is.True);
+        Assert.That(aClass.Indexes.Where(i => i.IsSecondary).All(i => !i.IsUnique && i.AreNullsDistinct is null), Is.True);
       };
 
       Action<DomainModelDef> definitionsValidator = (modelDefs) => {
         var aClass = modelDefs.Types[typeof(RealNonUniqueIndex.A)];
         Assert.That(aClass.Indexes.Count, Is.EqualTo(2));
         var pk = aClass.Indexes.First(i => i.IsPrimary);
-        Assert.That(pk.IsNullDistinct, Is.Null);
+        Assert.That(pk.AreNullsDistinct, Is.Null);
         var idx = aClass.Indexes.First(i => i.IsSecondary);
         Assert.That(idx.IsUnique, Is.False);
-        Assert.That(idx.IsNullDistinct, Is.Null);
+        Assert.That(idx.AreNullsDistinct, Is.Null);
       };
 
       var configuration = DomainConfigurationFactory.Create();
@@ -283,20 +283,20 @@ namespace Xtensive.Orm.Tests.Model
         var aClass = model.Types[typeof(RealUniqueIndex.A)];
         Assert.That(aClass.Indexes.Count, Is.EqualTo(4));
         var pk = aClass.Indexes.First(i => i.IsPrimary);
-        Assert.That(pk.IsNullDistinct, Is.Null);
+        Assert.That(pk.AreNullsDistinct, Is.Null);
         Assert.That(aClass.Indexes.Any(i => i.IsSecondary && !i.IsVirtual), Is.True);
-        Assert.That(aClass.Indexes.Where(i => i.IsSecondary).All(i => i.IsNullDistinct is null), Is.True);
+        Assert.That(aClass.Indexes.Where(i => i.IsSecondary).All(i => i.AreNullsDistinct is null), Is.True);
         Assert.That(aClass.Indexes.Any(i => i.IsSecondary && !i.IsVirtual && i.IsUnique), Is.True);
-        Assert.That(aClass.Indexes.Where(i => i.IsSecondary && !i.IsVirtual && i.IsUnique).All(i => i.IsNullDistinct is null), Is.True);
+        Assert.That(aClass.Indexes.Where(i => i.IsSecondary && !i.IsVirtual && i.IsUnique).All(i => i.AreNullsDistinct is null), Is.True);
       };
       Action<DomainModelDef> definitionsValidator = (modelDefs) => {
         var aClass = modelDefs.Types[typeof(RealUniqueIndex.A)];
         Assert.That(aClass.Indexes.Count, Is.EqualTo(2));
         var pk = aClass.Indexes.First(i => i.IsPrimary);
-        Assert.That(pk.IsNullDistinct, Is.Null);
+        Assert.That(pk.AreNullsDistinct, Is.Null);
         var idx = aClass.Indexes.First(i => i.IsSecondary);
         Assert.That(idx.IsUnique, Is.True);
-        Assert.That(idx.IsNullDistinct, Is.Null);
+        Assert.That(idx.AreNullsDistinct, Is.Null);
       };
 
       var configuration = DomainConfigurationFactory.Create();
@@ -327,21 +327,21 @@ namespace Xtensive.Orm.Tests.Model
         var aClass = model.Types[typeof(RealUniqueIndex.A)];
         Assert.That(aClass.Indexes.Count, Is.EqualTo(4));
         var pk = aClass.Indexes.First(i => i.IsPrimary);
-        Assert.That(pk.IsNullDistinct, Is.Null);
+        Assert.That(pk.AreNullsDistinct, Is.Null);
         Assert.That(aClass.Indexes.Any(i => i.IsSecondary && !i.IsVirtual), Is.True);
         Assert.That(aClass.Indexes.Any(i => i.IsSecondary && i.IsVirtual), Is.True);
-        Assert.That(aClass.Indexes.Where(i => i.IsSecondary && i.IsVirtual).All(i => i.IsNullDistinct is null), Is.True);
+        Assert.That(aClass.Indexes.Where(i => i.IsSecondary && i.IsVirtual).All(i => i.AreNullsDistinct is null), Is.True);
         Assert.That(aClass.Indexes.Any(i => i.IsSecondary && !i.IsVirtual && i.IsUnique), Is.True);
-        Assert.That(aClass.Indexes.Where(i => i.IsSecondary && !i.IsVirtual && i.IsUnique).All(i => i.IsNullDistinct == expectedDistinctNulls), Is.True);
+        Assert.That(aClass.Indexes.Where(i => i.IsSecondary && !i.IsVirtual && i.IsUnique).All(i => i.AreNullsDistinct == expectedDistinctNulls), Is.True);
       };
       Action<DomainModelDef> definitionsValidator = (modelDefs) => {
         var aClass = modelDefs.Types[typeof(RealUniqueIndex.A)];
         Assert.That(aClass.Indexes.Count, Is.EqualTo(2));
         var pk = aClass.Indexes.First(i => i.IsPrimary);
-        Assert.That(pk.IsNullDistinct, Is.Null);
+        Assert.That(pk.AreNullsDistinct, Is.Null);
         var idx = aClass.Indexes.First(i => i.IsSecondary);
         Assert.That(idx.IsUnique, Is.True);
-        Assert.That(idx.IsNullDistinct, Is.EqualTo(expectedDistinctNulls));
+        Assert.That(idx.AreNullsDistinct, Is.EqualTo(expectedDistinctNulls));
       };
 
       var configuration = DomainConfigurationFactory.Create();
@@ -375,31 +375,31 @@ namespace Xtensive.Orm.Tests.Model
         var aClass = model.Types[typeof(InheritedRealNonUniqueIndex.A)];
         Assert.That(aClass.Indexes.Count, Is.EqualTo(4));
         var pk = aClass.Indexes.First(i => i.IsPrimary);
-        Assert.That(pk.IsNullDistinct, Is.Null);
+        Assert.That(pk.AreNullsDistinct, Is.Null);
         Assert.That(aClass.Indexes.Any(i => i.IsSecondary && !i.IsVirtual), Is.True);
         Assert.That(aClass.Indexes.Any(i => i.IsSecondary && i.IsVirtual), Is.True);
-        Assert.That(aClass.Indexes.Where(i => i.IsSecondary && !i.IsVirtual && !i.IsUnique).All(i => i.IsNullDistinct is null), Is.True);
+        Assert.That(aClass.Indexes.Where(i => i.IsSecondary && !i.IsVirtual && !i.IsUnique).All(i => i.AreNullsDistinct is null), Is.True);
 
         var bClass = model.Types[typeof(InheritedRealNonUniqueIndex.B)];
         Assert.That(bClass.Indexes.Count, Is.EqualTo(4));
         Assert.That(bClass.Indexes.Any(i => i.IsSecondary && !i.IsVirtual), Is.True);
         Assert.That(bClass.Indexes.Any(i => i.IsSecondary && i.IsVirtual), Is.True);
-        Assert.That(bClass.Indexes.Where(i => i.IsSecondary && !i.IsVirtual && !i.IsUnique).All(i => i.IsNullDistinct is null), Is.True);
+        Assert.That(bClass.Indexes.Where(i => i.IsSecondary && !i.IsVirtual && !i.IsUnique).All(i => i.AreNullsDistinct is null), Is.True);
       };
       Action<DomainModelDef> modelDefinitionsValidator = (modelDefs) => {
         var aClass = modelDefs.Types[typeof(InheritedRealNonUniqueIndex.A)];
         Assert.That(aClass.Indexes.Count, Is.EqualTo(2));
         var pk = aClass.Indexes.First(i => i.IsPrimary);
-        Assert.That(pk.IsNullDistinct, Is.Null);
+        Assert.That(pk.AreNullsDistinct, Is.Null);
         var idx = aClass.Indexes.First(i => i.IsSecondary);
         Assert.That(idx.IsUnique, Is.False);
-        Assert.That(idx.IsNullDistinct, Is.Null);
+        Assert.That(idx.AreNullsDistinct, Is.Null);
 
         var bClass = modelDefs.Types[typeof(InheritedRealNonUniqueIndex.B)];
         Assert.That(bClass.Indexes.Count, Is.EqualTo(1));
         idx = bClass.Indexes.First(i => i.IsSecondary);
         Assert.That(idx.IsUnique, Is.False);
-        Assert.That(idx.IsNullDistinct, Is.Null);
+        Assert.That(idx.AreNullsDistinct, Is.Null);
       };
 
       var configuration = DomainConfigurationFactory.Create();
@@ -428,32 +428,32 @@ namespace Xtensive.Orm.Tests.Model
         var aClass = model.Types[typeof(InheritedRealNonUniqueIndex.A)];
         Assert.That(aClass.Indexes.Count, Is.EqualTo(4));
         var pk = aClass.Indexes.First(i => i.IsPrimary);
-        Assert.That(pk.IsNullDistinct, Is.Null);
+        Assert.That(pk.AreNullsDistinct, Is.Null);
         Assert.That(aClass.Indexes.Any(i => i.IsSecondary && !i.IsVirtual), Is.True);
         Assert.That(aClass.Indexes.Any(i => i.IsSecondary && i.IsVirtual), Is.True);
-        Assert.That(aClass.Indexes.Where(i => i.IsSecondary && !i.IsVirtual && !i.IsUnique).All(i => i.IsNullDistinct is null), Is.True);
+        Assert.That(aClass.Indexes.Where(i => i.IsSecondary && !i.IsVirtual && !i.IsUnique).All(i => i.AreNullsDistinct is null), Is.True);
 
         var bClass = model.Types[typeof(InheritedRealNonUniqueIndex.B)];
         Assert.That(bClass.Indexes.Count, Is.EqualTo(4));
         Assert.That(bClass.Indexes.Any(i => i.IsSecondary && !i.IsVirtual), Is.True);
         Assert.That(bClass.Indexes.Any(i => i.IsSecondary && i.IsVirtual), Is.True);
-        Assert.That(bClass.Indexes.Where(i => i.IsSecondary && !i.IsVirtual && !i.IsUnique).All(i => i.IsNullDistinct is null), Is.True);
+        Assert.That(bClass.Indexes.Where(i => i.IsSecondary && !i.IsVirtual && !i.IsUnique).All(i => i.AreNullsDistinct is null), Is.True);
       };
 
       Action<DomainModelDef> definitionsValidator = static (modelDefs) => {
         var aClass = modelDefs.Types[typeof(InheritedRealNonUniqueIndex.A)];
         Assert.That(aClass.Indexes.Count, Is.EqualTo(2));
         var pk = aClass.Indexes.First(i => i.IsPrimary);
-        Assert.That(pk.IsNullDistinct, Is.Null);
+        Assert.That(pk.AreNullsDistinct, Is.Null);
         var idx = aClass.Indexes.First(i => i.IsSecondary);
         Assert.That(idx.IsUnique, Is.False);
-        Assert.That(idx.IsNullDistinct, Is.Null);
+        Assert.That(idx.AreNullsDistinct, Is.Null);
 
         var bClass = modelDefs.Types[typeof(InheritedRealNonUniqueIndex.B)];
         Assert.That(bClass.Indexes.Count, Is.EqualTo(1));
         idx = bClass.Indexes.First(i => i.IsSecondary);
         Assert.That(idx.IsUnique, Is.False);
-        Assert.That(idx.IsNullDistinct, Is.Null);
+        Assert.That(idx.AreNullsDistinct, Is.Null);
       };
 
 
@@ -485,35 +485,35 @@ namespace Xtensive.Orm.Tests.Model
         var aClass = model.Types[typeof(InheritedRealUniqueIndex.A)];
         Assert.That(aClass.Indexes.Count, Is.EqualTo(4));
         var pk = aClass.Indexes.First(i => i.IsPrimary);
-        Assert.That(pk.IsNullDistinct, Is.Null);
+        Assert.That(pk.AreNullsDistinct, Is.Null);
         Assert.That(aClass.Indexes.Any(i => i.IsSecondary && !i.IsVirtual), Is.True);
         Assert.That(aClass.Indexes.Any(i => i.IsSecondary && i.IsVirtual), Is.True);
-        Assert.That(aClass.Indexes.Where(i => i.IsSecondary && i.IsVirtual).All(i => i.IsNullDistinct is null), Is.True);
+        Assert.That(aClass.Indexes.Where(i => i.IsSecondary && i.IsVirtual).All(i => i.AreNullsDistinct is null), Is.True);
         Assert.That(aClass.Indexes.Any(i => i.IsSecondary && !i.IsVirtual && i.IsUnique), Is.True);
-        Assert.That(aClass.Indexes.Where(i => i.IsSecondary && !i.IsVirtual && i.IsUnique).All(i => i.IsNullDistinct is null), Is.True);
+        Assert.That(aClass.Indexes.Where(i => i.IsSecondary && !i.IsVirtual && i.IsUnique).All(i => i.AreNullsDistinct is null), Is.True);
 
         var bClass = model.Types[typeof(InheritedRealUniqueIndex.B)];
         Assert.That(bClass.Indexes.Count, Is.EqualTo(4));
         Assert.That(bClass.Indexes.Any(i => i.IsSecondary && !i.IsVirtual), Is.True);
         Assert.That(bClass.Indexes.Any(i => i.IsSecondary && i.IsVirtual), Is.True);
-        Assert.That(bClass.Indexes.Where(i => i.IsSecondary && i.IsVirtual).All(i => i.IsNullDistinct is null), Is.True);
+        Assert.That(bClass.Indexes.Where(i => i.IsSecondary && i.IsVirtual).All(i => i.AreNullsDistinct is null), Is.True);
         Assert.That(bClass.Indexes.Any(i => i.IsSecondary && !i.IsVirtual && i.IsUnique), Is.True);
-        Assert.That(bClass.Indexes.Where(i => i.IsSecondary && !i.IsVirtual && i.IsUnique).All(i => i.IsNullDistinct is null), Is.True);
+        Assert.That(bClass.Indexes.Where(i => i.IsSecondary && !i.IsVirtual && i.IsUnique).All(i => i.AreNullsDistinct is null), Is.True);
       };
       Action<DomainModelDef> modelDefinitionsValidator = (modelDefs) => {
         var aClass = modelDefs.Types[typeof(InheritedRealUniqueIndex.A)];
         Assert.That(aClass.Indexes.Count, Is.EqualTo(2));
         var pk = aClass.Indexes.First(i => i.IsPrimary);
-        Assert.That(pk.IsNullDistinct, Is.Null);
+        Assert.That(pk.AreNullsDistinct, Is.Null);
         var idx = aClass.Indexes.First(i => i.IsSecondary);
         Assert.That(idx.IsUnique, Is.True);
-        Assert.That(idx.IsNullDistinct, Is.Null);
+        Assert.That(idx.AreNullsDistinct, Is.Null);
 
         var bClass = modelDefs.Types[typeof(InheritedRealUniqueIndex.B)];
         Assert.That(bClass.Indexes.Count, Is.EqualTo(1));
         idx = bClass.Indexes.First(i => i.IsSecondary);
         Assert.That(idx.IsUnique, Is.True);
-        Assert.That(idx.IsNullDistinct, Is.Null);
+        Assert.That(idx.AreNullsDistinct, Is.Null);
       };
 
       var configuration = DomainConfigurationFactory.Create();
@@ -542,35 +542,35 @@ namespace Xtensive.Orm.Tests.Model
         var aClass = model.Types[typeof(InheritedRealUniqueIndex.A)];
         Assert.That(aClass.Indexes.Count, Is.EqualTo(4));
         var pk = aClass.Indexes.First(i => i.IsPrimary);
-        Assert.That(pk.IsNullDistinct, Is.Null);
+        Assert.That(pk.AreNullsDistinct, Is.Null);
         Assert.That(aClass.Indexes.Any(i => i.IsSecondary && !i.IsVirtual), Is.True);
         Assert.That(aClass.Indexes.Any(i => i.IsSecondary && i.IsVirtual), Is.True);
-        Assert.That(aClass.Indexes.Where(i => i.IsSecondary && i.IsVirtual).All(i => i.IsNullDistinct is null), Is.True);
+        Assert.That(aClass.Indexes.Where(i => i.IsSecondary && i.IsVirtual).All(i => i.AreNullsDistinct is null), Is.True);
         Assert.That(aClass.Indexes.Any(i => i.IsSecondary && !i.IsVirtual && i.IsUnique), Is.True);
-        Assert.That(aClass.Indexes.Where(i => i.IsSecondary && !i.IsVirtual && i.IsUnique).All(i => i.IsNullDistinct == expectedDistinctNulls), Is.True);
+        Assert.That(aClass.Indexes.Where(i => i.IsSecondary && !i.IsVirtual && i.IsUnique).All(i => i.AreNullsDistinct == expectedDistinctNulls), Is.True);
 
         var bClass = model.Types[typeof(InheritedRealUniqueIndex.B)];
         Assert.That(bClass.Indexes.Count, Is.EqualTo(4));
         Assert.That(bClass.Indexes.Any(i => i.IsSecondary && !i.IsVirtual), Is.True);
         Assert.That(bClass.Indexes.Any(i => i.IsSecondary && i.IsVirtual), Is.True);
-        Assert.That(bClass.Indexes.Where(i => i.IsSecondary && i.IsVirtual).All(i => i.IsNullDistinct is null), Is.True);
+        Assert.That(bClass.Indexes.Where(i => i.IsSecondary && i.IsVirtual).All(i => i.AreNullsDistinct is null), Is.True);
         Assert.That(bClass.Indexes.Any(i => i.IsSecondary && !i.IsVirtual && i.IsUnique), Is.True);
-        Assert.That(bClass.Indexes.Where(i => i.IsSecondary && !i.IsVirtual && i.IsUnique).All(i => i.IsNullDistinct == expectedDistinctNulls), Is.True);
+        Assert.That(bClass.Indexes.Where(i => i.IsSecondary && !i.IsVirtual && i.IsUnique).All(i => i.AreNullsDistinct == expectedDistinctNulls), Is.True);
       };
       Action<DomainModelDef> definitionsValidator = (modelDefs) => {
         var aClass = modelDefs.Types[typeof(InheritedRealUniqueIndex.A)];
         Assert.That(aClass.Indexes.Count, Is.EqualTo(2));
         var pk = aClass.Indexes.First(i => i.IsPrimary);
-        Assert.That(pk.IsNullDistinct, Is.Null);
+        Assert.That(pk.AreNullsDistinct, Is.Null);
         var idx = aClass.Indexes.First(i => i.IsSecondary);
         Assert.That(idx.IsUnique, Is.True);
-        Assert.That(idx.IsNullDistinct, Is.EqualTo(expectedDistinctNulls));
+        Assert.That(idx.AreNullsDistinct, Is.EqualTo(expectedDistinctNulls));
 
         var bClass = modelDefs.Types[typeof(InheritedRealUniqueIndex.B)];
         Assert.That(bClass.Indexes.Count, Is.EqualTo(1));
         idx = bClass.Indexes.First(i => i.IsSecondary);
         Assert.That(idx.IsUnique, Is.True);
-        Assert.That(idx.IsNullDistinct, Is.EqualTo(expectedDistinctNulls));
+        Assert.That(idx.AreNullsDistinct, Is.EqualTo(expectedDistinctNulls));
       };
 
       var configuration = DomainConfigurationFactory.Create();
@@ -612,39 +612,39 @@ namespace Xtensive.Orm.Tests.Model
           var aClass = model.Types[typeof(VirtualIndexes.AClass)];
           Assert.That(aClass.Indexes.Count, Is.EqualTo(1));
           var pk = aClass.Indexes[0];
-          Assert.That(pk.IsNullDistinct, Is.Null);
+          Assert.That(pk.AreNullsDistinct, Is.Null);
 
           var bClass = model.Types[typeof(VirtualIndexes.BClass)];
           Assert.That(bClass.Indexes.Count, Is.EqualTo(2));
           Assert.That(bClass.Indexes.Any(i => i.IsVirtual), Is.True);
-          Assert.That(bClass.Indexes.All(i => i.IsNullDistinct is null), Is.True);
+          Assert.That(bClass.Indexes.All(i => i.AreNullsDistinct is null), Is.True);
 
           var aConcrete = model.Types[typeof(VirtualIndexes.AConcrete)];
           Assert.That(aConcrete.Indexes.Count, Is.EqualTo(2));
           Assert.That(aConcrete.Indexes.Any(i => i.IsVirtual), Is.True);
-          Assert.That(aConcrete.Indexes.All(i => i.IsNullDistinct is null), Is.True);
+          Assert.That(aConcrete.Indexes.All(i => i.AreNullsDistinct is null), Is.True);
 
           var bConcrete = model.Types[typeof(VirtualIndexes.BConcrete)];
           Assert.That(bConcrete.Indexes.Count, Is.EqualTo(2));
           Assert.That(bConcrete.Indexes.Any(i => i.IsVirtual), Is.True);
-          Assert.That(bConcrete.Indexes.All(i => i.IsNullDistinct is null), Is.True);
+          Assert.That(bConcrete.Indexes.All(i => i.AreNullsDistinct is null), Is.True);
 
           var aSingle = model.Types[typeof(VirtualIndexes.ASingle)];
           Assert.That(aSingle.Indexes.Count, Is.EqualTo(1));
           Assert.That(aSingle.Indexes.Any(i => i.IsVirtual), Is.False);
           pk = aSingle.Indexes[0];
-          Assert.That(pk.IsNullDistinct, Is.Null);
+          Assert.That(pk.AreNullsDistinct, Is.Null);
 
           var bSingle = model.Types[typeof(VirtualIndexes.BSingle)];
           Assert.That(bSingle.Indexes.Count, Is.EqualTo(1));
           Assert.That(bSingle.Indexes.Any(i => i.IsVirtual), Is.True);
-          Assert.That(bSingle.Indexes.All(i => i.IsNullDistinct is null), Is.True);
+          Assert.That(bSingle.Indexes.All(i => i.AreNullsDistinct is null), Is.True);
         },
         static (modelDefs) => {
           var aClass = modelDefs.Types[typeof(VirtualIndexes.AClass)];
           Assert.That(aClass.Indexes.Count, Is.EqualTo(1));
           var pk = aClass.Indexes[0];
-          Assert.That(pk.IsNullDistinct, Is.Null);
+          Assert.That(pk.AreNullsDistinct, Is.Null);
 
           var bClass = modelDefs.Types[typeof(VirtualIndexes.BClass)];
           Assert.That(bClass.Indexes.Count, Is.EqualTo(0));
@@ -652,7 +652,7 @@ namespace Xtensive.Orm.Tests.Model
           var aConcrete = modelDefs.Types[typeof(VirtualIndexes.AConcrete)];
           Assert.That(aConcrete.Indexes.Count, Is.EqualTo(1));
           pk = aConcrete.Indexes[0];
-          Assert.That(pk.IsNullDistinct, Is.Null);
+          Assert.That(pk.AreNullsDistinct, Is.Null);
 
           var bConcrete = modelDefs.Types[typeof(VirtualIndexes.BConcrete)];
           Assert.That(bConcrete.Indexes.Count, Is.EqualTo(0));
@@ -660,7 +660,7 @@ namespace Xtensive.Orm.Tests.Model
           var aSingle = modelDefs.Types[typeof(VirtualIndexes.ASingle)];
           Assert.That(aSingle.Indexes.Count, Is.EqualTo(1));
           pk = aSingle.Indexes[0];
-          Assert.That(pk.IsNullDistinct, Is.Null);
+          Assert.That(pk.AreNullsDistinct, Is.Null);
 
           var bSingle = modelDefs.Types[typeof(VirtualIndexes.BSingle)];
           Assert.That(bSingle.Indexes.Count, Is.EqualTo(0));

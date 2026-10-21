@@ -2624,4 +2624,7 @@ Error: {1}</value>
   <data name="ExStorageDoesNotSupportUniqueNullTreatment" xml:space="preserve">
     <value>Storage does not support Unique null treatment option. Use default setting.</value>
   </data>
+  <data name="ExNonUniqueIndexCantDeclareNullDistinctAsTrueOrFalse" xml:space="preserve">
+    <value>Non-unique index can't declare AreNullDistinct as true or false</value>
+  </data>
 </root>

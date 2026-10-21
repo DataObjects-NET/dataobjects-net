@@ -16,7 +16,7 @@ namespace Xtensive.Sql.Info
     private int maxLength;
     private int maxNumberOfColumns;
     private PartitionMethods partitionMethods;
-    private bool? nullsDistinct;
+    private bool? nullsDistinctByDefault;
 
     /// <summary>
     /// Gets or sets the maximal index length in bytes.
@@ -71,10 +71,10 @@ namespace Xtensive.Sql.Info
     /// </summary>
     public bool? NullDistinctByDefault
     {
-      get => nullsDistinct;
+      get => nullsDistinctByDefault;
       set {
         EnsureNotLocked();
-        nullsDistinct = value;
+        nullsDistinctByDefault = value;
       }
     }
   }

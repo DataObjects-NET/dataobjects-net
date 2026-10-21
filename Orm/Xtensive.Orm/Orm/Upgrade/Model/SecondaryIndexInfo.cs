@@ -18,7 +18,7 @@ namespace Xtensive.Orm.Upgrade.Model
   public sealed class SecondaryIndexInfo : StorageIndexInfo
   {
     private PartialIndexFilterInfo filter;
-    private bool? nullDistinct;
+    private bool? areNullsDistinct;
 
     /// <summary>
     /// Gets value columns.
@@ -53,12 +53,12 @@ namespace Xtensive.Orm.Upgrade.Model
     /// <para><see langword="null">Null</see> means behavior no exact value set and it us up to default storage behavior.</para>
     /// </remarks>
     [Property(Priority = -80)]
-    public bool? NullDistinct
+    public bool? AreNullsDistinct
     {
-      get => nullDistinct;
+      get => areNullsDistinct;
       set {
         EnsureIsEditable();
-        nullDistinct = value;
+        areNullsDistinct = value;
       }
     }
 
@@ -129,8 +129,8 @@ namespace Xtensive.Orm.Upgrade.Model
             handle: true);
         }
 
-        if (!IsUnique && NullDistinct.HasValue) {
-          ea.Add(new ValidationException("Non-unique indexes can't declare NullDistinct as true or false", Path), handle: true);
+        if (!IsUnique && AreNullsDistinct.HasValue) {
+          ea.Add(new ValidationException(Strings.ExNonUniqueIndexCantDeclareNullDistinctAsTrueOrFalse, Path), handle: true);
         }
 
         ea.Complete();

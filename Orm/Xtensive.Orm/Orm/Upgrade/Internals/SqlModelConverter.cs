@@ -189,13 +189,12 @@ namespace Xtensive.Orm.Upgrade
       if (index.IsUnique && nullTreatmentSupported) {
         // if option is supported then there is no such thing as unspecified treatment,
         // index has to have either 'distinct' or 'not distinct' null treatment
-        secondaryIndexInfo.NullDistinct = index.NullTreatment == Sql.Model.UniqueNullTreatment.Distinct;
+        secondaryIndexInfo.AreNullsDistinct = index.NullTreatment == Sql.Model.UniqueNullTreatment.Distinct;
       }
       else {
         // for non unique indexes or if no support - index should have null
-        secondaryIndexInfo.NullDistinct = null;
+        secondaryIndexInfo.AreNullsDistinct = null;
       }
-
 
       foreach (var keyColumn in index.Columns) {
         var columnInfo = tableInfo.Columns[keyColumn.Column.Name];

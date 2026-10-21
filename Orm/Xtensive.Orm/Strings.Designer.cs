@@ -3166,6 +3166,15 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Non-unique index can&apos;t declare AreNullDistinct as true or false.
+        /// </summary>
+        internal static string ExNonUniqueIndexCantDeclareNullDistinctAsTrueOrFalse {
+            get {
+                return ResourceManager.GetString("ExNonUniqueIndexCantDeclareNullDistinctAsTrueOrFalse", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to There is no object with specified key..
         /// </summary>
         internal static string ExNoObjectWithSpecifiedKey {

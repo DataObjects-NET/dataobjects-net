@@ -154,21 +154,21 @@ namespace Xtensive.Orm.Upgrade
       secondaryIndex.IsUnique = index.IsUnique;
       var isClustered = index.IsClustered && providerInfo.Supports(ProviderFeatures.ClusteredIndexes);
       secondaryIndex.IsClustered = isClustered;
-      secondaryIndex.NullDistinct = index.IsNullDistinct;
+      secondaryIndex.AreNullsDistinct = index.AreNullsDistinct;
 
       if (index.IsUnique && providerInfo.Supports(ProviderFeatures.UniqueNullTreatment)) {
-        // If storage supports SQL 2023 unique nulls treatment, but no value set for NullDistinct
+        // If storage supports SQL 2023 unique nulls treatment, but no value set for AreNullsDistinct
         // it means default settings are used in domain configuration, and we should try to resolve it
         // into default treatment for storage via driver to not have changes on models comparison.
         // We expect that default behaviour will be defined as either distinct or not distinct.
-        if (!secondaryIndex.NullDistinct.HasValue)
-          secondaryIndex.NullDistinct = driver.ServerInfo.Index.NullDistinctByDefault;
+        if (!secondaryIndex.AreNullsDistinct.HasValue)
+          secondaryIndex.AreNullsDistinct = driver.ServerInfo.Index.NullDistinctByDefault;
       }
-      else if (secondaryIndex.NullDistinct.HasValue) {
+      else if (secondaryIndex.AreNullsDistinct.HasValue) {
         // Should never happen, if so then something is wrong with model building.
         // If null treatment option ever becomes public per-index setting
         // then an exception should be thrown here, but now we late-fix value to correct one.
-        secondaryIndex.NullDistinct = null;
+        secondaryIndex.AreNullsDistinct = null;
       }
 
       foreach (KeyValuePair<ColumnInfo, Direction> pair in index.KeyColumns) {

@@ -143,7 +143,7 @@ namespace Xtensive.Orm.Building.Builders
 
     private void CorrectIndexNullTreatment()
     {
-      // If indexDef.IsNullDistinct becomes public per-index setting,
+      // If indexDef.ArNullsDistinct becomes public per-index setting,
       // this should be implemented as model inspector step with proper fixup actions
       // and BuildLog entries for every correction.
 
@@ -157,12 +157,12 @@ namespace Xtensive.Orm.Building.Builders
           if (idx.IsSecondary && idx.IsUnique && settingSupported)
             continue;
           else 
-            idx.IsNullDistinct = null;
+            idx.AreNullsDistinct = null;
         }
       }
       else {
         foreach (var idx in affectedIndexes) {
-          idx.IsNullDistinct = null;
+          idx.AreNullsDistinct = null;
         }
       }
 
@@ -174,7 +174,7 @@ namespace Xtensive.Orm.Building.Builders
 
       static bool NotNullFilter(IndexDef i)
       {
-        return i.IsNullDistinct.HasValue;
+        return i.AreNullsDistinct.HasValue;
       }
     }
 
