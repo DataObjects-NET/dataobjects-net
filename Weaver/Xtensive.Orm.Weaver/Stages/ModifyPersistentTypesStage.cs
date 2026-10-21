@@ -22,41 +22,39 @@ namespace Xtensive.Orm.Weaver.Stages
     {
       var references = context.References;
 
-      entityFactorySignatures = new[] {
-        new[] {references.SerializationInfo, references.StreamingContext},
-        new[] {references.Session, references.EntityState},
-      };
+      entityFactorySignatures = [
+        [references.Session, references.EntityState],
+      ];
 
-      structureFactorySignatures = new[] {
-        new[] {references.SerializationInfo, references.StreamingContext},
-        new[] {references.Session, references.Tuple},
-        new[] {references.Persistent, references.FieldInfo},
-      };
+      structureFactorySignatures = [
+        [references.Session, references.Tuple],
+        [references.Persistent, references.FieldInfo],
+      ];
 
-      entitySetFactorySignatures = new[] {
-        new[] {references.SerializationInfo, references.StreamingContext},
-        new[] {references.Entity, references.FieldInfo},
-      };
+      entitySetFactorySignatures = [
+        [references.Entity, references.FieldInfo],
+      ];
 
       propertyChecker = (context.Language==SourceLanguage.CSharp) 
         ? (IPersistentPropertyChecker) new CsPropertyChecker() 
         : new VbPropertyChecker();
 
-      foreach (var type in context.PersistentTypes)
+      foreach (var type in context.PersistentTypes) {
         switch (type.Kind) {
-        case PersistentTypeKind.Entity:
-          ProcessEntity(context, type);
-          break;
-        case PersistentTypeKind.EntitySet:
-          ProcessEntitySet(context, type);
-          break;
-        case PersistentTypeKind.EntityInterface:
-          ProcessEntityInterface(context, type);
-          break;
-        case PersistentTypeKind.Structure:
-          ProcessStructure(context, type);
-          break;
+          case PersistentTypeKind.Entity:
+            ProcessEntity(context, type);
+            break;
+          case PersistentTypeKind.EntitySet:
+            ProcessEntitySet(context, type);
+            break;
+          case PersistentTypeKind.EntityInterface:
+            ProcessEntityInterface(context, type);
+            break;
+          case PersistentTypeKind.Structure:
+            ProcessStructure(context, type);
+            break;
         }
+      }
 
       if (propertyChecker.HasSkippedProperties) {
         context.Logger.Write(MessageCode.ErrorPersistentPropertiesWereNotProcessed);
