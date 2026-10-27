@@ -15,37 +15,23 @@ namespace Xtensive.Orm.Weaver
   internal sealed class AssemblyResolver : IAssemblyResolver
   {
     private readonly MessageLogger logger;
-    private readonly Dictionary<string, string> assemblyFiles = new Dictionary<string, string>(WeavingHelper.AssemblyNameComparer);
-    private readonly Dictionary<string, ModuleDefinition> loadedAssemblies = new Dictionary<string, ModuleDefinition>(WeavingHelper.AssemblyNameComparer);
+    private readonly Dictionary<string, string> assemblyFiles = new(WeavingHelper.AssemblyNameComparer);
+    private readonly Dictionary<string, ModuleDefinition> loadedAssemblies = new(WeavingHelper.AssemblyNameComparer);
     private readonly IAssemblyResolver defaultAssemblyResolver;
 
-    public AssemblyDefinition Resolve(AssemblyNameReference name)
-    {
-      return ResolveInternal(name);
-    }
+    public AssemblyDefinition Resolve(AssemblyNameReference name) => ResolveInternal(name);
 
-    public AssemblyDefinition Resolve(AssemblyNameReference name, ReaderParameters parameters)
-    {
-      return ResolveInternal(name);
-    }
+    public AssemblyDefinition Resolve(AssemblyNameReference name, ReaderParameters parameters) => ResolveInternal(name);
 
-    public AssemblyDefinition Resolve(string fullName)
-    {
-      return ResolveInternal(AssemblyNameReference.Parse(fullName));
-    }
+    public AssemblyDefinition Resolve(string fullName) => ResolveInternal(AssemblyNameReference.Parse(fullName));
 
-    public AssemblyDefinition Resolve(string fullName, ReaderParameters parameters)
-    {
-      return ResolveInternal(AssemblyNameReference.Parse(fullName));
-    }
+    public AssemblyDefinition Resolve(string fullName, ReaderParameters parameters) => ResolveInternal(AssemblyNameReference.Parse(fullName));
 
     private AssemblyDefinition ResolveInternal(AssemblyNameReference name)
     {
       var shortName = name.Name;
-      ModuleDefinition module;
-      if (!loadedAssemblies.TryGetValue(shortName, out module)) {
-        string file;
-        if (!TryGetAssemblyFile(shortName, out file)) {
+      if (!loadedAssemblies.TryGetValue(shortName, out var module)) {
+        if (!TryGetAssemblyFile(shortName, out var file)) {
           AssemblyDefinition resolvedAssembly;
           try {
             resolvedAssembly = defaultAssemblyResolver.Resolve(name);
@@ -53,7 +39,7 @@ namespace Xtensive.Orm.Weaver
           catch (Exception) {
             resolvedAssembly = null;
           }
-          if (resolvedAssembly==null) {
+          if (resolvedAssembly is null) {
             logger.Write(MessageCode.ErrorUnableToFindReferencedAssembly, shortName);
             throw new StageFailedException();
           }
@@ -67,9 +53,7 @@ namespace Xtensive.Orm.Weaver
 
     private bool TryGetAssemblyFile(string shortName, out string file)
     {
-      if (assemblyFiles.TryGetValue(shortName, out file))
-        return true;
-      return false;
+      return assemblyFiles.TryGetValue(shortName, out file);
     }
 
     private ModuleDefinition LoadAssembly(string file)
@@ -84,10 +68,8 @@ namespace Xtensive.Orm.Weaver
 
     public AssemblyResolver(IEnumerable<string> referencedAssemblies, MessageLogger logger)
     {
-      if (referencedAssemblies==null)
-        throw new ArgumentNullException("referencedAssemblies");
-      if (logger==null)
-        throw new ArgumentNullException("logger");
+      ArgumentNullException.ThrowIfNull(referencedAssemblies);
+      ArgumentNullException.ThrowIfNull(logger);
 
       this.logger = logger;
 

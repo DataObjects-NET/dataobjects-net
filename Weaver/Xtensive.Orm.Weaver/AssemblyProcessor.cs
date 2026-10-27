@@ -42,7 +42,7 @@ namespace Xtensive.Orm.Weaver
       using (context) {
         foreach (var stage in GetStages()) {
           var stageResult = ExecuteStage(context, stage);
-          if (stageResult!=ActionResult.Success)
+          if (stageResult is not ActionResult.Success)
             return stageResult;
         }
       }

@@ -20,7 +20,7 @@ namespace Xtensive.Orm.Weaver.Tasks
     {
       var body = constructor.Body;
       var il = body.GetILProcessor();
-      var originalLastRet = body.Instructions.Reverse().FirstOrDefault(i => i != null && i.OpCode.Code == Code.Ret);
+      var originalLastRet = body.Instructions.Reverse().FirstOrDefault(static i => i is not null && i.OpCode.Code is Code.Ret);
       var leavePlaceholder = il.Create(OpCodes.Nop);
 
       var initializeCall = EmitInitializeCall(context, il);
@@ -38,7 +38,7 @@ namespace Xtensive.Orm.Weaver.Tasks
       il.Append(ret);
       il.Replace(leavePlaceholder, il.Create(OpCodes.Leave, ret));
       if (body.ExceptionHandlers.Count != 0) {
-        if (originalLastRet != null)
+        if (originalLastRet is not null)
           foreach (var eHandler in body.ExceptionHandlers) {
             FixCatchLeave(eHandler.HandlerStart, eHandler.HandlerEnd, originalLastRet, initializeCall);
           }
@@ -60,9 +60,9 @@ namespace Xtensive.Orm.Weaver.Tasks
     private void ReplaceRetWithBr(ILProcessor il, Instruction start, Instruction end, Instruction brTarget)
     {
       var current = start;
-      while (current!=end) {
+      while (current != end) {
         var next = current.Next;
-        if (current.OpCode.Code==Code.Ret)
+        if (current.OpCode.Code is Code.Ret)
           il.Replace(current, il.Create(OpCodes.Br, brTarget));
         current = next;
       }
@@ -71,10 +71,10 @@ namespace Xtensive.Orm.Weaver.Tasks
     private void FixCatchLeave(Instruction start, Instruction end, Instruction oldRetTarget, Instruction newTarget)
     {
       var current = start;
-      while (current != end && current != null) {
+      while (current != end && current is not null) {
         var next = current.Next;
         var code = current.OpCode.Code;
-        if ((code == Code.Leave || code == Code.Leave_S) && current.Operand == oldRetTarget) {
+        if ((code is Code.Leave or Code.Leave_S) && current.Operand == oldRetTarget) {
           current.Operand = newTarget;
         }
         current = next;
@@ -84,21 +84,20 @@ namespace Xtensive.Orm.Weaver.Tasks
     private Instruction GetStartInstruction(ILProcessor il)
     {
       var instructions = constructor.Body.Instructions;
-      var baseConstructorCall = instructions.FirstOrDefault(IsBaseConstructorCall);
-      var startInstruction = baseConstructorCall!=null ? baseConstructorCall.Next : instructions.FirstOrDefault();
-      if (startInstruction==null) {
+      var baseConstructorCall = instructions.FirstOrDefault(static i => i.IsBaseConstructorCall());
+      var startInstruction = baseConstructorCall is not null ? baseConstructorCall.Next : instructions.FirstOrDefault();
+      if (startInstruction is null) {
         il.Emit(OpCodes.Nop);
         startInstruction = instructions.FirstOrDefault();
       }
       return startInstruction;
     }
 
-    private bool IsBaseConstructorCall(Instruction instruction)
+    private static bool IsBaseConstructorCall(Instruction instruction)
     {
-      if (instruction.OpCode.Code!=Code.Call)
+      if (instruction.OpCode.Code is not Code.Call)
         return false;
-      var method = instruction.Operand as MethodReference;
-      if (method==null)
+      if (instruction.Operand is not MethodReference method)
         return false;
       if (method.Name!=WellKnown.Constructor)
         return false;
@@ -138,13 +137,8 @@ namespace Xtensive.Orm.Weaver.Tasks
 
     public ImplementInitializablePatternTask(TypeDefinition type, MethodDefinition constructor)
     {
-      if (type==null)
-        throw new ArgumentNullException("type");
-      if (constructor==null)
-        throw new ArgumentNullException("constructor");
-
-      this.type = type;
-      this.constructor = constructor;
+      this.type = type ?? throw new ArgumentNullException(nameof(type));
+      this.constructor = constructor ?? throw new ArgumentNullException(nameof(constructor));
     }
   }
 }

@@ -17,9 +17,16 @@ namespace Xtensive.Orm.Weaver
 
     public PropertyDefinition Definition { get; private set; }
 
-    public string Name { get { return Definition.Name; } }
+    #region Definition projections
 
-    public bool IsInstance { get { return Definition.HasThis; } }
+    public string Name => Definition.Name;
+
+    public bool IsInstance => Definition.HasThis;
+
+    public bool HasDefaultValue => Definition.HasDefault;
+
+    public MethodDefinition AnyAccessor => Definition.GetMethod ?? Definition.SetMethod;
+    #endregion
 
     public bool IsAutomatic { get; set; }
 
@@ -39,43 +46,40 @@ namespace Xtensive.Orm.Weaver
 
     public IList<PropertyInfo> ImplementedProperties { get; set; }
 
-    public MethodDefinition AnyAccessor
-    {
-      get { return Definition.GetMethod ?? Definition.SetMethod; }
-    }
+    
 
     public override string ToString()
     {
-      var resultBuilder = new StringBuilder();
-      resultBuilder.Append(Name);
-      resultBuilder.AppendFormat($" [type({Definition.PropertyType.FullName})]");
+      var resultBuilder = new StringBuilder()
+        .Append(Name)
+        .AppendFormat($" [type({Definition.PropertyType.FullName})]");
       if (IsInstance)
-        resultBuilder.Append(" [instance]");
+        _ = resultBuilder.Append(" [instance]");
       if (IsAutomatic)
-        resultBuilder.Append(" [automatic]");
+        _ = resultBuilder.Append(" [automatic]");
       if (IsNew)
-        resultBuilder.Append(" [new]");
+        _ = resultBuilder.Append(" [new]");
       if (IsOverride)
-        resultBuilder.Append(" [override]");
+        _ = resultBuilder.Append(" [override]");
       if (IsExplicitInterfaceImplementation)
-        resultBuilder.Append(" [explicit_implementation]");
+        _ = resultBuilder.Append(" [explicit_implementation]");
       if (IsKey)
-        resultBuilder.Append(" [key]");
+        _ = resultBuilder.Append(" [key]");
       if (IsPersistent) {
-        if (PersistentName!=null)
-          resultBuilder.AppendFormat($" [persistent({PersistentName})]");
+        if (PersistentName is not null)
+          _ = resultBuilder.AppendFormat($" [persistent({PersistentName})]");
         else
-          resultBuilder.Append(" [persistent]");
+          _ = resultBuilder.Append(" [persistent]");
       }
       foreach (var implementedProperty in ImplementedProperties)
-        resultBuilder.AppendFormat($" [implements({implementedProperty.DeclaringType.FullName}::{implementedProperty.Name})]");
+        _ = resultBuilder.AppendFormat($" [implements({implementedProperty.DeclaringType.FullName}::{implementedProperty.Name})]");
       return resultBuilder.ToString();
     }
 
     public PropertyInfo FindBase(Func<PropertyInfo, bool> predicate)
     {
       var current = BaseProperty;
-      while (current!=null) {
+      while (current is not null) {
         if (predicate.Invoke(current))
           return current;
         current = current.BaseProperty;
@@ -85,13 +89,8 @@ namespace Xtensive.Orm.Weaver
 
     public PropertyInfo(TypeInfo declaringType, PropertyDefinition definition)
     {
-      if (declaringType==null)
-        throw new ArgumentNullException("declaringType");
-      if (definition==null)
-        throw new ArgumentNullException("definition");
-
-      DeclaringType = declaringType;
-      Definition = definition;
+      DeclaringType = declaringType ?? throw new ArgumentNullException(nameof(declaringType));
+      Definition = definition ?? throw new ArgumentNullException(nameof(definition));
       ImplementedProperties = new List<PropertyInfo>();
     }
   }

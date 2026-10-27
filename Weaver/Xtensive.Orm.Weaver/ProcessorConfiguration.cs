@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2013 Xtensive LLC.
+// Copyright (C) 2013 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -110,62 +110,62 @@ namespace Xtensive.Orm.Weaver
 
     public string InputFile
     {
-      get { return inputFile; }
-      set { inputFile = value; }
+      get => inputFile;
+      set => inputFile = value;
     }
 
     public string OutputFile
     {
-      get { return outputFile; }
-      set { outputFile = value; }
+      get => outputFile;
+      set => outputFile = value;
     }
 
     public string StrongNameKey
     {
-      get { return strongNameKey; }
-      set { strongNameKey = value; }
+      get => strongNameKey;
+      set => strongNameKey = value;
     }
 
     public string ProjectType
     {
-      get { return projectType; }
-      set { projectType = value; }
+      get => projectType;
+      set => projectType = value;
     }
 
     public bool MakeBackup
     {
-      get { return makeBackup; }
-      set { makeBackup = value; }
+      get => makeBackup;
+      set => makeBackup = value;
     }
 
     public bool ProcessDebugSymbols
     {
-      get { return processDebugSymbols; }
-      set { processDebugSymbols = value; }
+      get => processDebugSymbols;
+      set => processDebugSymbols = value;
     }
 
     public bool WriteStatusFile
     {
-      get { return writeStatusFile; }
-      set { writeStatusFile = value; }
+      get => writeStatusFile;
+      set => writeStatusFile = value;
     }
 
     public bool WriteStampFile
     {
-      get { return writeStampFile; }
-      set { writeStampFile = value; }
+      get => writeStampFile;
+      set => writeStampFile = value;
     }
 
     public IList<string> ReferencedAssemblies
     {
-      get { return referencedAssemblies; }
-      set { referencedAssemblies = value; }
+      get => referencedAssemblies;
+      set => referencedAssemblies = value;
     }
 
     public bool Parse(string parameterString)
     {
-      if (parameterString==null)
-        throw new ArgumentNullException("parameterString");
+      ArgumentNullException.ThrowIfNull(parameterString);
+
       return Parser.Parse(this, parameterString);
     }
 

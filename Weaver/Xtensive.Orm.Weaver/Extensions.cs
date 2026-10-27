@@ -1,12 +1,13 @@
-// Copyright (C) 2013 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2013-2026 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2013.08.21
 
 using System.Collections.Generic;
 using System.Linq;
 using Mono.Cecil;
+using Mono.Cecil.Cil;
 using Mono.Collections.Generic;
 
 namespace Xtensive.Orm.Weaver
@@ -59,6 +60,43 @@ namespace Xtensive.Orm.Weaver
       if (type.IsGenericInstance)
         type = type.GetElementType();
       return type;
+    }
+
+    internal static FieldReference GetBackingField(this PropertyDefinition property)
+    {
+      // works for unprocessed properties
+
+      MethodDefinition searchTarget;
+      OpCode targetCode;
+      if (property.GetMethod is not null) {
+        searchTarget = property.GetMethod;
+        targetCode = OpCodes.Ldfld;
+      }
+      else if (property.SetMethod is not null) {
+        searchTarget = property.SetMethod;
+        targetCode = OpCodes.Stfld;
+      }
+      else {
+        return null;
+      }
+
+      foreach(var inst in searchTarget.Body.Instructions) {
+        if (inst.OpCode == targetCode && inst?.Operand is FieldReference fieldRef) {
+          return fieldRef;
+        }
+      }
+      return null;
+    }
+
+    internal static bool IsBaseConstructorCall(this Instruction instruction)
+    {
+      if (instruction.OpCode.Code is not Code.Call)
+        return false;
+      if (instruction.Operand is not MethodReference method)
+        return false;
+      if (method.Name != WellKnown.Constructor)
+        return false;
+      return true;
     }
   }
 }

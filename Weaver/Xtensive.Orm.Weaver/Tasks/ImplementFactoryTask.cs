@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2013 Xtensive LLC.
+// Copyright (C) 2013 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -39,7 +39,7 @@ namespace Xtensive.Orm.Weaver.Tasks
     private MethodDefinition DefineConstructor(ProcessorContext context)
     {
       var baseConstructor = GetBaseConstructor(context);
-      var method = new MethodDefinition(WellKnown.Constructor, ConstructorAttributes, voidType) {HasThis = true};
+      var method = new MethodDefinition(WellKnown.Constructor, ConstructorAttributes, voidType) { HasThis = true };
       DefineParameters(method);
       WeavingHelper.MarkAsCompilerGenerated(context, method);
       var il = method.Body.GetILProcessor();
@@ -70,16 +70,16 @@ namespace Xtensive.Orm.Weaver.Tasks
 
     private MethodDefinition GetExistingConstructor()
     {
-      var parameterTypes = signature.Select(t => new TypeIdentity(t)).ToList();
-      var constructors = targetType.Methods.Where(m => m.IsConstructor && !m.IsStatic);
+      var parameterTypes = signature.Select(static t => new TypeIdentity(t)).ToList();
+      var constructors = targetType.Methods.Where(static m => m.IsConstructor && !m.IsStatic);
       var existingConstructor = constructors
-        .FirstOrDefault(m => m.Parameters.Select(p => new TypeIdentity(p.ParameterType)).SequenceEqual(parameterTypes));
+        .FirstOrDefault(m => m.Parameters.Select(static p => new TypeIdentity(p.ParameterType)).SequenceEqual(parameterTypes));
       return existingConstructor;
     }
 
     private MethodReference GetBaseConstructor(ProcessorContext context)
     {
-      var reference = new MethodReference(WellKnown.Constructor, voidType, targetType.BaseType) {HasThis = true};
+      var reference = new MethodReference(WellKnown.Constructor, voidType, targetType.BaseType) { HasThis = true };
       DefineParameters(reference);
       return context.TargetModule.ImportReference(reference);
     }
@@ -98,13 +98,8 @@ namespace Xtensive.Orm.Weaver.Tasks
 
     public ImplementFactoryTask(TypeDefinition targetType, TypeReference[] signature)
     {
-      if (targetType==null)
-        throw new ArgumentNullException("targetType");
-      if (signature==null)
-        throw new ArgumentNullException("signature");
-
-      this.targetType = targetType;
-      this.signature = signature;
+      this.targetType = targetType ?? throw new ArgumentNullException(nameof(targetType));
+      this.signature = signature ?? throw new ArgumentNullException(nameof(signature));
     }
   }
 }

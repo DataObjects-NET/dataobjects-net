@@ -18,8 +18,7 @@ namespace Xtensive.Orm.Weaver.Stages
       var registry = context.References;
       var mscorlibAssembly = context.TargetModule.TypeSystem.CoreLibrary;
 
-      AssemblyNameReference ormAssembly;
-      if (!TryGetOrmAssembly(context, out ormAssembly)) {
+      if (!TryGetOrmAssembly(context, out var ormAssembly)) {
         context.SkipProcessing = true;
         return ActionResult.Success;
       }
@@ -129,11 +128,11 @@ namespace Xtensive.Orm.Weaver.Stages
       // So try to get it
       assemblyNameReference = context.TargetModule.AssemblyReferences
         .Select(r => context.AssemblyResolver.Resolve(r))
-        .SelectMany(r => r.Modules)
-        .SelectMany(m => m.AssemblyReferences)
+        .SelectMany(static r => r.Modules)
+        .SelectMany(static m => m.AssemblyReferences)
         .FirstOrDefault(ar => comparer.Equals(ar.FullName, WellKnown.OrmAssemblyFullName));
 
-      if (assemblyNameReference != null) {
+      if (assemblyNameReference is not null) {
         context.ShouldAddReferenceToOrm = true;
         return true;
       }

@@ -125,7 +125,7 @@ namespace Xtensive.Orm.Weaver.Stages
         else
           context.WeavingTasks.Add(new ImplementFieldAccessorTask(AccessorKind.Setter,
             typeDefinition, propertyDefinition, persistentName));
-        if (property.PersistentName!=null)
+        if (property.PersistentName is not null)
           context.WeavingTasks.Add(new AddAttributeTask(propertyDefinition,
             context.References.OverrideFieldNameAttributeConstructor, property.PersistentName));
       }
@@ -134,7 +134,7 @@ namespace Xtensive.Orm.Weaver.Stages
     private static void ProcessConstructors(ProcessorContext context, TypeInfo type)
     {
       var userConstructors = type.Definition.Methods
-        .Where(m => m.IsConstructor && !m.IsStatic && !m.HasAttribute(WellKnown.CompilerGeneratedAttribute));
+        .Where(static m => m.IsConstructor && !m.IsStatic && !m.HasAttribute(WellKnown.CompilerGeneratedAttribute));
       foreach (var constructor in userConstructors)
         context.WeavingTasks.Add(new ImplementInitializablePatternTask(type.Definition, constructor));
     }
