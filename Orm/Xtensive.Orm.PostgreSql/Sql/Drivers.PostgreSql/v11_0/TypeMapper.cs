@@ -311,6 +311,9 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v11_0
     public TypeMapper(PostgreSql.Driver driver)
       : base(driver)
     {
+      var postgreServerInfo = driver.PostgreServerInfo;
+      legacyTimestampBehaviorEnabled = postgreServerInfo.LegacyTimestampBehavior;
+      defaultTimeZone = postgreServerInfo.DefaultTimeZone;
     }
   }
 }
