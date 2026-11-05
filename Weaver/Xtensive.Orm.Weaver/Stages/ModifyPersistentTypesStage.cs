@@ -1,9 +1,10 @@
-// Copyright (C) 2013 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2013-2026 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2013.08.21
 
+using System.Collections.Generic;
 using System.Linq;
 using Mono.Cecil;
 using Xtensive.Orm.Weaver.Tasks;
@@ -86,8 +87,8 @@ namespace Xtensive.Orm.Weaver.Stages
       foreach (var signature in entityFactorySignatures)
         context.WeavingTasks.Add(new ImplementFactoryTask(definition, signature));
 
-      ProcessFields(context, type);
-      ProcessConstructors(context, type);
+      var inCtorInitializedFields = ProcessFields(context, type);
+      ProcessConstructors(context, type, inCtorInitializedFields);
 
       context.WeavingTasks.Add(new AddAttributeTask(definition, context.References.EntityTypeAttributeConstructor));
     }
@@ -99,21 +100,30 @@ namespace Xtensive.Orm.Weaver.Stages
       foreach (var signature in structureFactorySignatures)
         context.WeavingTasks.Add(new ImplementFactoryTask(definition, signature));
 
-      ProcessFields(context, type);
-      ProcessConstructors(context, type);
+      var inCtorInitializedFields = ProcessFields(context, type);
+      ProcessConstructors(context, type, inCtorInitializedFields);
 
       context.WeavingTasks.Add(new AddAttributeTask(definition, context.References.StructureTypeAttributeConstructor));
     }
 
-    private void ProcessFields(ProcessorContext context, TypeInfo type)
+    private Dictionary<FieldReference, PropertyInfo> ProcessFields(ProcessorContext context, TypeInfo type)
     {
-      foreach (var property in type.Properties.Values.Where(p => p.IsPersistent)) {
+      var backingFieldMap = new Dictionary<FieldReference, PropertyInfo>();
+
+      foreach (var property in type.Properties.Values.Where(static p => p.IsPersistent)) {
+        // checks whether there is both getter and setter
         if (!propertyChecker.ShouldProcess(property, context))
           continue;
 
         var typeDefinition = type.Definition;
         var propertyDefinition = property.Definition;
         var persistentName = property.PersistentName ?? property.Name;
+        var hasDefaultValue = propertyDefinition.HasDefault;
+        var backingField = propertyDefinition.GetBackingField();
+        if (backingField is not null) {
+          backingFieldMap.Add(backingField, property);
+        }
+
         // Backing field
         context.WeavingTasks.Add(new RemoveBackingFieldTask(typeDefinition, propertyDefinition));
         // Getter
@@ -129,14 +139,19 @@ namespace Xtensive.Orm.Weaver.Stages
           context.WeavingTasks.Add(new AddAttributeTask(propertyDefinition,
             context.References.OverrideFieldNameAttributeConstructor, property.PersistentName));
       }
+      return backingFieldMap;
     }
 
-    private static void ProcessConstructors(ProcessorContext context, TypeInfo type)
+    private static void ProcessConstructors(ProcessorContext context, TypeInfo type, Dictionary<FieldReference, PropertyInfo> fieldsInitializations)
     {
       var userConstructors = type.Definition.Methods
         .Where(static m => m.IsConstructor && !m.IsStatic && !m.HasAttribute(WellKnown.CompilerGeneratedAttribute));
-      foreach (var constructor in userConstructors)
+      foreach (var constructor in userConstructors) {
+        context.WeavingTasks.Add(new RewriteAutoPropertyInitializersTask(type.Definition, constructor, fieldsInitializations));
+      }
+      foreach (var constructor in userConstructors) {
         context.WeavingTasks.Add(new ImplementInitializablePatternTask(type.Definition, constructor));
+      }
     }
   }
 }
