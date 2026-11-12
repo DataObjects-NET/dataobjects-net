@@ -24,35 +24,28 @@ namespace Xtensive.Orm.Weaver.Tasks
       var il = constructor.Body.GetILProcessor();
       var instructions = constructor.Body.Instructions;
 
-      // Has any field preinitialization?
       var fieldPreInitializations = FindFieldsPreInitializations(instructions, out var lastFieldInitPosition, out var ctorPosition);
-      if (fieldPreInitializations.Count == 0) {
+      if (fieldPreInitializations.Count == 0)
         return ActionResult.Success;
-      }
 
-      // Next, we separate possible non-persistent fields initializations
-      // from persistent properties initializations
       var requireRewrite = new Dictionary<MetadataToken, PropertyInfo>();
       foreach (var bF in fieldPreInitializations) {
-        if (persistentPropsBackingFields.TryGetValue(bF.MetadataToken, out var prop)) {
+        if (persistentPropsBackingFields.TryGetValue(bF.MetadataToken, out var prop))
           requireRewrite.Add(bF.MetadataToken, prop);
-        }
       }
 
-      if (requireRewrite.Count == 0) {
+      if (requireRewrite.Count == 0)
         return ActionResult.Success;
-      }
 
       var firstInstruction = instructions.First();
       var ctorCallStart = lastFieldInitPosition + 1;
       var ctorCallEnd = ctorPosition - lastFieldInitPosition;
 
-      // caching current instructions is required
       var beforeCtorInitializations = instructions.Take(ctorCallStart).ToArray();
       var ctorPreparation = instructions.Skip(ctorCallStart).Take(ctorCallEnd).ToArray();
 
-      // we have to move base constructor call to the top
-      // otherwise, setting persistent field value will not work
+      // We have to move base constructor call to the top
+      // otherwise, setting persistent field value will not work.
       foreach(var ctorinit in ctorPreparation) {
         il.Remove(ctorinit);
         il.InsertBefore(firstInstruction, ctorinit);
@@ -67,39 +60,38 @@ namespace Xtensive.Orm.Weaver.Tasks
 
           var definition = owningProp.Definition;
           if (definition.SetMethod is not null) {
-            // if there is setter than why don't we use it instead of backing field set
+            // If there is setter than it is less invasive to call it.
             var method = definition.SetMethod;
             var callop = method.IsVirtual ? OpCodes.Callvirt : OpCodes.Call;
             il.Replace(inst, il.Create(callop, method));
             continue;
           }
 
-          // no setter, use more complex way
+          // No setter, use more complex way
+          // Usual pattern of stack state for setting a field value is 'this' and the value to set,
+          // but the method call like SetFieldValue<T>("SomeProperty", value) requires three parameters
+          // with the extra one - in between the two.
+          // We have to re-arrange some values on stack for method to pickup
+          // so we use intermediate variable
+
           var propertyType = definition.PropertyType;
 
           var accessor = GetAccessor(context, propertyType,
             context.References.PersistentSetters,
             context.References.PersistentSetterDefinition);
 
-          // Usual pattern of stack for setting a field value is 'this' and value to set,
-          // but the method SetFieldValue<T>("SomeProperty", value) requires three parameters
-          // with new one in between the two.
-          // We have to re-arrange some values on stack for method to pickup
-          // so we use intermediate variable
+          
           var valueType = propertyType;
           var localVar = new VariableDefinition(valueType);
           constructor.Body.Variables.Add(localVar);
 
-          // First, we move actual value from the top of the stack to varable so the top is 'this'
+          //Re-arrange to prepare the stack
           il.InsertBefore(inst, il.Create(OpCodes.Stloc, localVar));
-          // Next, we put second parameter for the method - the name of persistent field
           il.InsertBefore(inst, il.Create(OpCodes.Ldstr, owningProp.PersistentName ?? owningProp.Name));
-          // Finally, last parameter is back on stack. We are ready to rock.
           il.InsertBefore(inst, il.Create(OpCodes.Ldloc, localVar));
 
           var newCall = il.Create(OpCodes.Call, accessor);
-          il.InsertBefore(inst, newCall);
-          il.Remove(inst);
+          il.Replace(inst, newCall);
         }
         else if (inst.IsBaseConstructorCall()) {
           // this is just-in-case breaker
@@ -124,15 +116,15 @@ namespace Xtensive.Orm.Weaver.Tasks
       return result;
     }
 
-    private static List<FieldReference> FindFieldsPreInitializations(Mono.Collections.Generic.Collection<Instruction> instructions,
+    private static IReadOnlyList<FieldReference> FindFieldsPreInitializations(Mono.Collections.Generic.Collection<Instruction> instructions,
       out int lastFieldPosition, out int ctorPosition)
     {
       lastFieldPosition = -1;
       ctorPosition = -1;
+      if (instructions.Count == 0)
+        return Array.Empty<FieldReference>();
+
       var preInitializedBackingFields = new List<FieldReference>();
-      if (instructions.Count == 0) {
-        return preInitializedBackingFields;
-      }
 
       var index = 0;
       var current = instructions.FirstOrDefault();
@@ -154,7 +146,9 @@ namespace Xtensive.Orm.Weaver.Tasks
     {
       this.type = type ?? throw new ArgumentNullException(nameof(type));
       this.constructor = constructor ?? throw new ArgumentNullException(nameof(constructor));
+
       ArgumentNullException.ThrowIfNull(backingFieldMap);
+
       persistentPropsBackingFields = backingFieldMap.ToDictionary(
         static kv => kv.Key.MetadataToken,
         static kv => kv.Value);
