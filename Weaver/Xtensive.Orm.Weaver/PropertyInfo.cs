@@ -25,6 +25,8 @@ namespace Xtensive.Orm.Weaver
 
     public bool HasDefaultValue => Definition.HasDefault;
 
+    public bool IsReadOnly => Definition.SetMethod is null;
+
     public MethodDefinition AnyAccessor => Definition.GetMethod ?? Definition.SetMethod;
     #endregion
 
