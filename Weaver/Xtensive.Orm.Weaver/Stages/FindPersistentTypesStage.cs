@@ -21,7 +21,7 @@ namespace Xtensive.Orm.Weaver.Stages
     {
       autoPropertyChecker = context.Language is SourceLanguage.VbNet
         ? IsVbAutoProperty
-        : IsCSharpAutoProperty;
+        : (context.ReadOnlyProperties) ? IsCSharpAutoPropertyRelaxed : IsCSharpAutoPropertyStrict;
 
       var typesToInspect = context.TargetModule.GetTypes()
         .Where(static t => t.IsClass && t.BaseType is not null || t.IsInterface);
@@ -194,11 +194,25 @@ namespace Xtensive.Orm.Weaver.Stages
         property.IsKey = true;
     }
 
-    private static bool IsCSharpAutoProperty(TypeDefinition type, PropertyDefinition property)
+    private static bool IsCSharpAutoPropertyStrict(TypeDefinition type, PropertyDefinition property)
     {
       return property.GetMethod is not null && property.SetMethod is not null
         && property.GetMethod.HasAttribute(WellKnown.CompilerGeneratedAttribute)
         && property.SetMethod.HasAttribute(WellKnown.CompilerGeneratedAttribute);
+    }
+
+    private static bool IsCSharpAutoPropertyRelaxed(TypeDefinition type, PropertyDefinition property)
+    {
+      var getter = property.GetMethod;
+      if (getter is null)
+        return false;
+      if (!getter.HasAttribute(WellKnown.CompilerGeneratedAttribute))
+        return false;
+
+      var setter = property.SetMethod;
+      if (setter is not null && setter.HasAttribute(WellKnown.CompilerGeneratedAttribute))
+        return false;
+      return true;
     }
 
     private static bool IsVbAutoProperty(TypeDefinition type, PropertyDefinition property)

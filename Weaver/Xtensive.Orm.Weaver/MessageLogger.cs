@@ -85,6 +85,8 @@ namespace Xtensive.Orm.Weaver
       RegisterMessage(MessageCode.WarningDebugSymbolsFileIsNotFound, "Debug symbols file is not found");
       RegisterMessage(MessageCode.WarningReferencedAssemblyFileIsNotFound, "Referenced assembly file is not found");
       RegisterMessage(MessageCode.WarningPersistentPropertyHasNoSetterOrGetter, "Persistent property was skipped due to it has no setter or getter");
+      RegisterMessage(MessageCode.WarningPersistentPropertyHasNoGetter, "Persistent property was skipped due to it has no getter (no setter is allowed, though)");
+      RegisterMessage(MessageCode.WarningKeyFieldSettingDetectedInsideConstructor, "Attept to set one of persistent property makred as [Key] discovered in constructor. Key values should not be set directly but rather passed into Entity constructor.");
     }
   }
 }

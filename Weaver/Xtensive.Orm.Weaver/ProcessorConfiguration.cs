@@ -11,6 +11,7 @@ namespace Xtensive.Orm.Weaver
 {
   public sealed class ProcessorConfiguration
   {
+
     private static class Parser
     {
       private const string WriteStatus = "status";
@@ -22,6 +23,7 @@ namespace Xtensive.Orm.Weaver
       private const string OutputFile = "output";
       private const string StrongNameKey = "snk";
       private const string ProjectType = "type";
+      private const string StrictMode = "strict";
       private const string ReferencedAssembly = "r";
 
       private static readonly char[] KeyValueSeparators = new[] {':', '='};
@@ -47,6 +49,11 @@ namespace Xtensive.Orm.Weaver
 
         if (Comparer.Equals(item, ProcessDebugSymbols)) {
           configuration.ProcessDebugSymbols = true;
+          return true;
+        }
+
+        if (Comparer.Equals(item, StrictMode)) {
+          configuration.StrictPersistentStructure = true;
           return true;
         }
 
@@ -102,6 +109,7 @@ namespace Xtensive.Orm.Weaver
     private string outputFile;
     private string strongNameKey;
     private string projectType;
+    private bool strictStructure;
     private bool makeBackup;
     private bool writeStatusFile;
     private bool writeStampFile;
@@ -130,6 +138,12 @@ namespace Xtensive.Orm.Weaver
     {
       get => projectType;
       set => projectType = value;
+    }
+
+    public bool StrictPersistentStructure
+    {
+      get => strictStructure;
+      set => strictStructure = value;
     }
 
     public bool MakeBackup
