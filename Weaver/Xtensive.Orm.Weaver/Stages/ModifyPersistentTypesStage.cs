@@ -89,8 +89,8 @@ namespace Xtensive.Orm.Weaver.Stages
       foreach (var signature in entityFactorySignatures)
         context.WeavingTasks.Add(new ImplementFactoryTask(definition, signature));
 
-      var inCtorInitializedFields = ProcessFields(context, type);
-      ProcessConstructors(context, type, inCtorInitializedFields);
+      var inCtorInitializedFields = ProcessFields(context, type, out var hasReadOnlyProps);
+      ProcessConstructors(context, type, inCtorInitializedFields, hasReadOnlyProps);
 
       context.WeavingTasks.Add(new AddAttributeTask(definition, context.References.EntityTypeAttributeConstructor));
     }
@@ -102,15 +102,16 @@ namespace Xtensive.Orm.Weaver.Stages
       foreach (var signature in structureFactorySignatures)
         context.WeavingTasks.Add(new ImplementFactoryTask(definition, signature));
 
-      var inCtorInitializedFields = ProcessFields(context, type);
-      ProcessConstructors(context, type, inCtorInitializedFields);
+      var inCtorInitializedFields = ProcessFields(context, type, out var hasReadOnlyProps);
+      ProcessConstructors(context, type, inCtorInitializedFields, hasReadOnlyProps);
 
       context.WeavingTasks.Add(new AddAttributeTask(definition, context.References.StructureTypeAttributeConstructor));
     }
 
-    private Dictionary<FieldReference, PropertyInfo> ProcessFields(ProcessorContext context, TypeInfo type)
+    private Dictionary<FieldReference, PropertyInfo> ProcessFields(ProcessorContext context, TypeInfo type, out bool hasReadOnlyProperties)
     {
       var backingFieldMap = new Dictionary<FieldReference, PropertyInfo>();
+      hasReadOnlyProperties = false;
 
       foreach (var property in type.Properties.Values.Where(static p => p.IsPersistent)) {
         // checks whether there is both getter and setter
@@ -119,12 +120,15 @@ namespace Xtensive.Orm.Weaver.Stages
 
         var typeDefinition = type.Definition;
         var propertyDefinition = property.Definition;
+        var isReadOnly = property.IsReadOnly;
         var persistentName = property.PersistentName ?? property.Name;
-        var hasDefaultValue = propertyDefinition.HasDefault;
+
+        if (isReadOnly)
+          hasReadOnlyProperties = true;
+
         var backingField = propertyDefinition.GetBackingField();
-        if (backingField is not null) {
+        if (backingField is not null)
           backingFieldMap.Add(backingField, property);
-        }
 
         // Backing field
         context.WeavingTasks.Add(new RemoveBackingFieldTask(typeDefinition, propertyDefinition));
@@ -132,26 +136,32 @@ namespace Xtensive.Orm.Weaver.Stages
         context.WeavingTasks.Add(new ImplementFieldAccessorTask(AccessorKind.Getter,
           typeDefinition, propertyDefinition, persistentName));
         // Setter
-        if (property.IsKey)
-          context.WeavingTasks.Add(new ImplementKeySetterTask(typeDefinition, propertyDefinition));
-        else
-          context.WeavingTasks.Add(new ImplementFieldAccessorTask(AccessorKind.Setter,
-            typeDefinition, propertyDefinition, persistentName));
+        if (!isReadOnly) {
+          context.WeavingTasks.Add((property.IsKey)
+            ? new ImplementKeySetterTask(typeDefinition, propertyDefinition)
+            : new ImplementFieldAccessorTask(AccessorKind.Setter, typeDefinition, propertyDefinition, persistentName));
+        }
         if (property.PersistentName is not null)
-          context.WeavingTasks.Add(new AddAttributeTask(propertyDefinition,
-            context.References.OverrideFieldNameAttributeConstructor, property.PersistentName));
+          context.WeavingTasks.Add(
+            new AddAttributeTask(propertyDefinition, context.References.OverrideFieldNameAttributeConstructor, property.PersistentName));
       }
       return backingFieldMap;
     }
 
-    private static void ProcessConstructors(ProcessorContext context, TypeInfo type, Dictionary<FieldReference, PropertyInfo> fieldsInitializations)
+    private static void ProcessConstructors(ProcessorContext context, TypeInfo type,
+      Dictionary<FieldReference, PropertyInfo> fieldsInitializations, bool hasReadOnlyProps)
     {
       var userConstructors = type.Definition.Methods
         .Where(static m => m.IsConstructor && !m.IsStatic && !m.HasAttribute(WellKnown.CompilerGeneratedAttribute));
+      // the order matters
+      // 1st - expects unchanged ctor, it handles (base ctor call, last backing field call] window
+      // 2nd - hadles [initial instuction, base ctor call) window, moves base constructor call to the top
+      // 3rd - wraps all body instructions
       foreach (var constructor in userConstructors) {
-        context.WeavingTasks.Add(new RewriteAutoPropertyInitializersTask(type.Definition, constructor, fieldsInitializations));
-      }
-      foreach (var constructor in userConstructors) {
+        if (context.ReadOnlyProperties && hasReadOnlyProps)
+          context.WeavingTasks.Add(new RewriteReadOnlyPropertyInitializersTask(type.Definition, constructor, fieldsInitializations));
+        if (context.AutoPropertyInitializers)
+          context.WeavingTasks.Add(new RewriteAutoPropertyInitializersTask(type.Definition, constructor, fieldsInitializations));
         context.WeavingTasks.Add(new ImplementInitializablePatternTask(type.Definition, constructor));
       }
     }
