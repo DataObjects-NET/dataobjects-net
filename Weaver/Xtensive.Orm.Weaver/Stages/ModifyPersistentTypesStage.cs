@@ -36,8 +36,10 @@ namespace Xtensive.Orm.Weaver.Stages
         [references.Entity, references.FieldInfo],
       ];
 
-      propertyChecker = (context.Language==SourceLanguage.CSharp) 
-        ? (IPersistentPropertyChecker) new CsPropertyChecker() 
+      propertyChecker = (context.Language is SourceLanguage.CSharp) 
+        ? context.ReadOnlyProperties
+          ? new CsPropertyCheckerRelaxed()
+          : new CsPropertyCheckerStrict() 
         : new VbPropertyChecker();
 
       foreach (var type in context.PersistentTypes) {
