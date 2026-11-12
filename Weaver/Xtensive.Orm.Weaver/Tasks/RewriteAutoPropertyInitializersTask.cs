@@ -65,7 +65,17 @@ namespace Xtensive.Orm.Weaver.Tasks
         if (inst.OpCode == OpCodes.Stfld && inst.Operand is FieldReference fieldRef
           && requireRewrite.TryGetValue(fieldRef.MetadataToken, out var owningProp)) {
 
-          var propertyType = owningProp.Definition.PropertyType;
+          var definition = owningProp.Definition;
+          if (definition.SetMethod is not null) {
+            // if there is setter than why don't we use it instead of backing field set
+            var method = definition.SetMethod;
+            var callop = method.IsVirtual ? OpCodes.Callvirt : OpCodes.Call;
+            il.Replace(inst, il.Create(callop, method));
+            continue;
+          }
+
+          // no setter, use more complex way
+          var propertyType = definition.PropertyType;
 
           var accessor = GetAccessor(context, propertyType,
             context.References.PersistentSetters,
