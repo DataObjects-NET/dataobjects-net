@@ -28,6 +28,7 @@
 [postgresql] Switch to .NET8/.NET10-only support, nuget packages actualized
 [postgresql] Support for PostgreSQL older than v11 ended due to end-of-life state
 [postgresql] Support for SKIP LOCK instruction alongside with NOWAIT instruction
+[postgresql] User-defined indexes with expressions declared as key columns (which have no support) get ignored from extracted schema to not disrupt domain build.
 [sqlserver] Switch to .NET8/.NET10-only support, nuget packages actualized
 [sqlserver] Support for MS SQL Server older than 2016 ended due to end-of-life state
 [bulkoperations] Switch to .NET8/.NET10-only support
