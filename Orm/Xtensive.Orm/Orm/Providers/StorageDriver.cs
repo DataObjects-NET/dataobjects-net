@@ -112,13 +112,16 @@ namespace Xtensive.Orm.Providers
     private void FixExtractionResult(SqlExtractionResult result)
     {
       switch (ProviderInfo.ProviderName) {
-      case WellKnown.Provider.SqlServer:
-      case WellKnown.Provider.SqlServerCe:
-        FixExtractionResultSqlServerFamily(result);
-        break;
-      case WellKnown.Provider.Sqlite:
-        FixExtractionResultSqlite(result);
-        break;
+        case WellKnown.Provider.SqlServer:
+        case WellKnown.Provider.SqlServerCe:
+          FixExtractionResultSqlServerFamily(result);
+          break;
+        case WellKnown.Provider.PostgreSql:
+          FixExtractionResultPostgreSql(result);
+          break;
+        case WellKnown.Provider.Sqlite:
+          FixExtractionResultSqlite(result);
+          break;
       }
     }
 
@@ -147,6 +150,20 @@ namespace Xtensive.Orm.Providers
         var sysdiagrams = tables["sysdiagrams"];
         if (sysdiagrams!=null)
           _ = tables.Remove(sysdiagrams);
+      }
+    }
+
+    private void FixExtractionResultPostgreSql(SqlExtractionResult result)
+    {
+      var indexesToRemove = result.Catalogs
+          .SelectMany(c => c.Schemas)
+          .SelectMany(s => s.Tables)
+          .SelectMany(t => t.Indexes)
+          .Where(i => i.Columns.Any(c => c.Column is null))
+          .Select(i => new { Idx = i, Owner = i.DataTable }).ToArray();
+
+      foreach (var pair in indexesToRemove) {
+        _ = pair.Owner.Indexes.Remove(pair.Idx);
       }
     }
 

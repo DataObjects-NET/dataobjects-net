@@ -775,14 +775,14 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v11_0
     /// <inheritdoc/>
     public override void Translate(IOutput output, SqlLockType lockType)
     {
-      if (lockType.Supports(SqlLockType.SkipLocked)) {
-        base.Translate(output, lockType);
-      }
       _ = lockType.Supports(SqlLockType.Shared)
         ? output.Append("FOR SHARE")
         : output.Append("FOR UPDATE");
       if (lockType.Supports(SqlLockType.ThrowIfLocked)) {
         _ = output.Append(" NOWAIT");
+      }
+      else if (lockType.Supports(SqlLockType.SkipLocked)) {
+        _ = output.Append(" SKIP LOCKED");
       }
     }
 
