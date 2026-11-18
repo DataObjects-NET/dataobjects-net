@@ -31,7 +31,7 @@ namespace Xtensive.Orm.Weaver
     {
       var result = new StringBuilder();
       for (var i = 0; i < value.Length; i++)
-        result.Append(value[i].ToString("x2"));
+        _ = result.Append(value[i].ToString("x2"));
       return result.ToString();
     }
 
@@ -49,18 +49,17 @@ namespace Xtensive.Orm.Weaver
 
     public static void MarkAsCompilerGenerated(ProcessorContext context, ICustomAttributeProvider target)
     {
-      if (context==null)
-        throw new ArgumentNullException("context");
-      if (target==null)
-        throw new ArgumentNullException("target");
+      ArgumentNullException.ThrowIfNull(context);
+      ArgumentNullException.ThrowIfNull(target);
+
       target.CustomAttributes.Add(new CustomAttribute(context.References.CompilerGeneratedAttributeConstructor));
     }
 
     public static void EmitLoadArguments(ILProcessor il, int count)
     {
-      if (il==null)
-        throw new ArgumentNullException("il");
-      if (count > Byte.MaxValue)
+      ArgumentNullException.ThrowIfNull(il);
+
+      if (count > byte.MaxValue)
         throw new ArgumentOutOfRangeException("count");
 
       if (count > 0)

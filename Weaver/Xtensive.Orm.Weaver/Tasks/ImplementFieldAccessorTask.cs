@@ -65,8 +65,7 @@ namespace Xtensive.Orm.Weaver.Tasks
       IDictionary<TypeIdentity, MethodReference> registry, MethodReference definition)
     {
       var identity = new TypeIdentity(property.PropertyType);
-      MethodReference result;
-      if (!registry.TryGetValue(identity, out result)) {
+      if (!registry.TryGetValue(identity, out var result)) {
         var accessor = new GenericInstanceMethod(definition);
         accessor.GenericArguments.Add(property.PropertyType);
         result = context.TargetModule.ImportReference(accessor);
@@ -77,14 +76,9 @@ namespace Xtensive.Orm.Weaver.Tasks
 
     public ImplementFieldAccessorTask(AccessorKind kind, TypeDefinition type, PropertyDefinition property, string persistentName)
     {
-      if (type==null)
-        throw new ArgumentNullException("type");
-      if (property==null)
-        throw new ArgumentNullException("property");
-
       this.kind = kind;
-      this.type = type;
-      this.property = property;
+      this.type = type ?? throw new ArgumentNullException(nameof(type));
+      this.property = property ?? throw new ArgumentNullException(nameof(property));
       this.persistentName = persistentName;
     }
   }

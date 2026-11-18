@@ -34,7 +34,8 @@
   <ItemGroup>
     <XtensiveOrmWeaverParameters Include="/type:$(MSBuildProjectExtension)" />
     <XtensiveOrmWeaverParameters Include="/backup" />
-    <XtensiveOrmWeaverParameters Include="/stamp" />
+	<XtensiveOrmWeaverParameters Include="/stamp" />
+	<XtensiveOrmWeaverParameters Condition="'$(XtensiveOrmLegacyProcessingMode)'=='true' OR '$(XtensiveOrmLegacyProcessingMode)'=='enable'" Include="/strict" />
     <XtensiveOrmWeaverParameters Condition="'$(DebugSymbols)'=='true'" Include="/pdb" />
     <XtensiveOrmWeaverParameters Condition="'$(SignAssembly)'=='true'" Include="/snk:$(AssemblyOriginatorKeyFile)" />
     <XtensiveOrmWeaverParameters Include="@(IntermediateAssembly -> '/input:%(FullPath)')" />

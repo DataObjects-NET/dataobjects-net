@@ -19,20 +19,19 @@ namespace Xtensive.Orm.Weaver.Stages
 
     public override ActionResult Execute(ProcessorContext context)
     {
-      if (context.Language==SourceLanguage.VbNet)
-        autoPropertyChecker = IsVbAutoProperty;
-      else
-        autoPropertyChecker = IsCSharpAutoProperty;
+      autoPropertyChecker = context.Language is SourceLanguage.VbNet
+        ? IsVbAutoProperty
+        : (context.ReadOnlyProperties) ? IsCSharpAutoPropertyRelaxed : IsCSharpAutoPropertyStrict;
 
       var typesToInspect = context.TargetModule.GetTypes()
-        .Where(t => t.IsClass && t.BaseType!=null || t.IsInterface);
+        .Where(static t => t.IsClass && t.BaseType is not null || t.IsInterface);
       foreach (var type in typesToInspect) {
         var result = InspectType(context, type);
-        if (result.Kind!=PersistentTypeKind.None)
+        if (result.Kind is not PersistentTypeKind.None)
           context.PersistentTypes.Add(result);
       }
 
-      context.SkipProcessing = context.PersistentTypes.Count==0;
+      context.SkipProcessing = context.PersistentTypes.Count == 0;
       return ActionResult.Success;
     }
 
@@ -42,7 +41,7 @@ namespace Xtensive.Orm.Weaver.Stages
         var baseType = InspectType(context, type.BaseType);
         var kind = baseType.Kind;
         var result = new TypeInfo(type, kind, baseType);
-        var expectPersistentProperties = kind==PersistentTypeKind.Entity || kind==PersistentTypeKind.Structure;
+        var expectPersistentProperties = kind is PersistentTypeKind.Entity or PersistentTypeKind.Structure;
         if (expectPersistentProperties)
           foreach (var @interface in type.Interfaces)
             result.Interfaces.Add(InspectType(context, @interface.InterfaceType));
@@ -57,11 +56,11 @@ namespace Xtensive.Orm.Weaver.Stages
         foreach (var @interface in type.Interfaces) {
           var current = InspectType(context, @interface.InterfaceType);
           interfaces.Add(current);
-          if (current.Kind==PersistentTypeKind.EntityInterface)
+          if (current.Kind is PersistentTypeKind.EntityInterface)
             isPersistent = true;
         }
         var kind = isPersistent ? PersistentTypeKind.EntityInterface : PersistentTypeKind.None;
-        var result = new TypeInfo(type, kind) {Interfaces = interfaces};
+        var result = new TypeInfo(type, kind) { Interfaces = interfaces };
         processedTypes.Add(identity, result);
         InspectProperties(context, result);
         return result;
@@ -74,29 +73,24 @@ namespace Xtensive.Orm.Weaver.Stages
 
       var identity = new TypeIdentity(type);
 
-      TypeInfo existing;
-      if (processedTypes.TryGetValue(identity, out existing))
+      if (processedTypes.TryGetValue(identity, out var existing))
         return existing;
 
-      AssemblyNameReference reference;
-      if (type.Scope.MetadataScopeType==MetadataScopeType.AssemblyNameReference)
-        reference = (AssemblyNameReference) type.Scope;
-      else if (type.Scope.MetadataScopeType==MetadataScopeType.ModuleDefinition) {
-        var defenition = (ModuleDefinition) type.Scope;
-        reference = defenition.Assembly.Name;
-      }
-      else {
-        // If type.Scope.MetadataScoreType==MetadataScoreType.ModuleReference
-        // then unable to understand which assembly is it, 
-        // because ModuleReference contains only name of Module.
-        throw new InvalidOperationException("Unable to inspect ModuleReference");
-      }
+      // If type.Scope.MetadataScoreType==MetadataScoreType.ModuleReference
+      // then unable to understand which assembly is it, 
+      // because ModuleReference contains only name of Module.
+      AssemblyNameReference reference = type.Scope.MetadataScopeType switch {
+        MetadataScopeType.AssemblyNameReference => (AssemblyNameReference) type.Scope,
+        MetadataScopeType.ModuleDefinition => ((ModuleDefinition) type.Scope).Assembly.Name,
+        _ => throw new InvalidOperationException("Unable to inspect ModuleReference")
+      };
+
       if (context.AssemblyChecker.IsFrameworkAssembly(reference) || context.AssemblyChecker.IsNetCoreAssembly(reference)) {
         var result = new TypeInfo(type, PersistentTypeKind.None);
         processedTypes.Add(identity, result);
         return result;
       }
-      if (reference.FullName==WellKnown.OrmAssemblyFullName) {
+      if (reference.FullName == WellKnown.OrmAssemblyFullName) {
         var result = new TypeInfo(type, ClassifyOrmType(type));
         processedTypes.Add(identity, result);
         return result;
@@ -122,21 +116,22 @@ namespace Xtensive.Orm.Weaver.Stages
     private void InspectProperties(ProcessorContext context, TypeInfo type)
     {
       foreach (var property in type.Definition.Properties) {
-        var propertyInfo = new PropertyInfo(type, property);
         // only indexers has parameters and we skip them
-        if (propertyInfo.AnyAccessor==null || property.HasParameters)
+        if ((property.GetMethod is null && property.SetMethod is null) || property.HasParameters)
           continue;
-        propertyInfo.IsAutomatic = autoPropertyChecker.Invoke(type.Definition, property);
+        var propertyInfo = new PropertyInfo(type, property) {
+          IsAutomatic = autoPropertyChecker.Invoke(type.Definition, property),
+        };
         propertyInfo.IsPersistent = propertyInfo.IsInstance && property.HasAttribute(WellKnown.FieldAttribute);
         propertyInfo.IsKey = propertyInfo.IsPersistent && property.HasAttribute(WellKnown.KeyAttribute);
         type.Properties.Add(propertyInfo.Name, propertyInfo);
       }
 
       var baseType = type.BaseType;
-      if (baseType!=null)
+      if (baseType is not null)
         foreach (var property in type.Properties.Values) {
           var baseProperty = baseType.FindProperty(property.Name);
-          if (baseProperty==null)
+          if (baseProperty is null)
             continue;
           property.BaseProperty = baseProperty;
           var thisAccessor = property.AnyAccessor;
@@ -147,36 +142,36 @@ namespace Xtensive.Orm.Weaver.Stages
           }
           else {
             property.IsNew = true;
-            var persistentBase = property.FindBase(p => p.IsPersistent);
+            var persistentBase = property.FindBase(static p => p.IsPersistent);
             if (persistentBase!=null)
               property.PersistentName = WeavingHelper.BuildComplexPersistentName(type, property);
           }
         }
 
-      var propertiesToImplement = new HashSet<PropertyInfo>(type.Interfaces.SelectMany(i => i.Properties.Values));
+      var propertiesToImplement = new HashSet<PropertyInfo>(type.Interfaces.SelectMany(static i => i.Properties.Values));
 
       // Exclude explicit implementations
       foreach (var property in type.Properties.Values) {
         var implementedAccessor = property.AnyAccessor.Overrides.FirstOrDefault();
-        if (implementedAccessor==null)
+        if (implementedAccessor is null)
           continue;
         var interfaceType = GetType(new TypeIdentity(implementedAccessor.DeclaringType.StripGenericParameters()));
         var implementedPropertyName = WeavingHelper.GetPropertyName(implementedAccessor.Name);
         var implementedProperty = interfaceType.FindProperty(implementedPropertyName);
-        if (implementedProperty==null)
+        if (implementedProperty is null)
           continue;
         property.ImplementedProperties.Add(implementedProperty);
         property.IsExplicitInterfaceImplementation = true;
         if (context.Language!=SourceLanguage.VbNet)
           property.PersistentName = WeavingHelper.BuildComplexPersistentName(interfaceType, implementedProperty);
-        propertiesToImplement.Remove(implementedProperty);
+
+        _ = propertiesToImplement.Remove(implementedProperty);
         InheritPersistence(property, implementedProperty);
       }
 
       // Try associate remaining properties
       foreach (var property in propertiesToImplement) {
-        PropertyInfo implementor;
-        if (type.Properties.TryGetValue(property.Name, out implementor)) {
+        if (type.Properties.TryGetValue(property.Name, out var implementor)) {
           implementor.ImplementedProperties.Add(property);
           InheritPersistence(implementor, property);
         }
@@ -185,8 +180,7 @@ namespace Xtensive.Orm.Weaver.Stages
 
     private TypeInfo GetType(TypeIdentity identity)
     {
-      TypeInfo result;
-      if (!processedTypes.TryGetValue(identity, out result))
+      if (!processedTypes.TryGetValue(identity, out var result))
         throw new InvalidOperationException($"Unable to find type '{identity.TypeName}'");
       return result;
     }
@@ -200,16 +194,30 @@ namespace Xtensive.Orm.Weaver.Stages
         property.IsKey = true;
     }
 
-    private static bool IsCSharpAutoProperty(TypeDefinition type, PropertyDefinition property)
+    private static bool IsCSharpAutoPropertyStrict(TypeDefinition type, PropertyDefinition property)
     {
-      return property.GetMethod!=null && property.SetMethod!=null
+      return property.GetMethod is not null && property.SetMethod is not null
         && property.GetMethod.HasAttribute(WellKnown.CompilerGeneratedAttribute)
         && property.SetMethod.HasAttribute(WellKnown.CompilerGeneratedAttribute);
     }
 
+    private static bool IsCSharpAutoPropertyRelaxed(TypeDefinition type, PropertyDefinition property)
+    {
+      var getter = property.GetMethod;
+      if (getter is null)
+        return false;
+      if (!getter.HasAttribute(WellKnown.CompilerGeneratedAttribute))
+        return false;
+
+      var setter = property.SetMethod;
+      if (setter is not null && setter.HasAttribute(WellKnown.CompilerGeneratedAttribute))
+        return false;
+      return true;
+    }
+
     private static bool IsVbAutoProperty(TypeDefinition type, PropertyDefinition property)
     {
-      if (property.GetMethod==null || property.SetMethod==null)
+      if (property.GetMethod is null || property.SetMethod is null)
         return false;
       var backingFieldIndex = type.Fields.IndexOf("_" + property.Name);
       if (backingFieldIndex < 0)

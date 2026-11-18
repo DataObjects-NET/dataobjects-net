@@ -17,34 +17,18 @@ namespace Xtensive.Orm.Weaver.Tasks
 
     public override ActionResult Execute(ProcessorContext context)
     {
-      var fieldName = GetBackingFieldName();
-      if (fieldName!=null && type.Fields.Remove(fieldName))
+      var fieldName =  property?.GetBackingField()?.Name;
+      if (fieldName is not null && type.Fields.Remove(fieldName))
         return ActionResult.Success;
       context.Logger.Write(MessageCode.ErrorUnableToRemoveBackingField,
         $"type: {type.FullName}, property: {property.Name}, field: {fieldName}");
       return ActionResult.Failure;
     }
 
-    private string GetBackingFieldName()
-    {
-      foreach (var instruction in property.GetMethod.Body.Instructions) {
-        if (instruction.OpCode.Code==Code.Ldfld) {
-          var field = (FieldReference) instruction.Operand;
-          return field.Name;
-        }
-      }
-      return null;
-    }
-
     public RemoveBackingFieldTask(TypeDefinition type, PropertyDefinition property)
     {
-      if (type==null)
-        throw new ArgumentNullException("type");
-      if (property==null)
-        throw new ArgumentNullException("property");
-
-      this.type = type;
-      this.property = property;
+      this.type = type ?? throw new ArgumentNullException(nameof(type));
+      this.property = property ?? throw new ArgumentNullException(nameof(property));
     }
   }
 }

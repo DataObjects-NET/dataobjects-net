@@ -16,35 +16,19 @@ namespace Xtensive.Orm.Weaver
 
     private readonly MessageWriter writer;
 
-    public void Write(MessageCode code)
-    {
-      Write(code, null, null, null);
-    }
+    public void Write(MessageCode code) => Write(code, null, null, null);
 
-    public void Write(MessageCode code, MessageLocation location)
-    {
-      Write(code, null, location, null);
-    }
+    public void Write(MessageCode code, MessageLocation location) => Write(code, null, location, null);
 
-    public void Write(MessageCode code, string extraInformation)
-    {
-      Write(code, extraInformation, null, null);
-    }
+    public void Write(MessageCode code, string extraInformation) => Write(code, extraInformation, null, null);
 
-    public void Write(MessageCode code, string extraInformation, MessageLocation location)
-    {
-      Write(code, extraInformation, location, null);
-    }
+    public void Write(MessageCode code, string extraInformation, MessageLocation location) => Write(code, extraInformation, location, null);
 
-    public void Write(MessageCode code, Exception exception)
-    {
-      Write(code, exception.Message, null, exception);
-    }
+    public void Write(MessageCode code, Exception exception) => Write(code, exception.Message, null, exception);
 
     public void Write(MessageCode code, string extraInformation, MessageLocation location, Exception exception)
     {
-      string description;
-      if (!Messages.TryGetValue(code, out description))
+      if (!Messages.TryGetValue(code, out var description))
         throw new ArgumentOutOfRangeException("code");
 
       var messageCode = string.Format(CultureInfo.InvariantCulture, "XW{0:0000}", (int) code);
@@ -76,9 +60,7 @@ namespace Xtensive.Orm.Weaver
 
     public MessageLogger(MessageWriter writer)
     {
-      if (writer==null)
-        throw new ArgumentNullException("writer");
-      this.writer = writer;
+      this.writer = writer ?? throw new ArgumentNullException(nameof(writer));
     }
 
     static MessageLogger()
@@ -103,6 +85,8 @@ namespace Xtensive.Orm.Weaver
       RegisterMessage(MessageCode.WarningDebugSymbolsFileIsNotFound, "Debug symbols file is not found");
       RegisterMessage(MessageCode.WarningReferencedAssemblyFileIsNotFound, "Referenced assembly file is not found");
       RegisterMessage(MessageCode.WarningPersistentPropertyHasNoSetterOrGetter, "Persistent property was skipped due to it has no setter or getter");
+      RegisterMessage(MessageCode.WarningPersistentPropertyHasNoGetter, "Persistent property was skipped due to it has no getter (no setter is allowed, though)");
+      RegisterMessage(MessageCode.WarningKeyFieldSettingDetectedInsideConstructor, "Attept to set one of persistent property makred as [Key] discovered in constructor. Key values should not be set directly but rather passed into Entity constructor.");
     }
   }
 }

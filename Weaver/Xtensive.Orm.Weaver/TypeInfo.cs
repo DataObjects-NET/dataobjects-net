@@ -30,12 +30,12 @@ namespace Xtensive.Orm.Weaver
     public override string ToString()
     {
       var resultBuilder = new StringBuilder();
-      resultBuilder.AppendFormat($"{FullName}");
-      resultBuilder.AppendFormat($" [kind({Kind})]");
-      if (BaseType!=null)
-        resultBuilder.AppendFormat($" [inherits({BaseType.FullName})]");
+      _ = resultBuilder.AppendFormat($"{FullName}")
+        .AppendFormat($" [kind({Kind})]");
+      if (BaseType is not null)
+        _ = resultBuilder.AppendFormat($" [inherits({BaseType.FullName})]");
       foreach (var @interface in Interfaces)
-        resultBuilder.AppendFormat($" [implements({@interface.FullName})]");
+        _ = resultBuilder.AppendFormat($" [implements({@interface.FullName})]");
       return resultBuilder.ToString();
     }
 
@@ -59,8 +59,7 @@ namespace Xtensive.Orm.Weaver
 
     public TypeInfo(TypeReference reference, PersistentTypeKind kind)
     {
-      if (reference==null)
-        throw new ArgumentNullException("reference");
+      ArgumentNullException.ThrowIfNull(reference);
 
       Name = reference.Name;
       FullName = reference.FullName;
@@ -71,8 +70,7 @@ namespace Xtensive.Orm.Weaver
 
     public TypeInfo(TypeDefinition definition, PersistentTypeKind kind, TypeInfo baseType = null)
     {
-      if (definition==null)
-        throw new ArgumentNullException("definition");
+      ArgumentNullException.ThrowIfNull(definition);
 
       Name = definition.Name;
       FullName = definition.FullName;

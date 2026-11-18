@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2013 Xtensive LLC.
+// Copyright (C) 2013 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -11,6 +11,7 @@ namespace Xtensive.Orm.Weaver
 {
   public sealed class ProcessorConfiguration
   {
+
     private static class Parser
     {
       private const string WriteStatus = "status";
@@ -22,6 +23,7 @@ namespace Xtensive.Orm.Weaver
       private const string OutputFile = "output";
       private const string StrongNameKey = "snk";
       private const string ProjectType = "type";
+      private const string StrictMode = "strict";
       private const string ReferencedAssembly = "r";
 
       private static readonly char[] KeyValueSeparators = new[] {':', '='};
@@ -47,6 +49,11 @@ namespace Xtensive.Orm.Weaver
 
         if (Comparer.Equals(item, ProcessDebugSymbols)) {
           configuration.ProcessDebugSymbols = true;
+          return true;
+        }
+
+        if (Comparer.Equals(item, StrictMode)) {
+          configuration.StrictPersistentStructure = true;
           return true;
         }
 
@@ -102,6 +109,7 @@ namespace Xtensive.Orm.Weaver
     private string outputFile;
     private string strongNameKey;
     private string projectType;
+    private bool strictStructure;
     private bool makeBackup;
     private bool writeStatusFile;
     private bool writeStampFile;
@@ -110,62 +118,68 @@ namespace Xtensive.Orm.Weaver
 
     public string InputFile
     {
-      get { return inputFile; }
-      set { inputFile = value; }
+      get => inputFile;
+      set => inputFile = value;
     }
 
     public string OutputFile
     {
-      get { return outputFile; }
-      set { outputFile = value; }
+      get => outputFile;
+      set => outputFile = value;
     }
 
     public string StrongNameKey
     {
-      get { return strongNameKey; }
-      set { strongNameKey = value; }
+      get => strongNameKey;
+      set => strongNameKey = value;
     }
 
     public string ProjectType
     {
-      get { return projectType; }
-      set { projectType = value; }
+      get => projectType;
+      set => projectType = value;
+    }
+
+    public bool StrictPersistentStructure
+    {
+      get => strictStructure;
+      set => strictStructure = value;
     }
 
     public bool MakeBackup
     {
-      get { return makeBackup; }
-      set { makeBackup = value; }
+      get => makeBackup;
+      set => makeBackup = value;
     }
 
     public bool ProcessDebugSymbols
     {
-      get { return processDebugSymbols; }
-      set { processDebugSymbols = value; }
+      get => processDebugSymbols;
+      set => processDebugSymbols = value;
     }
 
     public bool WriteStatusFile
     {
-      get { return writeStatusFile; }
-      set { writeStatusFile = value; }
+      get => writeStatusFile;
+      set => writeStatusFile = value;
     }
 
     public bool WriteStampFile
     {
-      get { return writeStampFile; }
-      set { writeStampFile = value; }
+      get => writeStampFile;
+      set => writeStampFile = value;
     }
 
     public IList<string> ReferencedAssemblies
     {
-      get { return referencedAssemblies; }
-      set { referencedAssemblies = value; }
+      get => referencedAssemblies;
+      set => referencedAssemblies = value;
     }
 
     public bool Parse(string parameterString)
     {
-      if (parameterString==null)
-        throw new ArgumentNullException("parameterString");
+      ArgumentNullException.ThrowIfNull(parameterString);
+
       return Parser.Parse(this, parameterString);
     }
 

@@ -23,6 +23,8 @@ namespace Xtensive.Orm.Weaver
 
     WarningDebugSymbolsFileIsNotFound = 1000,
     WarningReferencedAssemblyFileIsNotFound = 1001,
-    WarningPersistentPropertyHasNoSetterOrGetter =1002,
+    WarningPersistentPropertyHasNoSetterOrGetter = 1002,
+    WarningPersistentPropertyHasNoGetter = 1003,
+    WarningKeyFieldSettingDetectedInsideConstructor = 1004,
   }
 }

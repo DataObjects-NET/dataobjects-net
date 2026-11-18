@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2013 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2013-2026 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2013.08.19
 
@@ -25,6 +25,10 @@ namespace Xtensive.Orm.Weaver
     public bool TranformationPerformed { get; set; }
 
     public bool ShouldAddReferenceToOrm { get; set; }
+
+    public bool AutoPropertyInitializers => !Configuration.StrictPersistentStructure;
+
+    public bool ReadOnlyProperties => !Configuration.StrictPersistentStructure;
 
     public IList<WeavingTask> WeavingTasks { get; set; }
 

@@ -11,18 +11,9 @@ namespace Xtensive.Orm.Weaver
 {
   public struct TypeIdentity : IEquatable<TypeIdentity>
   {
-    private readonly string assemblyName;
-    private readonly string typeName;
+    public readonly string AssemblyName { get; }
 
-    public string AssemblyName
-    {
-      get { return assemblyName; }
-    }
-
-    public string TypeName
-    {
-      get { return typeName; }
-    }
+    public readonly string TypeName { get; }
 
     public override bool Equals(object obj)
     {
@@ -40,8 +31,8 @@ namespace Xtensive.Orm.Weaver
     public override int GetHashCode()
     {
       unchecked {
-        var typeNameHash = TypeName!=null ? WeavingHelper.TypeNameComparer.GetHashCode(TypeName) : 0;
-        var assemblyNameHash = AssemblyName!=null ? WeavingHelper.AssemblyNameComparer.GetHashCode(AssemblyName) : 0;
+        var typeNameHash = TypeName is not null ? WeavingHelper.TypeNameComparer.GetHashCode(TypeName) : 0;
+        var assemblyNameHash = AssemblyName is not null ? WeavingHelper.AssemblyNameComparer.GetHashCode(AssemblyName) : 0;
         return assemblyNameHash * 397 ^ typeNameHash;
       }
     }
@@ -58,11 +49,10 @@ namespace Xtensive.Orm.Weaver
 
     public TypeIdentity(TypeReference type)
     {
-      if (type==null)
-        throw new ArgumentNullException("type");
+      ArgumentNullException.ThrowIfNull(type);
 
-      assemblyName = type.Scope.Name;
-      typeName = type.FullName;
+      AssemblyName = type.Scope.Name;
+      TypeName = type.FullName;
     }
   }
 }
