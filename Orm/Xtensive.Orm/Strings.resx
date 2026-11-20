@@ -681,8 +681,8 @@
   <data name="ExSequenceXIsNotFoundInStorage" xml:space="preserve">
     <value>Sequence '{0}' is not found in storage.</value>
   </data>
-  <data name="SqlErrorOccured" xml:space="preserve">
-    <value>SQL error occured.</value>
+  <data name="SqlErrorOccurred" xml:space="preserve">
+    <value>SQL error occurred.</value>
   </data>
   <data name="StorageErrorDetailsX" xml:space="preserve">
     <value>Storage error details '{0}'</value>

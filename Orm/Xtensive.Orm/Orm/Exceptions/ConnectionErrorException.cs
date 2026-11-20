@@ -10,7 +10,7 @@ using System;
 namespace Xtensive.Orm
 {
   /// <summary>
-  /// An exception that is thrown when a connection error occured.
+  /// An exception that is thrown when a connection error occurred.
   /// </summary>
   public sealed class ConnectionErrorException : StorageException
   {
